@@ -30,24 +30,22 @@ struct Session {
 
 }
 
-public struct WCURL {
+public struct WCURL: Hashable {
 
     var bridgeURL: URL
     var topic: String
     var key: String
-
-    var url: URL!
 
 }
 
 public class Request {
 
     var payload: JSONRPC_2_0.Request
-    var origin: WCURL
+    var url: WCURL
 
-    init(payload: JSONRPC_2_0.Request, origin: WCURL) {
+    init(payload: JSONRPC_2_0.Request, url: WCURL) {
         self.payload = payload
-        self.origin = origin
+        self.url = url
     }
 
 }
@@ -55,11 +53,11 @@ public class Request {
 public class Response {
 
     var payload: JSONRPC_2_0.Response
-    var destination: WCURL
+    var url: WCURL
 
-    public init(payload: JSONRPC_2_0.Response, destination: WCURL) {
+    public init(payload: JSONRPC_2_0.Response, url: WCURL) {
         self.payload = payload
-        self.destination = destination
+        self.url = url
     }
 
 }
@@ -95,7 +93,7 @@ class Server {
     }
 
     func connect(to url: WCURL) {
-        transport.listen(on: url.url) { [unowned self] text in
+        transport.listen(on: url) { [unowned self] text in
             self.onIncomingData(text, from: url)
         }
     }
@@ -103,7 +101,7 @@ class Server {
     // TODO: topic forwarding to transport layer
 
     func disconnect(from url: WCURL) {
-        transport.disconnect(from: url.url)
+        transport.disconnect(from: url)
     }
 
     /// Process incomming text messages from the transport layer.
@@ -116,10 +114,7 @@ class Server {
             let request = try requestSerializer.deserialize(text, url: url)
             handle(request)
         } catch {
-            // TODO: handle properly
-            send(Response(payload: JSONRPC_2_0.Response(result: .error(JSONRPC_2_0.Response.Payload.ErrorPayload(code: JSONRPC_2_0.Response.Payload.ErrorPayload.Code(code: -32700),
-                                                                                                                 message: "Invalid JSON was received by the server.", data: nil)),
-                                                        id: JSONRPC_2_0.IDType.null), destination: url))
+            send(Response(payload: JSONRPC_2_0.Response.invalidJSON, url: url))
         }
     }
 
@@ -127,22 +122,40 @@ class Server {
         if let handler = handlers.first(where: { $0.canHandle(request: request) }) {
             handler.handle(request: request)
         } else {
-            send(Response(payload: JSONRPC_2_0.Response(result: .error(JSONRPC_2_0.Response.Payload.ErrorPayload(code: JSONRPC_2_0.Response.Payload.ErrorPayload.Code(code: -32601),
-                                                                                                                 message: "The method does not exist / is not available.", data: nil)),
-                                                        id: JSONRPC_2_0.IDType.null), destination: request.origin))
+            send(Response(payload: JSONRPC_2_0.Response.methodDoesNotExist, url: request.url))
         }
     }
 
     func send(_ response: Response) {
         // TODO: where to handle error?
         let text = try! responseSerializer.serialize(response)
-        transport.send(to: response.destination.url, text: text)
+        transport.send(to: response.url, text: text)
     }
 
     func send(_ request: Request) {
         // TODO: where to handle error?
         let text = try! requestSerializer.serialize(request)
-        transport.send(to: request.origin.url, text: text)
+        transport.send(to: request.url, text: text)
     }
+
+}
+
+extension JSONRPC_2_0.Response {
+
+    typealias PayloadCode = JSONRPC_2_0.Response.Payload.ErrorPayload.Code
+
+    static func errorPayload(code: PayloadCode, message: String) -> JSONRPC_2_0.Response.Payload.ErrorPayload {
+        return JSONRPC_2_0.Response.Payload.ErrorPayload(code: code, message: message, data: nil)
+    }
+
+    static let methodDoesNotExist =
+        JSONRPC_2_0.Response(result: .error(errorPayload(code: PayloadCode.methodNotFound,
+                                                         message: "The method does not exist / is not available.")),
+                             id: JSONRPC_2_0.IDType.null)
+
+    static let invalidJSON =
+        JSONRPC_2_0.Response(result: .error(errorPayload(code: PayloadCode.invalidJSON,
+                                                         message: "Invalid JSON was received by the server.")),
+                             id: JSONRPC_2_0.IDType.null)
 
 }

@@ -54,8 +54,8 @@ class JSONRPCSerializer: RequestSerializer, ResponseSerializer {
 
     func serialize(_ request: Request) throws -> String {
         let jsonText = try jsonrpc.json(from: request)
-        let cipherText = try codec.encode(plainText: jsonText, key: request.origin.key)
-        let message = PubSubAdapter.Message(topic: request.origin.topic, type: .pub, payload: cipherText)
+        let cipherText = try codec.encode(plainText: jsonText, key: request.url.key)
+        let message = PubSubAdapter.Message(topic: request.url.topic, type: .pub, payload: cipherText)
         let result = try pubSubAdapter.string(from: message)
         return result
     }
@@ -63,7 +63,7 @@ class JSONRPCSerializer: RequestSerializer, ResponseSerializer {
     func deserialize(_ text: String, url: WCURL) throws -> Request {
         let message = try pubSubAdapter.message(from: text)
         let payloadText = try codec.decode(cipherText: message.payload, key: url.key)
-        let result = try jsonrpc.request(from: payloadText, origin: url)
+        let result = try jsonrpc.request(from: payloadText, url: url)
         return result
     }
 
@@ -71,8 +71,8 @@ class JSONRPCSerializer: RequestSerializer, ResponseSerializer {
 
     func serialize(_ response: Response) throws -> String {
         let jsonText = try jsonrpc.json(from: response)
-        let cipherText = try codec.encode(plainText: jsonText, key: response.destination.key)
-        let message = PubSubAdapter.Message(topic: response.destination.topic, type: .pub, payload: cipherText)
+        let cipherText = try codec.encode(plainText: jsonText, key: response.url.key)
+        let message = PubSubAdapter.Message(topic: response.url.topic, type: .pub, payload: cipherText)
         let result = try pubSubAdapter.string(from: message)
         return result
     }
@@ -85,9 +85,9 @@ class JSONRPCAdapter {
         return try request.payload.json().string
     }
 
-    func request(from json: String, origin: WCURL) throws -> Request {
+    func request(from json: String, url: WCURL) throws -> Request {
         let JSONRPCRequest = try JSONRPC_2_0.Request.create(from: JSONRPC_2_0.JSON(json))
-        return Request(payload: JSONRPCRequest, origin: origin)
+        return Request(payload: JSONRPCRequest, url: url)
     }
 
     func json(from response: Response) throws -> String {

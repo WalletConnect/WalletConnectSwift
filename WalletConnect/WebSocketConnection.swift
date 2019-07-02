@@ -7,13 +7,13 @@ import Starscream
 
 class WebSocketConnection {
 
-    private (set) var url: URL
+    private (set) var url: WCURL
     private var socket: WebSocket
     private var messageHandler: ((String) -> Void)?
 
-    init(url: URL) {
+    init(url: WCURL) {
         self.url = url
-        socket = WebSocket(url: url)
+        socket = WebSocket(url: url.bridgeURL)
     }
 
     func open() {

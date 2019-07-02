@@ -6,9 +6,9 @@ import Foundation
 
 protocol Transport {
 
-    func send(to url: URL, text: String)
-    func listen(on url: URL, handler: @escaping (String) -> Void)
-    func disconnect(from url: URL)
+    func send(to url: WCURL, text: String)
+    func listen(on url: WCURL, handler: @escaping (String) -> Void)
+    func disconnect(from url: WCURL)
 
 }
 
@@ -18,20 +18,19 @@ protocol Transport {
 class Bridge: Transport {
 
     // TODO: threading. Modifying connections on a serial queue.
-
     private var connections: [WebSocketConnection] = []
 
     private func addConnection(_ connection: WebSocketConnection) {
         connections.append(connection)
     }
 
-    private func findConnection(url: URL) -> WebSocketConnection? {
+    private func findConnection(url: WCURL) -> WebSocketConnection? {
         return connections.first { $0.url == url }
     }
 
     // TODO: if no connection found, then what?
 
-    func send(to url: URL, text: String) {
+    func send(to url: WCURL, text: String) {
         if let connection = findConnection(url: url) {
             connection.send(text)
         }
@@ -39,7 +38,7 @@ class Bridge: Transport {
 
     // TODO: if there exists connection - then what?
 
-    func listen(on url: URL, handler: @escaping (String) -> Void) {
+    func listen(on url: WCURL, handler: @escaping (String) -> Void) {
         // url -> bridge endpoint
         let connection = WebSocketConnection(url: url)
         addConnection(connection)
@@ -47,7 +46,7 @@ class Bridge: Transport {
         connection.receive(handler)
     }
 
-    func disconnect(from url: URL) {
+    func disconnect(from url: WCURL) {
         if let connection = findConnection(url: url) {
             connection.close()
         }
