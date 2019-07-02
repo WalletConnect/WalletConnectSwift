@@ -117,7 +117,7 @@ class Server {
             handle(request)
         } catch {
             // TODO: handle properly
-            send(Response(payload: JSONRPC_2_0.Response(result: .error(JSONRPC_2_0.Response.Payload.ErrorPayload(code: JSONRPC_2_0.Response.Payload.ErrorPayload.Code(-32700),
+            send(Response(payload: JSONRPC_2_0.Response(result: .error(JSONRPC_2_0.Response.Payload.ErrorPayload(code: JSONRPC_2_0.Response.Payload.ErrorPayload.Code(code: -32700),
                                                                                                                  message: "Invalid JSON was received by the server.", data: nil)),
                                                         id: JSONRPC_2_0.IDType.null), destination: url))
         }
@@ -127,7 +127,7 @@ class Server {
         if let handler = handlers.first(where: { $0.canHandle(request: request) }) {
             handler.handle(request: request)
         } else {
-            send(Response(payload: JSONRPC_2_0.Response(result: .error(JSONRPC_2_0.Response.Payload.ErrorPayload(code: JSONRPC_2_0.Response.Payload.ErrorPayload.Code(-32601),
+            send(Response(payload: JSONRPC_2_0.Response(result: .error(JSONRPC_2_0.Response.Payload.ErrorPayload(code: JSONRPC_2_0.Response.Payload.ErrorPayload.Code(code: -32601),
                                                                                                                  message: "The method does not exist / is not available.", data: nil)),
                                                         id: JSONRPC_2_0.IDType.null), destination: request.origin))
         }
