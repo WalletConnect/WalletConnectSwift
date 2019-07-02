@@ -30,67 +30,38 @@ struct Session {
 
 }
 
-struct WCURL {
+public struct WCURL {
+
     var bridgeURL: URL
     var topic: String
     var key: String
 
     var url: URL!
+
 }
 
-class Request {
+public class Request {
 
-    class ID {
-        var origin: WCURL! // includes topic and bridge url
-        var id: Any? // client-sent request id
+    var payload: JSONRPC_2_0.Request
+    var origin: WCURL
+
+    init(payload: JSONRPC_2_0.Request, origin: WCURL) {
+        self.payload = payload
+        self.origin = origin
     }
 
-    var id: Request.ID! // always set
-    var method: String!
-    var parameters: Parameters!
-
-    func setOrigin(_ url: WCURL) {
-        id.origin = url
-    }
-
-    class Parameters { // more of a struct.
-
-        var count: Int!
-        var isEmpty: Bool!
-
-        func parameter(at position: Int) -> Any? {
-            return nil
-        }
-        func insert(parameter: Any, at position: Int) {}
-        func remove(at position: Int) {}
-
-        func parameter(name: String) -> Any? {
-            return nil
-        }
-
-        func set(parameter: Any?, for name: String) {}
-        func remove(name: String) {}
-
-    }
 }
 
-class Response {
-    // id must be set even if no request id was recieved - in that case id.origin is set.
-    var id: Request.ID!
-    var result: Result<Any, Error>!
+public class Response {
 
-    var origin: WCURL {
-        return id.origin
+    var payload: JSONRPC_2_0.Response
+    var destination: WCURL
+
+    public init(payload: JSONRPC_2_0.Response, destination: WCURL) {
+        self.payload = payload
+        self.destination = destination
     }
 
-    func setOrigin(_ url: WCURL) {
-        id.origin = origin
-    }
-
-    init(id: Request.ID?, result: Result<Any, Error>) {
-        self.id = id
-        self.result = result
-    }
 }
 
 enum ServerError: Error {
@@ -104,6 +75,7 @@ protocol RequestHandler {
 
 }
 
+// public
 class Server {
 
     private var transport: Transport!
@@ -134,12 +106,20 @@ class Server {
         transport.disconnect(from: url.url)
     }
 
+    /// Process incomming text messages from the transport layer.
+    ///
+    /// - Parameters:
+    ///   - text: incoming message
+    ///   - url: WalletConnect url with information necessary to process incoming message.
     private func onIncomingData(_ text: String, from url: WCURL) {
         do {
             let request = try requestSerializer.deserialize(text, url: url)
             handle(request)
         } catch {
-            send(Response(id: nil, result: .failure(error)))
+            // TODO: handle properly
+            send(Response(payload: JSONRPC_2_0.Response(result: .error(JSONRPC_2_0.Response.Payload.ErrorPayload(code: JSONRPC_2_0.Response.Payload.ErrorPayload.Code(-32700),
+                                                                                                                 message: "Invalid JSON was received by the server.", data: nil)),
+                                                        id: JSONRPC_2_0.IDType.null), destination: url))
         }
     }
 
@@ -147,20 +127,22 @@ class Server {
         if let handler = handlers.first(where: { $0.canHandle(request: request) }) {
             handler.handle(request: request)
         } else {
-            send(Response(id: request.id, result: .failure(ServerError.methodNotFound)))
+            send(Response(payload: JSONRPC_2_0.Response(result: .error(JSONRPC_2_0.Response.Payload.ErrorPayload(code: JSONRPC_2_0.Response.Payload.ErrorPayload.Code(-32601),
+                                                                                                                 message: "The method does not exist / is not available.", data: nil)),
+                                                        id: JSONRPC_2_0.IDType.null), destination: request.origin))
         }
     }
 
     func send(_ response: Response) {
         // TODO: where to handle error?
         let text = try! responseSerializer.serialize(response)
-        transport.send(to: response.origin.url, text: text)
+        transport.send(to: response.destination.url, text: text)
     }
 
     func send(_ request: Request) {
         // TODO: where to handle error?
         let text = try! requestSerializer.serialize(request)
-        transport.send(to: request.id.origin.url, text: text)
+        transport.send(to: request.origin.url, text: text)
     }
 
 }

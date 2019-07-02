@@ -12,7 +12,7 @@ class WCHandshakeHandler: RequestHandler {
     struct Session {}
 
     func canHandle(request: Request) -> Bool {
-        return request.method == "wc_sessionRequest"
+        return request.payload.method == "wc_sessionRequest"
     }
 
     func handle(request: Request) {
