@@ -20,36 +20,45 @@ class Bridge: Transport {
     // TODO: threading. Modifying connections on a serial queue.
     private var connections: [WebSocketConnection] = []
 
-    private func addConnection(_ connection: WebSocketConnection) {
-        connections.append(connection)
-    }
-
-    private func findConnection(url: WCURL) -> WebSocketConnection? {
-        return connections.first { $0.url == url }
-    }
-
     // TODO: if no connection found, then what?
-
     func send(to url: WCURL, text: String) {
         if let connection = findConnection(url: url) {
             connection.send(text)
         }
     }
 
-    // TODO: if there exists connection - then what?
-
+    // Should we send connection onConnect / onDisconnect / onTextReceive to server?
     func listen(on url: WCURL, handler: @escaping (String) -> Void) {
-        // url -> bridge endpoint
-        let connection = WebSocketConnection(url: url)
-        addConnection(connection)
+        var connection: WebSocketConnection
+        if let existingConnection = findConnection(url: url) {
+            connection = existingConnection
+        } else {
+            connection = WebSocketConnection(url: url,
+                                             onConnect: onWebSocketConnect,
+                                             onDisconnect: onWebSocketDisconnect,
+                                             onTextReceive: handler)
+            connections.append(connection)
+        }
         connection.open()
-        connection.receive(handler)
     }
 
-    func disconnect(from url: WCURL) {
+    public func disconnect(from url: WCURL) {
         if let connection = findConnection(url: url) {
             connection.close()
+            connections.removeAll { $0 === connection }
         }
+    }
+
+    private func findConnection(url: WCURL) -> WebSocketConnection? {
+        return connections.first { $0.url == url }
+    }
+
+    private func onWebSocketConnect() {
+        // we should notify server on connect only on successfull handshake
+    }
+
+    private func onWebSocketDisconnect(error: Error?) {
+        // we should handle handshake and other connections separately
     }
 
 }

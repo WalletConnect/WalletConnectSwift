@@ -1,8 +1,4 @@
 //
-//  WalletConnect.swift
-//  WalletConnect
-//
-//  Created by Dmitry Bespalov on 28.06.19.
 //  Copyright © 2019 Gnosis Ltd. All rights reserved.
 //
 

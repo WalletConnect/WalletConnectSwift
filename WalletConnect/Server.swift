@@ -4,46 +4,44 @@
 
 import Foundation
 
-protocol ServerDelegate {
-    func server(_ server: Server, shouldStart session: Session, completion: (Result<Session.Info, Error>) -> Void)
-    func server(_ server: Server, didConnect session: Session)
-    func server(_ server: Server, didDisconnect session: Session, error: Error?)
-}
+public struct Session {
 
-struct Session {
+    public var url: WCURL
+    public var peerId: String?
+    public var clientMeta: ClientMeta?
 
-    var url: WCURL
-    var peerId: String?
-    var clientMeta: ClientMeta?
+    public struct ClientMeta {
 
-    struct ClientMeta {
         var name: String
         var description: String
         var icons: [URL]
         var url: URL
+
     }
 
-    struct Info {
-        var accounts: [String]
-        var chainID: Int
+    public struct Info {
+
+        public var accounts: [String]
+        public var chainID: Int
+
     }
 
 }
 
 public struct WCURL: Hashable {
 
-    var bridgeURL: URL
-    var topic: String
-    var key: String
+    public var bridgeURL: URL
+    public var topic: String
+    public var key: String
 
 }
 
 public class Request {
 
-    var payload: JSONRPC_2_0.Request
-    var url: WCURL
+    public var payload: JSONRPC_2_0.Request
+    public var url: WCURL
 
-    init(payload: JSONRPC_2_0.Request, url: WCURL) {
+    public init(payload: JSONRPC_2_0.Request, url: WCURL) {
         self.payload = payload
         self.url = url
     }
@@ -52,8 +50,8 @@ public class Request {
 
 public class Response {
 
-    var payload: JSONRPC_2_0.Response
-    var url: WCURL
+    public var payload: JSONRPC_2_0.Response
+    public var url: WCURL
 
     public init(payload: JSONRPC_2_0.Response, url: WCURL) {
         self.payload = payload
@@ -62,37 +60,58 @@ public class Response {
 
 }
 
-enum ServerError: Error {
-    case methodNotFound
-}
+//enum ServerError: Error {
+//    case methodNotFound
+//}
 
-protocol RequestHandler {
+public protocol RequestHandler: class {
 
     func canHandle(request: Request) -> Bool
     func handle(request: Request)
 
 }
 
-// public
-class Server {
+public protocol ServerDelegate: class {
 
-    private var transport: Transport!
-    private var responseSerializer: ResponseSerializer!
-    private var requestSerializer: RequestSerializer!
+    func server(_ server: Server, shouldStart session: Session, completion: (Result<Session.Info, Error>) -> Void)
+    func server(_ server: Server, didConnect session: Session)
+    func server(_ server: Server, didDisconnect session: Session, error: Error?)
+
+}
+
+// TODO: server should send to bridge onConnect / onDisconnect / onTextReceive handlers and to handle them properly.
+// we should understand if this is a handshake connection or if this is a dapp connection and to handle it properly.
+public class Server {
+
+    private var transport: Transport
+    private var responseSerializer: ResponseSerializer
+    private var requestSerializer: RequestSerializer
     private var handlers: [RequestHandler] = []
 
-    init(delegate: ServerDelegate) {}
+    private(set) weak var delegate: ServerDelegate!
 
-    func register(handler: RequestHandler) {}
-
-    func unregister(handler: RequestHandler) {}
-
-    func connect(to session: Session) {
-        // if session has peer id - use it!
-        // and just connect(to: url)
+    public init(delegate: ServerDelegate) {
+        self.delegate = delegate
+        transport = Bridge()
+        let serializer = JSONRPCSerializer()
+        responseSerializer = serializer
+        requestSerializer = serializer
+        
+        register(handler: WCHandshakeHandler(delegate: self))
     }
 
-    func connect(to url: WCURL) {
+    public func register(handler: RequestHandler) {
+        guard handlers.first(where: { $0 === handler }) == nil else { return }
+        handlers.append(handler)
+    }
+
+    public func unregister(handler: RequestHandler) {
+        if let index = handlers.firstIndex(where: { $0 === handler }) {
+            handlers.remove(at: index)
+        }
+    }
+
+    public func connect(to url: WCURL) {
         transport.listen(on: url) { [unowned self] text in
             self.onIncomingData(text, from: url)
         }
@@ -136,6 +155,13 @@ class Server {
         // TODO: where to handle error?
         let text = try! requestSerializer.serialize(request)
         transport.send(to: request.url, text: text)
+    }
+
+}
+
+extension Server: WCHandshakeHandlerDelegate {
+
+    func handler(_ handler: WCHandshakeHandler, didEstablishHandshake: Bool) {
     }
 
 }

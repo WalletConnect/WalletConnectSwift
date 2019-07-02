@@ -7,12 +7,20 @@ import Starscream
 
 class WebSocketConnection {
 
-    private (set) var url: WCURL
-    private var socket: WebSocket
-    private var messageHandler: ((String) -> Void)?
+    let url: WCURL
+    private let socket: WebSocket
+    private let onConnect: (() -> Void)?
+    private let onDisconnect: ((Error?) -> Void)?
+    private let onTextReceive: ((String) -> Void)?
 
-    init(url: WCURL) {
+    init(url: WCURL,
+         onConnect: (() -> Void)?,
+         onDisconnect: ((Error?) -> Void)?,
+         onTextReceive: ((String) -> Void)?) {
         self.url = url
+        self.onConnect = onConnect
+        self.onDisconnect = onDisconnect
+        self.onTextReceive = onTextReceive
         socket = WebSocket(url: url.bridgeURL)
     }
 
@@ -24,11 +32,6 @@ class WebSocketConnection {
         socket.disconnect()
     }
 
-    func receive(_ completion: @escaping (String) -> Void) {
-        assert(messageHandler == nil, "Assuming that receive is called once")
-        messageHandler = completion
-    }
-
     func send(_ text: String) {
         socket.write(string: text)
     }
@@ -38,19 +41,19 @@ class WebSocketConnection {
 extension WebSocketConnection: WebSocketDelegate {
 
     func websocketDidConnect(socket: WebSocketClient) {
-
+        onConnect?()
     }
 
     func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
-
+        onDisconnect?(error)
     }
 
     func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
-        messageHandler?(text)
+        onTextReceive?(text)
     }
 
     func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
-
+        // no-op
     }
 
 
