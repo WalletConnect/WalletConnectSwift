@@ -7,7 +7,7 @@ import XCTest
 
 class SessionTests: XCTestCase {
 
-    let url = WCURL(bridgeURL: URL(string: "https://test.com")!, topic: "topic", key: "key")
+    let url = WCURL("wc:topic@1?bridge=https%3A%2F%2Ftest.com&key=key")!
 
     func test_canCreateSessionFromRequest() throws {
         let session = try createSession()

@@ -106,6 +106,7 @@ public class Server {
     /// - Parameter url: WalletConnect url
     private func onConnect(to url: WCURL) {
         print("WC: did connect to url: \(url)")
+        // subscribe on topic
     }
 
     /// Confirmation from Transport layer that connection was dropped.

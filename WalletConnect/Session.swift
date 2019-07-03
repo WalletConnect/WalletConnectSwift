@@ -6,12 +6,41 @@ import Foundation
 
 public struct WCURL: Hashable, CustomStringConvertible {
 
-    public var bridgeURL: URL
     public var topic: String
+    public var version: String
+    public var bridgeURL: URL
     public var key: String
 
     public var description: String {
-        return "bridge: \(bridgeURL.absoluteString); topic: \(topic); key: \(key)"
+        return "topic: \(topic); version: \(version); bridge: \(bridgeURL.absoluteString); key: \(key)"
+    }
+
+    public init?(_ str: String) {
+        guard str.hasPrefix("wc:") else {
+            return nil
+        }
+        let urlStr = str.replacingOccurrences(of: "wc:", with: "wc://")
+        guard let url = URL(string: urlStr),
+            let topic = url.user,
+            let version = url.host,
+            let components = NSURLComponents(url: url, resolvingAgainstBaseURL: false) else {
+                return nil
+        }
+        var dict = [String: String]()
+        for query in components.queryItems ?? [] {
+            if let value = query.value {
+                dict[query.name] = value
+            }
+        }
+        guard let bridge = dict["bridge"],
+            let bridgeUrl = URL(string: bridge),
+            let key = dict["key"] else {
+                return nil
+        }
+        self.topic = topic
+        self.version = version
+        self.bridgeURL = bridgeUrl
+        self.key = key
     }
 
 }
@@ -19,6 +48,7 @@ public struct WCURL: Hashable, CustomStringConvertible {
 /// Session is a connection between dApp and Wallet
 public struct Session {
 
+    // TODO: handle protocol version
     public var url: WCURL
     public var peerId: String
     public var clientMeta: ClientMeta
@@ -37,6 +67,12 @@ public struct Session {
         public var approved: Bool
         public var accounts: [String]
         public var chainId: Int
+
+        public init(approved: Bool, accounts: [String], chainId: Int) {
+            self.approved = approved
+            self.accounts = accounts
+            self.chainId = chainId
+        }
 
     }
 

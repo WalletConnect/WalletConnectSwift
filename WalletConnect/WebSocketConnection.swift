@@ -22,6 +22,7 @@ class WebSocketConnection {
         self.onDisconnect = onDisconnect
         self.onTextReceive = onTextReceive
         socket = WebSocket(url: url.bridgeURL)
+        socket.delegate = self
     }
 
     func open() {
