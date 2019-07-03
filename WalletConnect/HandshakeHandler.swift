@@ -5,7 +5,7 @@
 import Foundation
 
 protocol HandshakeHandlerDelegate: class {
-    func handler(_ handler: HandshakeHandler, didReceiveRequestToCreateSession: Session)
+    func handler(_ handler: HandshakeHandler, didReceiveRequestToCreateSession: Session, requestId: JSONRPC_2_0.IDType)
 }
 
 class HandshakeHandler: RequestHandler {
@@ -21,8 +21,10 @@ class HandshakeHandler: RequestHandler {
     }
 
     func handle(request: Request) {
-        guard let session = try? Session(wcSessionRequest: request) else { return }
-        delegate.handler(self, didReceiveRequestToCreateSession: session)
+        // TODO: throw proper error
+        guard let session = try? Session(wcSessionRequest: request),
+            let requestId = request.payload.id else { return }
+        delegate.handler(self, didReceiveRequestToCreateSession: session, requestId: requestId)
     }
 
 }

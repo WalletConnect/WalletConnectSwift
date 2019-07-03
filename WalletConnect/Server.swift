@@ -37,7 +37,7 @@ public protocol RequestHandler: class {
 
 public protocol ServerDelegate: class {
 
-    func server(_ server: Server, shouldStart session: Session, completion: (Result<Session.Info, Error>) -> Void)
+    func server(_ server: Server, shouldStart session: Session, completion: (Session.Info) -> Void)
     func server(_ server: Server, didConnect session: Session)
     func server(_ server: Server, didDisconnect session: Session, error: Error?)
 
@@ -49,6 +49,8 @@ public class Server {
     private var responseSerializer: ResponseSerializer
     private var requestSerializer: RequestSerializer
     private var handlers: [RequestHandler] = []
+    // server session are the approved connections between dApp and Wallet
+    private var sessions = [WCURL: Session]()
 
     private(set) weak var delegate: ServerDelegate!
 
@@ -112,8 +114,10 @@ public class Server {
     ///   - url: WalletConnect url
     ///   - error: error that triggered the disconnection
     private func onDisconnect(from url: WCURL, error: Error?) {
-        // find url session and notify app
-        
+        if let session = sessions[url] {
+            sessions.removeValue(forKey: url)
+            delegate.server(self, didDisconnect: session, error: error)
+        }
     }
 
     private func handle(_ request: Request) {
@@ -140,10 +144,16 @@ public class Server {
 
 extension Server: HandshakeHandlerDelegate {
 
-    func handler(_ handler: HandshakeHandler, didReceiveRequestToCreateSession session: Session) {
-        delegate.server(self, shouldStart: session) { result in
-            // handler or server should send the response?
-            // here we should add sessoin to our Sessions list, and to notify app didConnect after response is sent
+    func handler(_ handler: HandshakeHandler,
+                 didReceiveRequestToCreateSession session: Session,
+                 requestId: JSONRPC_2_0.IDType) {
+        delegate.server(self, shouldStart: session) { info in
+            let sessionCreationResponse = session.creationResponse(requestId: requestId, info: info)
+            if info.approved {
+                sessions[session.url] = session
+            }
+            send(sessionCreationResponse)
+            delegate.server(self, didConnect: session)
         }
     }
 

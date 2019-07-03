@@ -32,10 +32,11 @@ public struct Session {
 
     }
 
-    public struct Info {
+    public struct Info: Codable {
 
+        public var approved: Bool
         public var accounts: [String]
-        public var chainID: Int
+        public var chainId: Int
 
     }
 
@@ -56,6 +57,14 @@ public struct Session {
         self.url = request.url
         self.peerId = wrapper.peerId
         self.clientMeta = wrapper.peerMeta
+    }
+
+    func creationResponse(requestId: JSONRPC_2_0.IDType, info: Session.Info) -> Response {
+        let infoValueData = try! JSONEncoder().encode(info)
+        let infoValue = try! JSONDecoder().decode(JSONRPC_2_0.ValueType.self, from: infoValueData)
+        let result = JSONRPC_2_0.Response.Payload.value(infoValue)
+        let JSONRPCResponse = JSONRPC_2_0.Response(result: result, id: requestId)
+        return Response(payload: JSONRPCResponse, url: self.url)
     }
 
 }
