@@ -4,38 +4,6 @@
 
 import Foundation
 
-public struct Session {
-
-    public var url: WCURL
-    public var peerId: String?
-    public var clientMeta: ClientMeta?
-
-    public struct ClientMeta {
-
-        var name: String
-        var description: String
-        var icons: [URL]
-        var url: URL
-
-    }
-
-    public struct Info {
-
-        public var accounts: [String]
-        public var chainID: Int
-
-    }
-
-}
-
-public struct WCURL: Hashable {
-
-    public var bridgeURL: URL
-    public var topic: String
-    public var key: String
-
-}
-
 public class Request {
 
     public var payload: JSONRPC_2_0.Request
@@ -60,10 +28,6 @@ public class Response {
 
 }
 
-//enum ServerError: Error {
-//    case methodNotFound
-//}
-
 public protocol RequestHandler: class {
 
     func canHandle(request: Request) -> Bool
@@ -79,8 +43,6 @@ public protocol ServerDelegate: class {
 
 }
 
-// TODO: server should send to bridge onConnect / onDisconnect / onTextReceive handlers and to handle them properly.
-// we should understand if this is a handshake connection or if this is a dapp connection and to handle it properly.
 public class Server {
 
     private var transport: Transport
@@ -96,8 +58,7 @@ public class Server {
         let serializer = JSONRPCSerializer()
         responseSerializer = serializer
         requestSerializer = serializer
-        
-        register(handler: WCHandshakeHandler(delegate: self))
+        register(handler: HandshakeHandler(delegate: self))
     }
 
     public func register(handler: RequestHandler) {
@@ -112,9 +73,10 @@ public class Server {
     }
 
     public func connect(to url: WCURL) {
-        transport.listen(on: url) { [unowned self] text in
-            self.onIncomingData(text, from: url)
-        }
+        transport.listen(on: url,
+                         onConnect: onConnect(to:),
+                         onDisconnect: onDisconnect(from:error:),
+                         onTextReceive: onTextReceive(_:from:))
     }
 
     // TODO: topic forwarding to transport layer
@@ -127,14 +89,31 @@ public class Server {
     ///
     /// - Parameters:
     ///   - text: incoming message
-    ///   - url: WalletConnect url with information necessary to process incoming message.
-    private func onIncomingData(_ text: String, from url: WCURL) {
+    ///   - url: WalletConnect url
+    private func onTextReceive(_ text: String, from url: WCURL) {
         do {
             let request = try requestSerializer.deserialize(text, url: url)
             handle(request)
         } catch {
             send(Response(payload: JSONRPC_2_0.Response.invalidJSON, url: url))
         }
+    }
+
+    /// Confirmation from Transport layer that connection was successfully established.
+    ///
+    /// - Parameter url: WalletConnect url
+    private func onConnect(to url: WCURL) {
+        print("WC: did connect to url: \(url)")
+    }
+
+    /// Confirmation from Transport layer that connection was dropped.
+    ///
+    /// - Parameters:
+    ///   - url: WalletConnect url
+    ///   - error: error that triggered the disconnection
+    private func onDisconnect(from url: WCURL, error: Error?) {
+        // find url session and notify app
+        
     }
 
     private func handle(_ request: Request) {
@@ -159,9 +138,13 @@ public class Server {
 
 }
 
-extension Server: WCHandshakeHandlerDelegate {
+extension Server: HandshakeHandlerDelegate {
 
-    func handler(_ handler: WCHandshakeHandler, didEstablishHandshake: Bool) {
+    func handler(_ handler: HandshakeHandler, didReceiveRequestToCreateSession session: Session) {
+        delegate.server(self, shouldStart: session) { result in
+            // handler or server should send the response?
+            // here we should add sessoin to our Sessions list, and to notify app didConnect after response is sent
+        }
     }
 
 }

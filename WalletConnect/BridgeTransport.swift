@@ -7,7 +7,10 @@ import Foundation
 protocol Transport {
 
     func send(to url: WCURL, text: String)
-    func listen(on url: WCURL, handler: @escaping (String) -> Void)
+    func listen(on url: WCURL,
+                onConnect: @escaping ((WCURL) -> Void),
+                onDisconnect: @escaping ((WCURL, Error?) -> Void),
+                onTextReceive: @escaping (String, WCURL) -> Void)
     func disconnect(from url: WCURL)
 
 }
@@ -27,22 +30,25 @@ class Bridge: Transport {
         }
     }
 
-    // Should we send connection onConnect / onDisconnect / onTextReceive to server?
-    func listen(on url: WCURL, handler: @escaping (String) -> Void) {
+    func listen(on url: WCURL,
+                onConnect: @escaping ((WCURL) -> Void),
+                onDisconnect: @escaping ((WCURL, Error?) -> Void),
+                onTextReceive: @escaping (String, WCURL) -> Void) {
         var connection: WebSocketConnection
         if let existingConnection = findConnection(url: url) {
             connection = existingConnection
         } else {
             connection = WebSocketConnection(url: url,
-                                             onConnect: onWebSocketConnect,
-                                             onDisconnect: onWebSocketDisconnect,
-                                             onTextReceive: handler)
+                                             onConnect: { onConnect(url) },
+                                             onDisconnect: { error in onDisconnect(url, error)},
+                                             onTextReceive: { text in onTextReceive(text, url) })
+
             connections.append(connection)
         }
         connection.open()
     }
 
-    public func disconnect(from url: WCURL) {
+    func disconnect(from url: WCURL) {
         if let connection = findConnection(url: url) {
             connection.close()
             connections.removeAll { $0 === connection }
@@ -51,14 +57,6 @@ class Bridge: Transport {
 
     private func findConnection(url: WCURL) -> WebSocketConnection? {
         return connections.first { $0.url == url }
-    }
-
-    private func onWebSocketConnect() {
-        // we should notify server on connect only on successfull handshake
-    }
-
-    private func onWebSocketDisconnect(error: Error?) {
-        // we should handle handshake and other connections separately
     }
 
 }
