@@ -6,6 +6,7 @@ import Foundation
 
 public struct WCURL: Hashable, CustomStringConvertible {
 
+    // topic is used for handshake only
     public var topic: String
     public var version: String
     public var bridgeURL: URL
@@ -45,14 +46,17 @@ public struct WCURL: Hashable, CustomStringConvertible {
 
 }
 
-/// Session is a connection between dApp and Wallet
+/// Each session is a communication channel between dApp and Wallet on dAppInfo.peerId topic
 public struct Session {
 
     // TODO: handle protocol version
     public var url: WCURL
-    // dApp id that is used as topic to send responses
-    public var peerId: String
-    public var clientMeta: ClientMeta
+    public var dAppInfo: DAppInfo
+
+    public struct DAppInfo: Codable {
+        var peerId: String
+        var peerMeta: ClientMeta
+    }
 
     public struct ClientMeta: Codable {
 
@@ -94,21 +98,15 @@ public struct Session {
 
     /// https://docs.walletconnect.org/tech-spec#session-request
     init?(wcSessionRequest request: Request) throws {
-        struct ParamsArrayWrapper: Codable {
-            var peerId: String
-            var peerMeta: ClientMeta
-        }
         let data = try JSONEncoder().encode(request.payload.params)
-        let array = try JSONDecoder().decode([ParamsArrayWrapper].self, from: data)
+        let array = try JSONDecoder().decode([DAppInfo].self, from: data)
         guard array.count == 1 else { throw SessionCreationError.wrongRequestFormat }
-        let wrapper = array[0]
         self.url = request.url
-        self.peerId = wrapper.peerId
-        self.clientMeta = wrapper.peerMeta
+        self.dAppInfo = array[0]
     }
 
-    func creationResponse(requestId: JSONRPC_2_0.IDType, info: Session.WalletInfo) -> Response {
-        let infoValueData = try! JSONEncoder().encode(info)
+    func creationResponse(requestId: JSONRPC_2_0.IDType, walletInfo: Session.WalletInfo) -> Response {
+        let infoValueData = try! JSONEncoder().encode(walletInfo)
         let infoValue = try! JSONDecoder().decode(JSONRPC_2_0.ValueType.self, from: infoValueData)
         let result = JSONRPC_2_0.Response.Payload.value(infoValue)
         let JSONRPCResponse = JSONRPC_2_0.Response(result: result, id: requestId)

@@ -35,6 +35,7 @@ class WebSocketConnection {
 
     func send(_ text: String) {
         socket.write(string: text)
+        print("WC: WebSocket write: \(text)")
     }
 
 }

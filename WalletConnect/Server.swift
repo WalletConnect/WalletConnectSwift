@@ -94,9 +94,12 @@ public class Server {
     ///   - url: WalletConnect url
     private func onTextReceive(_ text: String, from url: WCURL) {
         do {
+            print("WC: incomming text: \(text)")
+            // we handle only properly formed JSONRPC 2.0 requests. JSONRPC 2.0 responses are ignored.
             let request = try requestSerializer.deserialize(text, url: url)
             handle(request)
         } catch {
+            print("WC: incomming text deserialization to JSONRPC 2.0 requests error: \(error.localizedDescription)")
             send(Response(payload: JSONRPC_2_0.Response.invalidJSON, url: url))
         }
     }
@@ -105,8 +108,8 @@ public class Server {
     ///
     /// - Parameter url: WalletConnect url
     private func onConnect(to url: WCURL) {
-        print("WC: did connect to url: \(url)")
-        subscribe(on: url)
+        subscribe(on: url.topic, url: url)
+        print("WC: didConnect url: \(url.description)")
     }
 
     /// Confirmation from Transport layer that connection was dropped.
@@ -119,6 +122,7 @@ public class Server {
             sessions.removeValue(forKey: url)
             delegate.server(self, didDisconnect: session, error: error)
         }
+        print("WC: didConnect url: \(url.description); error: \(error.debugDescription)")
     }
 
     private func handle(_ request: Request) {
@@ -129,20 +133,23 @@ public class Server {
         }
     }
 
-    private func subscribe(on url: WCURL) {
-        let message = PubSubMessage(topic: url.topic, type: .sub, payload: "")
+    // TODO: where to handle error?
+    private func subscribe(on topic: String, url: WCURL) {
+        let message = PubSubMessage(topic: topic, type: .sub, payload: "")
         transport.send(to: url, text: try! message.json())
     }
 
-    private func send(_ response: Response) {
-        // TODO: where to handle error?
-        let text = try! responseSerializer.serialize(response)
+    // TODO: where to handle error?
+    public func send(_ response: Response) {
+        guard let session = sessions[response.url] else { return }
+        let text = try! responseSerializer.serialize(response, topic: session.dAppInfo.peerId)
         transport.send(to: response.url, text: text)
     }
 
-    private func send(_ request: Request) {
-        // TODO: where to handle error?
-        let text = try! requestSerializer.serialize(request)
+    // TODO: where to handle error?
+    public func send(_ request: Request) {
+        guard let session = sessions[request.url] else { return }
+        let text = try! requestSerializer.serialize(request, topic: session.dAppInfo.peerId)
         transport.send(to: request.url, text: text)
     }
 
@@ -153,12 +160,16 @@ extension Server: HandshakeHandlerDelegate {
     func handler(_ handler: HandshakeHandler,
                  didReceiveRequestToCreateSession session: Session,
                  requestId: JSONRPC_2_0.IDType) {
-        delegate.server(self, shouldStart: session) { info in
-            let sessionCreationResponse = session.creationResponse(requestId: requestId, info: info)
-            if info.approved {
-                sessions[session.url] = session
-            }
+        delegate.server(self, shouldStart: session) { walletInfo in
+            // session mapping should exist to send the response
+            sessions[session.url] = session
+            let sessionCreationResponse = session.creationResponse(requestId: requestId, walletInfo: walletInfo)
             send(sessionCreationResponse)
+            if walletInfo.approved {
+                subscribe(on: walletInfo.peerId, url: session.url)
+            } else {
+                sessions.removeValue(forKey: session.url)
+            }
             delegate.server(self, didConnect: session)
         }
     }

@@ -10,10 +10,12 @@ protocol ResponseSerializer {
 
     /// Serialize WalletConnect Response into text message.
     ///
-    /// - Parameter response: Response object
+    /// - Parameters:
+    ///   - response: Response object
+    ///   - topic: text message topic
     /// - Returns: text message
     /// - Throws: serialization errors
-    func serialize(_ response: Response) throws -> String
+    func serialize(_ response: Response, topic: String) throws -> String
 
 }
 
@@ -21,10 +23,12 @@ protocol RequestSerializer {
 
     /// Serialize WalletConnect Request into text message.
     ///
-    /// - Parameter request: Request object
+    /// - Parameters:
+    ///   - request: Request object
+    ///   - topic: text message topic
     /// - Returns: text message
     /// - Throws: serialization errors
-    func serialize(_ request: Request) throws -> String
+    func serialize(_ request: Request, topic: String) throws -> String
 
     /// Deserialize incoming WalletConnet text message.
     ///
@@ -44,6 +48,10 @@ protocol Codec {
 
 }
 
+enum JSONRPCSerializerError: Error {
+    case wrongIncommingDecodedTextFormat(String)
+}
+
 class JSONRPCSerializer: RequestSerializer, ResponseSerializer {
 
     private let codec: Codec = AES_256_CBC_HMAC_SHA256_Codec()
@@ -51,28 +59,33 @@ class JSONRPCSerializer: RequestSerializer, ResponseSerializer {
 
     // MARK: - RequestSerializer
 
-    func serialize(_ request: Request) throws -> String {
+    func serialize(_ request: Request, topic: String) throws -> String {
         let jsonText = try jsonrpc.json(from: request)
         let cipherText = try codec.encode(plainText: jsonText, key: request.url.key)
-        let message = PubSubMessage(topic: request.url.topic, type: .pub, payload: cipherText)
+        let message = PubSubMessage(topic: topic, type: .pub, payload: cipherText)
         return try message.json()
     }
 
     func deserialize(_ text: String, url: WCURL) throws -> Request {
         let message = try PubSubMessage.message(from: text)
         let payloadText = try codec.decode(cipherText: message.payload, key: url.key)
-        let result = try jsonrpc.request(from: payloadText, url: url)
-        return result
+        do {
+            return try jsonrpc.request(from: payloadText, url: url)
+        } catch {
+            throw JSONRPCSerializerError.wrongIncommingDecodedTextFormat(payloadText)
+        }
     }
 
     // MARK: - ResponseSerializer
 
-    func serialize(_ response: Response) throws -> String {
+    func serialize(_ response: Response, topic: String) throws -> String {
         let jsonText = try jsonrpc.json(from: response)
         let cipherText = try codec.encode(plainText: jsonText, key: response.url.key)
-        let message = PubSubMessage(topic: response.url.topic, type: .pub, payload: cipherText)
+        let message = PubSubMessage(topic: topic, type: .pub, payload: cipherText)
         return try message.json()
     }
+
+    // No need to deserialize responses as we do not handle incoming responses according to WalletConnect protocol.
 
 }
 

@@ -13,12 +13,12 @@ class SessionTests: XCTestCase {
     func test_canCreateSessionFromRequest() throws {
         let session = try createSession()
         XCTAssertEqual(session.url, url)
-        XCTAssertEqual(session.peerId, "Slow.Trade")
-        XCTAssertEqual(session.clientMeta.description, "Good trades take time")
-        XCTAssertEqual(session.clientMeta.url, URL(string: "https://slow.trade")!)
-        XCTAssertEqual(session.clientMeta.icons, [URL(string: "https://example.com/1.png")!,
-                                                  URL(string: "https://example.com/2.png")!])
-        XCTAssertEqual(session.clientMeta.name, "Slow Trade")
+        XCTAssertEqual(session.dAppInfo.peerId, "Slow.Trade")
+        XCTAssertEqual(session.dAppInfo.peerMeta.description, "Good trades take time")
+        XCTAssertEqual(session.dAppInfo.peerMeta.url, URL(string: "https://slow.trade")!)
+        XCTAssertEqual(session.dAppInfo.peerMeta.icons, [URL(string: "https://example.com/1.png")!,
+                                                         URL(string: "https://example.com/2.png")!])
+        XCTAssertEqual(session.dAppInfo.peerMeta.name, "Slow Trade")
     }
 
     func test_creationResponse() throws {
@@ -31,7 +31,7 @@ class SessionTests: XCTestCase {
                                                                    description: "Secure Wallet",
                                                                    icons: [URL(string: "https://example.com/1.png")!],
                                                                    url: URL(string: "gnosissafe://")!))
-        let response = session.creationResponse(requestId: .int(100), info: info)
+        let response = session.creationResponse(requestId: .int(100), walletInfo: info)
         XCTAssertEqual(response.url, session.url)
         XCTAssertEqual(response.payload.id, .int(100))
         XCTAssertEqual(response.payload.result,
