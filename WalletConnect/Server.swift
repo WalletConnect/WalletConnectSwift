@@ -122,7 +122,7 @@ public class Server {
             sessions.removeValue(forKey: url)
             delegate.server(self, didDisconnect: session, error: error)
         }
-        print("WC: didConnect url: \(url.description); error: \(error.debugDescription)")
+        print("WC: didDisconnect url: \(url.description); error: \(error.debugDescription)")
     }
 
     private func handle(_ request: Request) {
@@ -161,13 +161,15 @@ extension Server: HandshakeHandlerDelegate {
                  didReceiveRequestToCreateSession session: Session,
                  requestId: JSONRPC_2_0.IDType) {
         delegate.server(self, shouldStart: session) { walletInfo in
+            // it is safer to subscribe before sending the response
+            if walletInfo.approved {
+                subscribe(on: walletInfo.peerId, url: session.url)
+            }
             // session mapping should exist to send the response
             sessions[session.url] = session
             let sessionCreationResponse = session.creationResponse(requestId: requestId, walletInfo: walletInfo)
             send(sessionCreationResponse)
-            if walletInfo.approved {
-                subscribe(on: walletInfo.peerId, url: session.url)
-            } else {
+            if !walletInfo.approved {
                 sessions.removeValue(forKey: session.url)
             }
             delegate.server(self, didConnect: session)
