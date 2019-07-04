@@ -8,6 +8,7 @@ import XCTest
 class SessionTests: XCTestCase {
 
     let url = WCURL("wc:topic@1?bridge=https%3A%2F%2Ftest.com&key=key")!
+    let walletId = UUID().uuidString
 
     func test_canCreateSessionFromRequest() throws {
         let session = try createSession()
@@ -22,14 +23,26 @@ class SessionTests: XCTestCase {
 
     func test_creationResponse() throws {
         let session = try createSession()
-        let info = Session.Info(approved: true, accounts: ["0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95"], chainId: 1)
+        let info = Session.WalletInfo(approved: true,
+                                      accounts: ["0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95"],
+                                      chainId: 1,
+                                      peerId: walletId,
+                                      peerMeta: Session.ClientMeta(name: "Gnosis Safe",
+                                                                   description: "Secure Wallet",
+                                                                   icons: [URL(string: "https://example.com/1.png")!],
+                                                                   url: URL(string: "gnosissafe://")!))
         let response = session.creationResponse(requestId: .int(100), info: info)
         XCTAssertEqual(response.url, session.url)
         XCTAssertEqual(response.payload.id, .int(100))
         XCTAssertEqual(response.payload.result,
                        .value(.object(["approved": .bool(true),
                                        "accounts": .array([.string("0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95")]),
-                                       "chainId": .int(1)])))
+                                       "chainId": .int(1),
+                                       "peerId": .string(walletId),
+                                       "peerMeta": .object(["name": .string("Gnosis Safe"),
+                                                            "description": .string("Secure Wallet"),
+                                                            "icons": .array([.string("https://example.com/1.png")]),
+                                                            "url": .string("gnosissafe://")])])))
     }
 
     private func createSession() throws -> Session {

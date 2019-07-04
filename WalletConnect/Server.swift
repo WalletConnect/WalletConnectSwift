@@ -37,7 +37,7 @@ public protocol RequestHandler: class {
 
 public protocol ServerDelegate: class {
 
-    func server(_ server: Server, shouldStart session: Session, completion: (Session.Info) -> Void)
+    func server(_ server: Server, shouldStart session: Session, completion: (Session.WalletInfo) -> Void)
     func server(_ server: Server, didConnect session: Session)
     func server(_ server: Server, didDisconnect session: Session, error: Error?)
 
@@ -106,7 +106,7 @@ public class Server {
     /// - Parameter url: WalletConnect url
     private func onConnect(to url: WCURL) {
         print("WC: did connect to url: \(url)")
-        // subscribe on topic
+        subscribe(on: url)
     }
 
     /// Confirmation from Transport layer that connection was dropped.
@@ -129,13 +129,18 @@ public class Server {
         }
     }
 
-    func send(_ response: Response) {
+    private func subscribe(on url: WCURL) {
+        let message = PubSubMessage(topic: url.topic, type: .sub, payload: "")
+        transport.send(to: url, text: try! message.json())
+    }
+
+    private func send(_ response: Response) {
         // TODO: where to handle error?
         let text = try! responseSerializer.serialize(response)
         transport.send(to: response.url, text: text)
     }
 
-    func send(_ request: Request) {
+    private func send(_ request: Request) {
         // TODO: where to handle error?
         let text = try! requestSerializer.serialize(request)
         transport.send(to: request.url, text: text)

@@ -9,33 +9,29 @@ enum DataConversionError: Error {
     case dataToStringFailed
 }
 
-class PubSubAdapter {
+struct PubSubMessage: Codable {
 
-    struct Message: Codable {
+    /// WalletConnect topic
+    var topic: String
+    /// pub/sub message type
+    var type: MessageType
+    /// encoded JSONRPC data.
+    var payload: String
 
-        /// WalletConnect topic
-        var topic: String
-        /// pub/sub message type
-        var type: MessageType
-        /// encoded JSONRPC data.
-        var payload: String
-
-        enum MessageType: String, Codable {
-            case pub
-            case sub
-        }
-
+    enum MessageType: String, Codable {
+        case pub
+        case sub
     }
 
-    func message(from string: String) throws -> Message {
+    static func message(from string: String) throws -> PubSubMessage {
         guard let data = string.data(using: .utf8) else {
             throw DataConversionError.stringToDataFailed
         }
-        return try JSONDecoder().decode(Message.self, from: data)
+        return try JSONDecoder().decode(PubSubMessage.self, from: data)
     }
 
-    func string(from message: Message) throws -> String {
-        let data = try JSONEncoder().encode(message)
+    func json() throws -> String {
+        let data = try JSONEncoder().encode(self)
         guard let string = String(data: data, encoding: .utf8) else {
             throw DataConversionError.dataToStringFailed
         }

@@ -50,6 +50,7 @@ public struct Session {
 
     // TODO: handle protocol version
     public var url: WCURL
+    // dApp id that is used as topic to send responses
     public var peerId: String
     public var clientMeta: ClientMeta
 
@@ -60,18 +61,29 @@ public struct Session {
         var icons: [URL]
         var url: URL
 
+        public init(name: String, description: String, icons: [URL], url: URL) {
+            self.name = name
+            self.description = description
+            self.icons = icons
+            self.url = url
+        }
+
     }
 
-    public struct Info: Codable {
+    public struct WalletInfo: Codable {
 
         public var approved: Bool
         public var accounts: [String]
         public var chainId: Int
+        public var peerId: String
+        public var peerMeta: ClientMeta
 
-        public init(approved: Bool, accounts: [String], chainId: Int) {
+        public init(approved: Bool, accounts: [String], chainId: Int, peerId: String, peerMeta: ClientMeta) {
             self.approved = approved
             self.accounts = accounts
             self.chainId = chainId
+            self.peerId = peerId
+            self.peerMeta = peerMeta
         }
 
     }
@@ -95,7 +107,7 @@ public struct Session {
         self.clientMeta = wrapper.peerMeta
     }
 
-    func creationResponse(requestId: JSONRPC_2_0.IDType, info: Session.Info) -> Response {
+    func creationResponse(requestId: JSONRPC_2_0.IDType, info: Session.WalletInfo) -> Response {
         let infoValueData = try! JSONEncoder().encode(info)
         let infoValue = try! JSONDecoder().decode(JSONRPC_2_0.ValueType.self, from: infoValueData)
         let result = JSONRPC_2_0.Response.Payload.value(infoValue)

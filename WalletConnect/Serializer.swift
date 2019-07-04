@@ -47,7 +47,6 @@ protocol Codec {
 class JSONRPCSerializer: RequestSerializer, ResponseSerializer {
 
     private let codec: Codec = AES_256_CBC_HMAC_SHA256_Codec()
-    private let pubSubAdapter = PubSubAdapter()
     private let jsonrpc = JSONRPCAdapter()
 
     // MARK: - RequestSerializer
@@ -55,13 +54,12 @@ class JSONRPCSerializer: RequestSerializer, ResponseSerializer {
     func serialize(_ request: Request) throws -> String {
         let jsonText = try jsonrpc.json(from: request)
         let cipherText = try codec.encode(plainText: jsonText, key: request.url.key)
-        let message = PubSubAdapter.Message(topic: request.url.topic, type: .pub, payload: cipherText)
-        let result = try pubSubAdapter.string(from: message)
-        return result
+        let message = PubSubMessage(topic: request.url.topic, type: .pub, payload: cipherText)
+        return try message.json()
     }
 
     func deserialize(_ text: String, url: WCURL) throws -> Request {
-        let message = try pubSubAdapter.message(from: text)
+        let message = try PubSubMessage.message(from: text)
         let payloadText = try codec.decode(cipherText: message.payload, key: url.key)
         let result = try jsonrpc.request(from: payloadText, url: url)
         return result
@@ -72,14 +70,13 @@ class JSONRPCSerializer: RequestSerializer, ResponseSerializer {
     func serialize(_ response: Response) throws -> String {
         let jsonText = try jsonrpc.json(from: response)
         let cipherText = try codec.encode(plainText: jsonText, key: response.url.key)
-        let message = PubSubAdapter.Message(topic: response.url.topic, type: .pub, payload: cipherText)
-        let result = try pubSubAdapter.string(from: message)
-        return result
+        let message = PubSubMessage(topic: response.url.topic, type: .pub, payload: cipherText)
+        return try message.json()
     }
 
 }
 
-class JSONRPCAdapter {
+fileprivate class JSONRPCAdapter {
 
     func json(from request: Request) throws -> String {
         return try request.payload.json().string
