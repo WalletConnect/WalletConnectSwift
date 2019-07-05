@@ -22,8 +22,9 @@ class UpdateSessionHandler: RequestHandler {
 
     func handle(request: Request) {
         // TODO: throw proper error
-        guard let requiredParams = request.payload.params,
-            case JSONRPC_2_0.Request.Params.named(let params) = requiredParams,
+        guard let requiredArrayWrapper = request.payload.params,
+            case JSONRPC_2_0.Request.Params.positional(let arrayWrapper) = requiredArrayWrapper, !arrayWrapper.isEmpty,
+            case JSONRPC_2_0.ValueType.object(let params) = arrayWrapper[0],
             let requiredApproved = params["approved"],
             case JSONRPC_2_0.ValueType.bool(let approved) = requiredApproved else {
                 let params = (try? request.payload.json().string) ?? "could not encode payload"

@@ -15,6 +15,9 @@ class WebSocketConnection {
     // needed to keep connection alive
     private var pingTimer: Timer?
 
+    private var requestSerializer: RequestSerializer = JSONRPCSerializer()
+    private var responseSerializer: ResponseSerializer = JSONRPCSerializer()
+
     var isOpen: Bool {
         return socket.isConnected
     }
@@ -40,8 +43,19 @@ class WebSocketConnection {
     }
 
     func send(_ text: String) {
+        guard socket.isConnected else { return }
         socket.write(string: text)
-        print("WC: ==> \(text)")
+        log(text)
+    }
+
+    private func log(_ text: String) {
+        if let request = try? requestSerializer.deserialize(text, url: url).payload.json().string {
+            print("WC: ==> \(request)")
+        } else if let response = try? responseSerializer.deserialize(text, url: url).payload.json().string {
+            print("WC: ==> \(response)")
+        } else {
+            print("WC: ==> \(text)")
+        }
     }
 
 }
@@ -49,10 +63,10 @@ class WebSocketConnection {
 extension WebSocketConnection: WebSocketDelegate {
 
     func websocketDidConnect(socket: WebSocketClient) {
-        pingTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true, block: { [weak self] _ in
+        pingTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
             print("WC: ==> ping")
             self?.socket.write(ping: Data())
-        })
+        }
         onConnect?()
     }
 
@@ -68,6 +82,5 @@ extension WebSocketConnection: WebSocketDelegate {
     func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
         // no-op
     }
-
 
 }

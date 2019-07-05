@@ -17,6 +17,15 @@ protocol ResponseSerializer {
     /// - Throws: serialization errors
     func serialize(_ response: Response, topic: String) throws -> String
 
+    /// Deserialize incoming WalletConnet text message.
+    ///
+    /// - Parameters:
+    ///   - text: encoded text message
+    ///   - url: WalletConnect session URL data (required for text decoding).
+    /// - Returns: response object
+    /// - Throws: deserialization errors
+    func deserialize(_ text: String, url: WCURL) throws -> Response
+
 }
 
 protocol RequestSerializer {
@@ -85,7 +94,15 @@ class JSONRPCSerializer: RequestSerializer, ResponseSerializer {
         return try message.json()
     }
 
-    // No need to deserialize responses as we do not handle incoming responses according to WalletConnect protocol.
+    func deserialize(_ text: String, url: WCURL) throws -> Response {
+        let message = try PubSubMessage.message(from: text)
+        let payloadText = try codec.decode(cipherText: message.payload, key: url.key)
+        do {
+            return try jsonrpc.response(from: payloadText, url: url)
+        } catch {
+            throw JSONRPCSerializerError.wrongIncommingDecodedTextFormat(payloadText)
+        }
+    }
 
 }
 
@@ -102,6 +119,11 @@ fileprivate class JSONRPCAdapter {
 
     func json(from response: Response) throws -> String {
         return try response.payload.json().string
+    }
+
+    func response(from json: String, url: WCURL) throws -> Response {
+        let JSONRPCResponse = try JSONRPC_2_0.Response.create(from: JSONRPC_2_0.JSON(json))
+        return Response(payload: JSONRPCResponse, url: url)
     }
 
 }

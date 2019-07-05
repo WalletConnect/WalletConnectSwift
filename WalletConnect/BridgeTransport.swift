@@ -41,7 +41,8 @@ class Bridge: Transport {
         } else {
             connection = WebSocketConnection(url: url,
                                              onConnect: { onConnect(url) },
-                                             onDisconnect: { error in onDisconnect(url, error) },
+                                             onDisconnect: { [weak self] error in
+                                                self?.releaseConnection(by: url); onDisconnect(url, error) },
                                              onTextReceive: { text in onTextReceive(text, url) })
             connections.append(connection)
         }
@@ -61,6 +62,12 @@ class Bridge: Transport {
     func disconnect(from url: WCURL) {
         if let connection = findConnection(url: url) {
             connection.close()
+
+        }
+    }
+
+    private func releaseConnection(by url: WCURL) {
+        if let connection = findConnection(url: url) {
             connections.removeAll { $0 === connection }
         }
     }

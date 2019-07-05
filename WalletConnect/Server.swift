@@ -183,15 +183,20 @@ public class Server {
     ///   - text: incoming message
     ///   - url: WalletConnect url
     private func onTextReceive(_ text: String, from url: WCURL) {
-        print("WC: <== \(text)")
         do {
             // we handle only properly formed JSONRPC 2.0 requests. JSONRPC 2.0 responses are ignored.
             let request = try requestSerializer.deserialize(text, url: url)
+            log(request)
             handle(request)
         } catch {
             print("WC: incomming text deserialization to JSONRPC 2.0 requests error: \(error.localizedDescription)")
             send(Response(payload: JSONRPC_2_0.Response.invalidJSON, url: url))
         }
+    }
+
+    private func log(_ request: Request) {
+        guard let text = try? request.payload.json().string else { return }
+        print("WC: <== \(text)")
     }
 
     /// Confirmation from Transport layer that connection was successfully established.
