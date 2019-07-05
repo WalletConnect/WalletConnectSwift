@@ -4,17 +4,13 @@
 
 import Foundation
 
-public struct WCURL: Hashable, CustomStringConvertible {
+public struct WCURL: Hashable {
 
     // topic is used for handshake only
     public var topic: String
     public var version: String
     public var bridgeURL: URL
     public var key: String
-
-    public var description: String {
-        return "topic: \(topic); version: \(version); bridge: \(bridgeURL.absoluteString); key: \(key)"
-    }
 
     public init?(_ str: String) {
         guard str.hasPrefix("wc:") else {
@@ -50,12 +46,19 @@ public struct WCURL: Hashable, CustomStringConvertible {
 public struct Session {
 
     // TODO: handle protocol version
-    public var url: WCURL
-    public var dAppInfo: DAppInfo
+    public let url: WCURL
+    public let dAppInfo: DAppInfo
+    public var walletInfo: WalletInfo?
+
+    public init(url: WCURL, dAppInfo: DAppInfo, walletInfo: WalletInfo?) {
+        self.url = url
+        self.dAppInfo = dAppInfo
+        self.walletInfo = walletInfo
+    }
 
     public struct DAppInfo: Codable {
-        var peerId: String
-        var peerMeta: ClientMeta
+        public var peerId: String
+        public var peerMeta: ClientMeta
     }
 
     public struct ClientMeta: Codable {

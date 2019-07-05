@@ -54,6 +54,10 @@ public class Server {
 
     private(set) weak var delegate: ServerDelegate!
 
+    enum ServerError: Error {
+        case missingWalletInfoInSession
+    }
+
     public init(delegate: ServerDelegate) {
         self.delegate = delegate
         transport = Bridge()
@@ -74,6 +78,10 @@ public class Server {
         }
     }
 
+    /// Connect to WalletConnect url
+    /// https://docs.walletconnect.org/tech-spec#requesting-connection
+    ///
+    /// - Parameter url: WalletConnect url
     public func connect(to url: WCURL) {
         transport.listen(on: url,
                          onConnect: onConnect(to:),
@@ -81,11 +89,19 @@ public class Server {
                          onTextReceive: onTextReceive(_:from:))
     }
 
-    // TODO: topic forwarding to transport layer
-
-    func disconnect(from url: WCURL) {
-        transport.disconnect(from: url)
+    /// Re-connect to the session
+    ///
+    /// - Parameter session: session object with wallet info.
+    /// - Throws: error if wallet info is missing
+    public func reConnect(to session: Session) throws {
+        guard session.walletInfo != nil else {
+            throw ServerError.missingWalletInfoInSession
+        }
+        sessions[session.url] = session
+        connect(to: session.url)
     }
+
+    public func disconnect(from session: Session) {}
 
     /// Process incomming text messages from the transport layer.
     ///
@@ -108,21 +124,25 @@ public class Server {
     ///
     /// - Parameter url: WalletConnect url
     private func onConnect(to url: WCURL) {
-        subscribe(on: url.topic, url: url)
-        print("WC: didConnect url: \(url.description)")
+        print("WC: didConnect url: \(url.bridgeURL.absoluteString)")
+        if let session = sessions[url] { // reconnecting existing session
+            subscribe(on: session.walletInfo!.peerId, url: session.url)
+        } else { // establishing new connection
+            subscribe(on: url.topic, url: url)
+        }
     }
 
-    /// Confirmation from Transport layer that connection was dropped.
+    /// Confirmation from Transport layer that connection was dropped by the dApp.
     ///
     /// - Parameters:
     ///   - url: WalletConnect url
     ///   - error: error that triggered the disconnection
     private func onDisconnect(from url: WCURL, error: Error?) {
+        print("WC: didDisconnect url: \(url.bridgeURL.absoluteString)")
         if let session = sessions[url] {
             sessions.removeValue(forKey: url)
             delegate.server(self, didDisconnect: session, error: error)
         }
-        print("WC: didDisconnect url: \(url.description); error: \(error.debugDescription)")
     }
 
     private func handle(_ request: Request) {
@@ -142,7 +162,11 @@ public class Server {
     // TODO: where to handle error?
     public func send(_ response: Response) {
         guard let session = sessions[response.url] else { return }
-        let text = try! responseSerializer.serialize(response, topic: session.dAppInfo.peerId)
+        send(response, topic: session.dAppInfo.peerId)
+    }
+
+    private func send(_ response: Response, topic: String) {
+        let text = try! responseSerializer.serialize(response, topic: topic)
         transport.send(to: response.url, text: text)
     }
 
@@ -161,18 +185,14 @@ extension Server: HandshakeHandlerDelegate {
                  didReceiveRequestToCreateSession session: Session,
                  requestId: JSONRPC_2_0.IDType) {
         delegate.server(self, shouldStart: session) { walletInfo in
-            // it is safer to subscribe before sending the response
-            if walletInfo.approved {
-                subscribe(on: walletInfo.peerId, url: session.url)
-            }
-            // session mapping should exist to send the response
-            sessions[session.url] = session
             let sessionCreationResponse = session.creationResponse(requestId: requestId, walletInfo: walletInfo)
-            send(sessionCreationResponse)
-            if !walletInfo.approved {
-                sessions.removeValue(forKey: session.url)
+            send(sessionCreationResponse, topic: session.dAppInfo.peerId)
+            if walletInfo.approved {
+                let updatedSession = Session(url: session.url, dAppInfo: session.dAppInfo, walletInfo: walletInfo)
+                sessions[updatedSession.url] = updatedSession
+                subscribe(on: walletInfo.peerId, url: updatedSession.url)
+                delegate.server(self, didConnect: updatedSession)
             }
-            delegate.server(self, didConnect: session)
         }
     }
 

@@ -40,9 +40,8 @@ class Bridge: Transport {
         } else {
             connection = WebSocketConnection(url: url,
                                              onConnect: { onConnect(url) },
-                                             onDisconnect: { error in onDisconnect(url, error)},
+                                             onDisconnect: { error in onDisconnect(url, error) },
                                              onTextReceive: { text in onTextReceive(text, url) })
-
             connections.append(connection)
         }
         connection.open()

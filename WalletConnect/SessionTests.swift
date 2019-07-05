@@ -19,6 +19,7 @@ class SessionTests: XCTestCase {
         XCTAssertEqual(session.dAppInfo.peerMeta.icons, [URL(string: "https://example.com/1.png")!,
                                                          URL(string: "https://example.com/2.png")!])
         XCTAssertEqual(session.dAppInfo.peerMeta.name, "Slow Trade")
+        XCTAssertNil(session.walletInfo)
     }
 
     func test_creationResponse() throws {
