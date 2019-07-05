@@ -11,6 +11,7 @@ protocol Transport {
                 onConnect: @escaping ((WCURL) -> Void),
                 onDisconnect: @escaping ((WCURL, Error?) -> Void),
                 onTextReceive: @escaping (String, WCURL) -> Void)
+    func isConnected(by url: WCURL) -> Bool
     func disconnect(from url: WCURL)
 
 }
@@ -44,7 +45,17 @@ class Bridge: Transport {
                                              onTextReceive: { text in onTextReceive(text, url) })
             connections.append(connection)
         }
-        connection.open()
+        if !connection.isOpen {
+            connection.open()
+        }
+    }
+
+    func isConnected(by url: WCURL) -> Bool {
+        if let connection = findConnection(url: url) {
+            return connection.isOpen
+        } else {
+            return false
+        }
     }
 
     func disconnect(from url: WCURL) {

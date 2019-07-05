@@ -37,8 +37,18 @@ public protocol RequestHandler: class {
 
 public protocol ServerDelegate: class {
 
+    /// Websocket connection was dropped during handshake. The connectoin process should be initiated again.
+    func server(_ server: Server, didFailToConnect url: WCURL)
+
+    /// The handshake will be established based on "approved" property of WalletInfo.
     func server(_ server: Server, shouldStart session: Session, completion: (Session.WalletInfo) -> Void)
+
+    /// Called when the session is connected or reconnected.
+    /// Reconnection may happen as a result of Wallet intention to reconnect, or as a result of
+    /// the server trying to restore lost connection.
     func server(_ server: Server, didConnect session: Session)
+
+    /// called only when the session is disconnect with intention of the dApp or the Wallet.
     func server(_ server: Server, didDisconnect session: Session, error: Error?)
 
 }
@@ -51,11 +61,15 @@ public class Server {
     private var handlers: [RequestHandler] = []
     // server session are the approved connections between dApp and Wallet
     private var sessions = [WCURL: Session]()
+    // triggered by Wallet to disconnect
+    private var pendingDisconnectionSessions = [WCURL: Session]()
 
     private(set) weak var delegate: ServerDelegate!
 
     enum ServerError: Error {
+        case tryingToConnectExistingSessionURL
         case missingWalletInfoInSession
+        case tryingToDisconnectInactiveSession
     }
 
     public init(delegate: ServerDelegate) {
@@ -82,11 +96,12 @@ public class Server {
     /// https://docs.walletconnect.org/tech-spec#requesting-connection
     ///
     /// - Parameter url: WalletConnect url
-    public func connect(to url: WCURL) {
-        transport.listen(on: url,
-                         onConnect: onConnect(to:),
-                         onDisconnect: onDisconnect(from:error:),
-                         onTextReceive: onTextReceive(_:from:))
+    /// - Throws: error on trying to connect to existing session url
+    public func connect(to url: WCURL) throws {
+        guard sessions[url] == nil else {
+            throw ServerError.tryingToConnectExistingSessionURL
+        }
+        listen(on: url)
     }
 
     /// Re-connect to the session
@@ -98,65 +113,33 @@ public class Server {
             throw ServerError.missingWalletInfoInSession
         }
         sessions[session.url] = session
-        connect(to: session.url)
+        listen(on: session.url)
     }
 
-    public func disconnect(from session: Session) {}
+    private func listen(on url: WCURL) {
+        transport.listen(on: url,
+                         onConnect: onConnect(to:),
+                         onDisconnect: onDisconnect(from:error:),
+                         onTextReceive: onTextReceive(_:from:))
+    }
 
-    /// Process incomming text messages from the transport layer.
+    /// Get all sessions with active connection.
     ///
-    /// - Parameters:
-    ///   - text: incoming message
-    ///   - url: WalletConnect url
-    private func onTextReceive(_ text: String, from url: WCURL) {
-        do {
-            print("WC: incomming text: \(text)")
-            // we handle only properly formed JSONRPC 2.0 requests. JSONRPC 2.0 responses are ignored.
-            let request = try requestSerializer.deserialize(text, url: url)
-            handle(request)
-        } catch {
-            print("WC: incomming text deserialization to JSONRPC 2.0 requests error: \(error.localizedDescription)")
-            send(Response(payload: JSONRPC_2_0.Response.invalidJSON, url: url))
-        }
+    /// - Returns: sessions list.
+    public func openSessions() -> [Session] {
+        return Array(sessions.values).filter { transport.isConnected(by: $0.url) }
     }
 
-    /// Confirmation from Transport layer that connection was successfully established.
+    /// Disconnect from session.
     ///
-    /// - Parameter url: WalletConnect url
-    private func onConnect(to url: WCURL) {
-        print("WC: didConnect url: \(url.bridgeURL.absoluteString)")
-        if let session = sessions[url] { // reconnecting existing session
-            subscribe(on: session.walletInfo!.peerId, url: session.url)
-        } else { // establishing new connection
-            subscribe(on: url.topic, url: url)
+    /// - Parameter session: Session object
+    /// - Throws: error on trying to disconnect inacative sessoin.
+    public func disconnect(from session: Session) throws {
+        guard transport.isConnected(by: session.url) else {
+            throw ServerError.tryingToDisconnectInactiveSession
         }
-    }
-
-    /// Confirmation from Transport layer that connection was dropped by the dApp.
-    ///
-    /// - Parameters:
-    ///   - url: WalletConnect url
-    ///   - error: error that triggered the disconnection
-    private func onDisconnect(from url: WCURL, error: Error?) {
-        print("WC: didDisconnect url: \(url.bridgeURL.absoluteString)")
-        if let session = sessions[url] {
-            sessions.removeValue(forKey: url)
-            delegate.server(self, didDisconnect: session, error: error)
-        }
-    }
-
-    private func handle(_ request: Request) {
-        if let handler = handlers.first(where: { $0.canHandle(request: request) }) {
-            handler.handle(request: request)
-        } else {
-            send(Response(payload: JSONRPC_2_0.Response.methodDoesNotExist, url: request.url))
-        }
-    }
-
-    // TODO: where to handle error?
-    private func subscribe(on topic: String, url: WCURL) {
-        let message = PubSubMessage(topic: topic, type: .sub, payload: "")
-        transport.send(to: url, text: try! message.json())
+        pendingDisconnectionSessions[session.url] = session
+        transport.disconnect(from: session.url)
     }
 
     // TODO: where to handle error?
@@ -175,6 +158,73 @@ public class Server {
         guard let session = sessions[request.url] else { return }
         let text = try! requestSerializer.serialize(request, topic: session.dAppInfo.peerId)
         transport.send(to: request.url, text: text)
+    }
+
+    /// Process incomming text messages from the transport layer.
+    ///
+    /// - Parameters:
+    ///   - text: incoming message
+    ///   - url: WalletConnect url
+    private func onTextReceive(_ text: String, from url: WCURL) {
+        print("WC: <== \(text)")
+        do {
+            // we handle only properly formed JSONRPC 2.0 requests. JSONRPC 2.0 responses are ignored.
+            let request = try requestSerializer.deserialize(text, url: url)
+            handle(request)
+        } catch {
+            print("WC: incomming text deserialization to JSONRPC 2.0 requests error: \(error.localizedDescription)")
+            send(Response(payload: JSONRPC_2_0.Response.invalidJSON, url: url))
+        }
+    }
+
+    /// Confirmation from Transport layer that connection was successfully established.
+    ///
+    /// - Parameter url: WalletConnect url
+    private func onConnect(to url: WCURL) {
+        print("WC: didConnect url: \(url.bridgeURL.absoluteString)")
+        if let session = sessions[url] { // reconnecting existing session
+            subscribe(on: session.walletInfo!.peerId, url: session.url)
+            delegate.server(self, didConnect: session)
+        } else { // establishing new connection, handshake in process
+            subscribe(on: url.topic, url: url)
+        }
+    }
+
+    /// Confirmation from Transport layer that connection was dropped by the dApp.
+    ///
+    /// - Parameters:
+    ///   - url: WalletConnect url
+    ///   - error: error that triggered the disconnection
+    private func onDisconnect(from url: WCURL, error: Error?) {
+        print("WC: didDisconnect url: \(url.bridgeURL.absoluteString)")
+        // check if disconnect happened during handshake
+        guard let session = sessions[url] else {
+            delegate.server(self, didFailToConnect: url)
+            return
+        }
+        // if a session was not initiated by the wallet or the dApp to disconnect, try to reconnect it.
+        guard let pendingSession = pendingDisconnectionSessions[url] else {
+            print("WC: trying to reconnect session by url: \(url.bridgeURL.absoluteString)")
+            try! reConnect(to: session)
+            return
+        }
+        sessions.removeValue(forKey: url)
+        pendingDisconnectionSessions.removeValue(forKey: url)
+        delegate.server(self, didDisconnect: session, error: error)
+    }
+
+    private func handle(_ request: Request) {
+        if let handler = handlers.first(where: { $0.canHandle(request: request) }) {
+            handler.handle(request: request)
+        } else {
+            send(Response(payload: JSONRPC_2_0.Response.methodDoesNotExist, url: request.url))
+        }
+    }
+
+    // TODO: where to handle error?
+    private func subscribe(on topic: String, url: WCURL) {
+        let message = PubSubMessage(topic: topic, type: .sub, payload: "")
+        transport.send(to: url, text: try! message.json())
     }
 
 }

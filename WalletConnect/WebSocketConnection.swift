@@ -12,6 +12,12 @@ class WebSocketConnection {
     private let onConnect: (() -> Void)?
     private let onDisconnect: ((Error?) -> Void)?
     private let onTextReceive: ((String) -> Void)?
+    // needed to keep connection alive
+    private var pingTimer: Timer?
+
+    var isOpen: Bool {
+        return socket.isConnected
+    }
 
     init(url: WCURL,
          onConnect: (() -> Void)?,
@@ -35,7 +41,7 @@ class WebSocketConnection {
 
     func send(_ text: String) {
         socket.write(string: text)
-        print("WC: WebSocket write: \(text)")
+        print("WC: ==> \(text)")
     }
 
 }
@@ -43,10 +49,15 @@ class WebSocketConnection {
 extension WebSocketConnection: WebSocketDelegate {
 
     func websocketDidConnect(socket: WebSocketClient) {
+        pingTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true, block: { [weak self] _ in
+            print("WC: ==> ping")
+            self?.socket.write(ping: Data())
+        })
         onConnect?()
     }
 
     func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
+        pingTimer?.invalidate()
         onDisconnect?(error)
     }
 
