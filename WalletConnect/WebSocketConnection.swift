@@ -14,6 +14,8 @@ class WebSocketConnection {
     private let onTextReceive: ((String) -> Void)?
     // needed to keep connection alive
     private var pingTimer: Timer?
+    // TODO: make injectable on server creation
+    private let pingInterval: TimeInterval = 30
 
     private var requestSerializer: RequestSerializer = JSONRPCSerializer()
     private var responseSerializer: ResponseSerializer = JSONRPCSerializer()
@@ -63,7 +65,7 @@ class WebSocketConnection {
 extension WebSocketConnection: WebSocketDelegate {
 
     func websocketDidConnect(socket: WebSocketClient) {
-        pingTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
+        pingTimer = Timer.scheduledTimer(withTimeInterval: pingInterval, repeats: true) { [weak self] _ in
             print("WC: ==> ping")
             self?.socket.write(ping: Data())
         }
