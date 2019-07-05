@@ -48,7 +48,7 @@ public protocol ServerDelegate: class {
     /// the server trying to restore lost connection.
     func server(_ server: Server, didConnect session: Session)
 
-    /// called only when the session is disconnect with intention of the dApp or the Wallet.
+    /// Called only when the session is disconnect with intention of the dApp or the Wallet.
     func server(_ server: Server, didDisconnect session: Session, error: Error?)
 
 }
@@ -79,6 +79,7 @@ public class Server {
         responseSerializer = serializer
         requestSerializer = serializer
         register(handler: HandshakeHandler(delegate: self))
+        register(handler: UpdateSessionHandler(delegate: self))
     }
 
     public func register(handler: RequestHandler) {
@@ -138,8 +139,24 @@ public class Server {
         guard transport.isConnected(by: session.url) else {
             throw ServerError.tryingToDisconnectInactiveSession
         }
+        try updateSession(session, with: session.walletInfo!.with(approved: false))
         pendingDisconnectionSessions[session.url] = session
         transport.disconnect(from: session.url)
+    }
+
+    /// Update session with new wallet info.
+    ///
+    /// - Parameters:
+    ///   - session: Session object
+    ///   - walletInfo: WalletInfo object
+    /// - Throws: error if wallet info is missing
+    public func updateSession(_ session: Session, with walletInfo: Session.WalletInfo) throws {
+        guard session.walletInfo != nil else {
+            throw ServerError.missingWalletInfoInSession
+        }
+        // TODO: where to handle error?
+        let request = try! UpdateSessionRequest(url: session.url, walletInfo: walletInfo)!
+        send(request)
     }
 
     // TODO: where to handle error?
@@ -203,7 +220,7 @@ public class Server {
             return
         }
         // if a session was not initiated by the wallet or the dApp to disconnect, try to reconnect it.
-        guard let pendingSession = pendingDisconnectionSessions[url] else {
+        guard pendingDisconnectionSessions[url] != nil else {
             print("WC: trying to reconnect session by url: \(url.bridgeURL.absoluteString)")
             try! reConnect(to: session)
             return
@@ -242,6 +259,21 @@ extension Server: HandshakeHandlerDelegate {
                 sessions[updatedSession.url] = updatedSession
                 subscribe(on: walletInfo.peerId, url: updatedSession.url)
                 delegate.server(self, didConnect: updatedSession)
+            }
+        }
+    }
+
+}
+
+extension Server: UpdateSessionHandlerDelegate {
+
+    func handler(_ handler: UpdateSessionHandler, didUpdateSessionByURL url: WCURL, approved: Bool) {
+        guard let session = sessions[url] else { return }
+        if !approved {
+            do {
+                try disconnect(from: session)
+            } catch { // session already disconnected
+                delegate.server(self, didDisconnect: session, error: nil)
             }
         }
     }

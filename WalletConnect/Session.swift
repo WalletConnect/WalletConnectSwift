@@ -93,6 +93,15 @@ public struct Session {
             self.peerMeta = peerMeta
         }
 
+        func with(approved: Bool) -> WalletInfo {
+            return WalletInfo(approved: approved,
+                              accounts: self.accounts,
+                              chainId: self.chainId,
+                              peerId: self.peerId,
+                              peerMeta: self.peerMeta
+            )
+        }
+
     }
 
     enum SessionCreationError: Error {
