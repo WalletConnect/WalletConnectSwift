@@ -12,6 +12,13 @@ public struct WCURL: Hashable {
     public var bridgeURL: URL
     public var key: String
 
+    public init(topic: String, version: String, bridgeURL: URL, key: String) {
+        self.topic = topic
+        self.version = version
+        self.bridgeURL = bridgeURL
+        self.key = key
+    }
+
     public init?(_ str: String) {
         guard str.hasPrefix("wc:") else {
             return nil
@@ -57,16 +64,23 @@ public struct Session {
     }
 
     public struct DAppInfo: Codable {
-        public var peerId: String
-        public var peerMeta: ClientMeta
+
+        public let peerId: String
+        public let peerMeta: ClientMeta
+
+        public init(peerId: String, peerMeta: ClientMeta) {
+            self.peerId = peerId
+            self.peerMeta = peerMeta
+        }
+
     }
 
     public struct ClientMeta: Codable {
 
-        var name: String
-        var description: String
-        var icons: [URL]
-        var url: URL
+        public let name: String
+        public let description: String
+        public let icons: [URL]
+        public let url: URL
 
         public init(name: String, description: String, icons: [URL], url: URL) {
             self.name = name
@@ -79,11 +93,11 @@ public struct Session {
 
     public struct WalletInfo: Codable {
 
-        public var approved: Bool
-        public var accounts: [String]
-        public var chainId: Int
-        public var peerId: String
-        public var peerMeta: ClientMeta
+        public let approved: Bool
+        public let accounts: [String]
+        public let chainId: Int
+        public let peerId: String
+        public let peerMeta: ClientMeta
 
         public init(approved: Bool, accounts: [String], chainId: Int, peerId: String, peerMeta: ClientMeta) {
             self.approved = approved

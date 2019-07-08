@@ -105,11 +105,11 @@ public class Server {
         listen(on: url)
     }
 
-    /// Re-connect to the session
+    /// Reconnect to the session
     ///
     /// - Parameter session: session object with wallet info.
     /// - Throws: error if wallet info is missing
-    public func reConnect(to session: Session) throws {
+    public func reconnect(to session: Session) throws {
         guard session.walletInfo != nil else {
             throw ServerError.missingWalletInfoInSession
         }
@@ -227,7 +227,7 @@ public class Server {
         // if a session was not initiated by the wallet or the dApp to disconnect, try to reconnect it.
         guard pendingDisconnectionSessions[url] != nil else {
             print("WC: trying to reconnect session by url: \(url.bridgeURL.absoluteString)")
-            try! reConnect(to: session)
+            try! reconnect(to: session)
             return
         }
         sessions.removeValue(forKey: url)
