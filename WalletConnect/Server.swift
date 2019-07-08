@@ -61,7 +61,7 @@ public class Server {
     private var handlers: [RequestHandler] = []
     // server session are the approved connections between dApp and Wallet
     private var sessions = [WCURL: Session]()
-    // triggered by Wallet to disconnect
+    // triggered by Wallet or dApp to disconnect
     private var pendingDisconnectionSessions = [WCURL: Session]()
 
     private(set) weak var delegate: ServerDelegate!
