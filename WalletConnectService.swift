@@ -7,7 +7,7 @@ import MultisigWalletDomainModel
 
 public class WalletConnectService: WalletConnectDomainService {
 
-    private var server: Server!
+    var server: Server!
     private weak var delegate: WalletConnectDomainServiceDelegate!
 
     public init(delegate: WalletConnectDomainServiceDelegate) {
