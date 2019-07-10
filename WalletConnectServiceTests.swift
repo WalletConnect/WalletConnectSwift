@@ -6,6 +6,7 @@ import XCTest
 @testable import MultisigWalletImplementations
 import MultisigWalletDomainModel
 import CommonTestSupport
+import Common
 
 // swiftlint:disable weak_delegate
 class WalletConnectServiceTests: XCTestCase {
@@ -14,12 +15,14 @@ class WalletConnectServiceTests: XCTestCase {
     fileprivate var server: MockServer!
     fileprivate let delegate = MockWalletConnectDelegate()
     let url = "wc:id1@1?bridge=https%3A%2F%2Fbridge.walletconnect.org&key=key"
+    let logger = MockLogger()
 
     override func setUp() {
         super.setUp()
         service = WalletConnectService(delegate: delegate)
         server = MockServer(delegate: service)
         service.server = server
+        DomainRegistry.put(service: logger, for: Logger.self)
     }
 
     func test_whenConnecting_thenCallsServer() throws {
@@ -76,8 +79,8 @@ class WalletConnectServiceTests: XCTestCase {
     }
 
     func test_whenServerFailsToConnect_thenDelegateCalled() {
-        server.delegate.server(server, didFailToConnect: MultisigWalletImplementations
-            .WCURL(wcURL: MultisigWalletDomainModel.WCURL.testURL))
+        let url = MultisigWalletImplementations.WCURL(wcURL: MultisigWalletDomainModel.WCURL.testURL)
+        server.delegate.server(server, didFailToConnect: url)
         XCTAssertNotNil(delegate.failedURLToConnect)
     }
 
@@ -94,6 +97,33 @@ class WalletConnectServiceTests: XCTestCase {
     func test_whenServerDidDisconnect_thenDelegateCalled() {
         server.delegate.server(server, didDisconnect: Session(wcSession: WCSession.testSession), error: nil)
         XCTAssertNotNil(delegate.disconnectedSession)
+    }
+
+    func test_whenHandlingSendTransactionRequest_thenDelegateCalled() throws {
+        service.handle(request: request(from: MockRequestPayload.sendTransaction))
+        XCTAssertEqual(delegate.sendTransactionRequest!.from, "0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95")
+        XCTAssertEqual(delegate.sendTransactionRequest!.to, "0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95")
+        XCTAssertEqual(delegate.sendTransactionRequest!.gasLimit, "0x5208")
+        XCTAssertEqual(delegate.sendTransactionRequest!.gasPrice, "0x3b9aca00")
+        XCTAssertEqual(delegate.sendTransactionRequest!.value, "0x00")
+        XCTAssertEqual(delegate.sendTransactionRequest!.data, "0x")
+        XCTAssertEqual(delegate.sendTransactionRequest!.nonce, "0x00")
+    }
+
+    func test_whenHandlingInvalidRequest_thenErrorIsLogged() throws {
+        service.handle(request: request(from: MockRequestPayload.sendTransactionInvalid))
+        XCTAssertTrue(logger.errorLogged)
+    }
+
+    func test_whenHandlingEthereumNodeRequest_thenDelegateCalled() {
+        service.handle(request: request(from: MockRequestPayload.personalSignRequest))
+        XCTAssertNotNil(delegate.ethereumNodeRequest)
+    }
+
+    private func request(from json: String) -> Request {
+        let jsonRPCRequest = try! JSONRPC_2_0.Request.create(from: JSONRPC_2_0.JSON(json))
+        let url = MultisigWalletImplementations.WCURL(wcURL: MultisigWalletDomainModel.WCURL.testURL)
+        return Request(payload: jsonRPCRequest, url: url)
     }
 
 }
@@ -191,5 +221,38 @@ fileprivate class MockWalletConnectDelegate: WalletConnectDomainServiceDelegate 
     func didDisconnect(session: WCSession) {
         disconnectedSession = session
     }
+
+    var sendTransactionRequest: WCSendTransactionRequest?
+    func handleSendTransactionRequest(_ request: WCSendTransactionRequest,
+                                      completion: @escaping (Result<String, Error>) -> Void) {
+        sendTransactionRequest = request
+    }
+
+    var ethereumNodeRequest: WCMessage?
+    func handleEthereumNodeRequest(_ request: WCMessage, completion: (WCMessage) -> Void) {
+        ethereumNodeRequest = request
+    }
+
+}
+
+fileprivate class MockRequestPayload {
+
+    static let sendTransaction = """
+{"jsonrpc":"2.0","method":"eth_sendTransaction","id":1562744955028827,
+"params":[{"from":"0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95","data":"0x","gasLimit":"0x5208","value":"0x00",
+"to":"0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95","gasPrice":"0x3b9aca00","nonce":"0x00"}]}
+"""
+
+    static let sendTransactionInvalid = """
+{"jsonrpc":"2.0","method":"eth_sendTransaction","id":1562744955028827,
+"params":{"from":"0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95","data":"0x","gasLimit":"0x5208","value":"0x00",
+"to":"0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95","gasPrice":"0x3b9aca00","nonce":"0x00"}}
+"""
+
+    static let personalSignRequest = """
+{"jsonrpc":"2.0","method":"personal_sign","id":1562748678643280,
+"params":["0x4d7920656d61696c206973206a6f686e40646f652e636f6d202d2031353337383336323036313031",
+"0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95"]}
+"""
 
 }
