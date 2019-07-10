@@ -7,18 +7,18 @@ import MultisigWalletDomainModel
 
 public class WalletConnectService: WalletConnectDomainService {
 
+    public weak var delegate: WalletConnectDomainServiceDelegate!
+
     var server: Server!
-    private weak var delegate: WalletConnectDomainServiceDelegate!
 
     enum ErrorCode: Int {
         case declinedSendTransactionRequest = -10_000
         case wrongSendTransactionRequest = -10_001
     }
 
-    public init(delegate: WalletConnectDomainServiceDelegate) {
+    public init() {
         server = Server(delegate: self)
         server.register(handler: self)
-        self.delegate = delegate
     }
 
     public func connect(url: String) throws {

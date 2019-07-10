@@ -19,7 +19,8 @@ class WalletConnectServiceTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        service = WalletConnectService(delegate: delegate)
+        service = WalletConnectService()
+        service.delegate = delegate
         server = MockServer(delegate: service)
         service.server = server
         DomainRegistry.put(service: logger, for: Logger.self)
