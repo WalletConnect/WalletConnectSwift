@@ -4,7 +4,6 @@
 
 import Foundation
 
-// TODO: struct maybe?
 public class Request {
 
     public var payload: JSONRPC_2_0.Request
@@ -17,7 +16,6 @@ public class Request {
 
 }
 
-// TODO: struct maybe?
 public class Response {
 
     public var payload: JSONRPC_2_0.Response
