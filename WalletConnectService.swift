@@ -7,7 +7,7 @@ import MultisigWalletDomainModel
 
 public class WalletConnectService: WalletConnectDomainService {
 
-    public weak var delegate: WalletConnectDomainServiceDelegate!
+    private weak var delegate: WalletConnectDomainServiceDelegate!
 
     var server: Server!
 
@@ -19,6 +19,10 @@ public class WalletConnectService: WalletConnectDomainService {
     public init() {
         server = Server(delegate: self)
         server.register(handler: self)
+    }
+
+    public func updateDelegate(_ delegate: WalletConnectDomainServiceDelegate) {
+        self.delegate = delegate
     }
 
     public func connect(url: String) throws {
@@ -113,9 +117,7 @@ extension WalletConnectService: RequestHandler {
             }
         } else {
             // TODO: Discuss:
-            // 1) should we allow to handle requests to a node at all?
-            // 2) if yes, should Ethereum JSON RPC request handling be part of the lib itself?
-            // 3) if no, send a method not supported response.
+            // 1) should Ethereum JSON RPC request handling be part of the lib itself?
             delegate.handleEthereumNodeRequest(request.wcRequest) { [weak self] wcResponse in
                 guard let self = self else { return }
                 do {
