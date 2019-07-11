@@ -24,7 +24,6 @@ public class MockEthereumNodeService: EthereumNodeDomainService {
     }
 
     public var eth_getTransactionReceipt_output: TransactionReceipt?
-
     public func eth_getTransactionReceipt(transaction: TransactionHash) throws -> TransactionReceipt? {
         if shouldThrow { throw Error.error }
         return eth_getTransactionReceipt_output
@@ -40,6 +39,18 @@ public class MockEthereumNodeService: EthereumNodeDomainService {
 
     public func eth_getBlockByHash(hash: String) throws -> EthBlock? {
         return EthBlock(hash: "0x1", timestamp: Date())
+    }
+
+    public func eth_getStorageAt(address: Address, position: Int) throws -> Data {
+        return Data()
+    }
+
+    public var rawCall_input: String?
+    public var rawCall_output = ""
+    public func rawCall(payload: String) throws -> String {
+        rawCall_input = payload
+        if shouldThrow { throw Error.error }
+        return rawCall_output
     }
 
 }

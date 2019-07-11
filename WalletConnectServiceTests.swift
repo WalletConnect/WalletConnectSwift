@@ -187,7 +187,7 @@ fileprivate class MockWalletConnectDelegate: WalletConnectDomainServiceDelegate 
     }
 
     var ethereumNodeRequest: WCMessage?
-    func handleEthereumNodeRequest(_ request: WCMessage, completion: (WCMessage) -> Void) {
+    func handleEthereumNodeRequest(_ request: WCMessage, completion: (Result<WCMessage, Error>) -> Void) {
         ethereumNodeRequest = request
     }
 

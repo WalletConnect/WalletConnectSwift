@@ -48,4 +48,12 @@ public class DemoEthereumNodeService: EthereumNodeDomainService {
         return EthBlock(hash: "0x1", timestamp: Date())
     }
 
+    public func eth_getStorageAt(address: Address, position: Int) throws -> Data {
+        return Data()
+    }
+
+    public func rawCall(payload: String) throws -> String {
+        return ""
+    }
+
 }
