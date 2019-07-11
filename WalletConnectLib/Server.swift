@@ -226,6 +226,7 @@ public class Server {
         }
         // if a session was not initiated by the wallet or the dApp to disconnect, try to reconnect it.
         guard pendingDisconnectionSessions[url] != nil else {
+            // TODO: should we notify delegate that we try to reconnect?
             print("WC: trying to reconnect session by url: \(url.bridgeURL.absoluteString)")
             try! reconnect(to: session)
             return

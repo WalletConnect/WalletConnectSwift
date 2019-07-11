@@ -203,13 +203,13 @@ extension Session {
     init(wcSession: WCSession) {
         self.init(url: WCURL(wcURL: wcSession.url),
                   dAppInfo: DAppInfo(wcDAppInfo: wcSession.dAppInfo),
-                  walletInfo: Session.WalletInfo(wcWalletInfo: wcSession.walletInfo))
+                  walletInfo: Session.WalletInfo(wcWalletInfo: wcSession.walletInfo!))
     }
 
     func wcSession(status: WCSessionStatus) -> WCSession {
         return WCSession(url: url.wcURL,
                          dAppInfo: dAppInfo.wcDAppInfo,
-                         walletInfo: walletInfo!.wcWalletInfo,
+                         walletInfo: walletInfo?.wcWalletInfo,
                          status: status)
     }
 
