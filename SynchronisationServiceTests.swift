@@ -49,7 +49,7 @@ private extension SynchronisationServiceTests {
         publisher.expectToPublish(AccountsBalancesUpdated.self)
         XCTAssertFalse(tokenListService.didReturnItems, line: line)
         DispatchQueue.global().async {
-            self.syncService.syncOnce()
+            self.syncService.syncTokensAndAccountsOnce()
         }
     }
 

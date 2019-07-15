@@ -30,9 +30,17 @@ public class SynchronisationService: SynchronisationDomainService {
         self.syncInterval = syncInterval
     }
 
+    /// Try to reconnect all stored WalletConnect sessions.
+    public func syncWalletConnectSessions() {
+        precondition(!Thread.isMainThread)
+        DomainRegistry.walletConnectSessionRepository.all().forEach {
+            try? ApplicationServiceRegistry.walletConnectService.reconnect(session: $0)
+        }
+    }
+
     /// Synchronise token list and account balances with info from remote services.
     /// Should be called from a background thread.
-    public func syncOnce() {
+    public func syncTokensAndAccountsOnce() {
         precondition(!Thread.isMainThread)
         syncTokenList()
         let hasSyncInProgress = syncLoopRepeater != nil && syncLoopRepeater!.isRunning

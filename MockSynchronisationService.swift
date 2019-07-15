@@ -10,21 +10,23 @@ public final class MockSynchronisationService: SynchronisationDomainService {
 
     public init() {}
 
-    public var didSync = false
+    var didSyncWCSessions = false
+    public func syncWalletConnectSessions() {
+        didSyncWCSessions = true
+    }
 
-    public func syncOnce() {
+    public var didSync = false
+    public func syncTokensAndAccountsOnce() {
         Timer.wait(0.2)
         didSync = true
     }
 
     public var didStart = false
-
     public func startSyncLoop() {
         didStart = true
     }
 
     public var didStop = false
-
     public func stopSyncLoop() {
         didStop = true
     }
