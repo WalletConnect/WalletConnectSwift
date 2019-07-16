@@ -83,7 +83,7 @@ public class MockTransactionRelayService: TransactionRelayDomainService {
 
     private func throwIfNeeded() throws {
         if shouldThrowNetworkError {
-            throw JSONHTTPClient.Error.networkRequestFailed(URLRequest(url: URL(string: "http://test.url")!), nil, nil)
+            throw HTTPClient.Error.networkRequestFailed(URLRequest(url: URL(string: "http://test.url")!), nil, nil)
         }
         if shouldThrow { throw TestError.error }
     }
