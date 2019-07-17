@@ -102,12 +102,12 @@ class WalletConnectServiceTests: XCTestCase {
 
     func test_whenHandlingSendTransactionRequest_thenDelegateCalled() throws {
         service.handle(request: request(from: MockRequestPayload.sendTransaction))
-        XCTAssertEqual(delegate.sendTransactionRequest!.from, "0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95")
-        XCTAssertEqual(delegate.sendTransactionRequest!.to, "0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95")
-        XCTAssertEqual(delegate.sendTransactionRequest!.gasLimit, "0x5208")
-        XCTAssertEqual(delegate.sendTransactionRequest!.gasPrice, "0x3b9aca00")
-        XCTAssertEqual(delegate.sendTransactionRequest!.value, "0x00")
-        XCTAssertEqual(delegate.sendTransactionRequest!.data, "0x")
+        XCTAssertEqual(delegate.sendTransactionRequest!.from, Address("0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95"))
+        XCTAssertEqual(delegate.sendTransactionRequest!.to, Address("0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95"))
+        XCTAssertEqual(delegate.sendTransactionRequest!.gasLimit, TokenInt(hex: "0x5208")!)
+        XCTAssertEqual(delegate.sendTransactionRequest!.gasPrice, TokenInt(hex: "0x3b9aca00")!)
+        XCTAssertEqual(delegate.sendTransactionRequest!.value, TokenInt(hex: "0x00")!)
+        XCTAssertEqual(delegate.sendTransactionRequest!.data, Data(hex: "0x"))
         XCTAssertEqual(delegate.sendTransactionRequest!.nonce, "0x00")
     }
 
