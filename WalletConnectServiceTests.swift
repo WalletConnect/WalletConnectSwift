@@ -109,6 +109,7 @@ class WalletConnectServiceTests: XCTestCase {
         XCTAssertEqual(delegate.sendTransactionRequest!.value, TokenInt(hex: "0x00")!)
         XCTAssertEqual(delegate.sendTransactionRequest!.data, Data(hex: "0x"))
         XCTAssertEqual(delegate.sendTransactionRequest!.nonce, "0x00")
+        XCTAssertEqual(delegate.sendTransactionRequest!.url, MultisigWalletDomainModel.WCURL.testURL)
     }
 
     func test_whenHandlingInvalidRequest_thenErrorIsLogged() throws {

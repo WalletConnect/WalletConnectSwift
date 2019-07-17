@@ -80,8 +80,12 @@ extension WalletConnectService: ServerDelegate {
 
 extension WalletConnectService: RequestHandler {
 
+    var unsupportedWalletConnectRequests: [String] {
+        return ["personal_sign", "eth_sign", "eth_signTypedData", "eth_signTransaction", "eth_sendRawTransaction"]
+    }
+
     public func canHandle(request: Request) -> Bool {
-        return true
+        return !unsupportedWalletConnectRequests.contains(request.payload.method)
     }
 
     public func handle(request: Request) {
@@ -97,7 +101,9 @@ extension WalletConnectService: RequestHandler {
                     self.server.send(Response(payload: responsePayload, url: request.url))
                     return
                 }
-                delegate.handleSendTransactionRequest(requestWrapper[0]) { [weak self] result in
+                var wcRequest = requestWrapper[0]
+                wcRequest.url = request.url.wcURL
+                delegate.handleSendTransactionRequest(wcRequest) { [weak self] result in
                     guard let self = self else { return }
                     var responsePayload: JSONRPC_2_0.Response
                     switch result {
@@ -113,7 +119,7 @@ extension WalletConnectService: RequestHandler {
                     self.server.send(Response(payload: responsePayload, url: request.url))
                 }
             } catch {
-                DomainRegistry.logger.error("Could not handle eth_sendTransaction from WalletConnect", error: error)
+                DomainRegistry.logger.error("WC: Could not handle eth_sendTransaction from WalletConnect", error: error)
             }
         } else {
             // TODO: Discuss: should Ethereum JSON RPC request handling be part of the lib itself?
@@ -125,11 +131,12 @@ extension WalletConnectService: RequestHandler {
                         let response = try Response(wcResponse: wcResponse)
                         self.server.send(response)
                     } catch {
-                        let message = "Could not create a WalletConnect Response from: \(wcResponse.payload)"
+                        // TODO: discuss if we should send a failure response.
+                        let message = "WC: Could not create a WalletConnect Response from: \(wcResponse.payload)"
                         DomainRegistry.logger.error(message, error: error)
                     }
                 case .failure(let error):
-                    let message = "Could not send a WalletConnect request: \(request.payload)"
+                    let message = "WC: Could not send a WalletConnect request: \(request.payload)"
                     DomainRegistry.logger.error(message, error: error)
                 }
             }
