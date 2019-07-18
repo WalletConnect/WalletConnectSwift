@@ -8,7 +8,7 @@ import MultisigWalletDomainModel
 import CommonTestSupport
 import Common
 
-// swiftlint:disable weak_delegate
+// swiftlint:disable weak_delegate number_separator
 class WalletConnectServiceTests: XCTestCase {
 
     var service: WalletConnectService!
@@ -100,6 +100,13 @@ class WalletConnectServiceTests: XCTestCase {
         XCTAssertNotNil(delegate.disconnectedSession)
     }
 
+    // MARK: - RequestHandler
+
+    func test_whenGettingUnsopportedMethod_thenCanNotHandle() {
+        XCTAssertTrue(service.canHandle(request: request(from: MockRequestPayload.sendTransaction)))
+        XCTAssertFalse(service.canHandle(request: request(from: MockRequestPayload.personalSignRequest)))
+    }
+
     func test_whenHandlingSendTransactionRequest_thenDelegateCalled() throws {
         service.handle(request: request(from: MockRequestPayload.sendTransaction))
         XCTAssertEqual(delegate.sendTransactionRequest!.from, Address("0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95"))
@@ -120,6 +127,29 @@ class WalletConnectServiceTests: XCTestCase {
     func test_whenHandlingEthereumNodeRequest_thenDelegateCalled() {
         service.handle(request: request(from: MockRequestPayload.personalSignRequest))
         XCTAssertNotNil(delegate.ethereumNodeRequest)
+    }
+
+    func test_whenHandlingRequestSuccessResponse_thenSendsResponseWithRequestId() {
+        delegate.sendTransactionRequest_response = .success("hash")
+        service.handle(request: request(from: MockRequestPayload.sendTransaction))
+        XCTAssertTrue(server.sendResponse!.payload.id == .int(1562744955028827))
+        if case JSONRPC_2_0.Response.Payload.value(let result) = server.sendResponse!.payload.result,
+            case JSONRPC_2_0.ValueType.string(let hash) = result {
+            XCTAssertEqual(hash, "hash")
+        } else {
+            XCTFail("Expected success payload")
+        }
+    }
+
+    func test_whenHandlingRequestsReturnsFailureResponse_thenSendsErrorResponseWithRequestId() {
+        delegate.sendTransactionRequest_response = .failure(TestError.error)
+        service.handle(request: request(from: MockRequestPayload.sendTransaction))
+        XCTAssertTrue(server.sendResponse!.payload.id == .int(1562744955028827))
+        if case JSONRPC_2_0.Response.Payload.error(let error) = server.sendResponse!.payload.result {
+            XCTAssertEqual(error.code.code, WalletConnectService.ErrorCode.declinedSendTransactionRequest.rawValue)
+        } else {
+            XCTFail("Expected error payload")
+        }
     }
 
     private func request(from json: String) -> Request {
@@ -157,6 +187,11 @@ fileprivate class MockServer: Server {
         return sessions
     }
 
+    var sendResponse: Response?
+    override func send(_ response: Response) {
+        sendResponse = response
+    }
+
 }
 
 fileprivate class MockWalletConnectDelegate: WalletConnectDomainServiceDelegate {
@@ -182,9 +217,13 @@ fileprivate class MockWalletConnectDelegate: WalletConnectDomainServiceDelegate 
     }
 
     var sendTransactionRequest: WCSendTransactionRequest?
+    var sendTransactionRequest_response: Result<String, Error>?
     func handleSendTransactionRequest(_ request: WCSendTransactionRequest,
                                       completion: @escaping (Result<String, Error>) -> Void) {
         sendTransactionRequest = request
+        if let response = sendTransactionRequest_response {
+            completion(response)
+        }
     }
 
     var ethereumNodeRequest: WCMessage?
