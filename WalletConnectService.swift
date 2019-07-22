@@ -5,6 +5,7 @@
 import Foundation
 import MultisigWalletDomainModel
 
+// TODO: make this service very thin and move domain specific logic to special new domain object.
 public class WalletConnectService: WalletConnectDomainService {
 
     private weak var delegate: WalletConnectDomainServiceDelegate!
@@ -28,6 +29,14 @@ public class WalletConnectService: WalletConnectDomainService {
     public func connect(url: String) throws {
         guard let wcurl = WCURL(url) else { throw WCError.wrongURLFormat }
         do {
+            // Stub data will be updated with real data once the connection is established.
+            let stubURL = URL(string: "https://safe.gnosis.io")!
+            let stubMeta = WCClientMeta(name: "", description: "", icons: [], url: stubURL)
+            let newSession = WCSession(url: wcurl.wcURL,
+                                       dAppInfo: WCDAppInfo(peerId: "", peerMeta: stubMeta),
+                                       walletInfo: nil,
+                                       status: .connecting)
+            DomainRegistry.walletConnectSessionRepository.save(newSession)
             try server.connect(to: wcurl)
         } catch {
             throw WCError.tryingToConnectExistingSessionURL
@@ -35,6 +44,12 @@ public class WalletConnectService: WalletConnectDomainService {
     }
 
     public func reconnect(session: WCSession) throws {
+        guard session.walletInfo != nil else {
+            // Tryint to reconnect a session without handshake process finished.
+            // It could happed when the app restarts in the middle of the process.
+            DomainRegistry.walletConnectSessionRepository.remove(session)
+            return
+        }
         do {
             try server.reconnect(to: Session(wcSession: session))
         } catch {
@@ -43,6 +58,11 @@ public class WalletConnectService: WalletConnectDomainService {
     }
 
     public func disconnect(session: WCSession) throws {
+        guard session.walletInfo != nil else {
+            // Trying to disconnect connecting session.
+            DomainRegistry.walletConnectSessionRepository.remove(session)
+            return
+        }
         do {
             try server.disconnect(from: Session(wcSession: session))
         } catch {
@@ -50,8 +70,8 @@ public class WalletConnectService: WalletConnectDomainService {
         }
     }
 
-    public func openSessions() -> [WCSession] {
-        return server.openSessions().map { $0.wcSession(status: .connected) }
+    public func sessions() -> [WCSession] {
+        return DomainRegistry.walletConnectSessionRepository.all().sorted { $0.created > $1.created }
     }
 
 }
@@ -63,17 +83,28 @@ extension WalletConnectService: ServerDelegate {
     }
 
     public func server(_ server: Server, shouldStart session: Session, completion: (Session.WalletInfo) -> Void) {
-        delegate.shouldStart(session: session.wcSession(status: .connecting)) { wcWalletInfo in
+        guard let existingSession = findExistingWCSession(for: session) else { return }
+        delegate.shouldStart(session: session.wcSession(status: .connecting,
+                                                        created: existingSession.created)) { wcWalletInfo in
             completion(Session.WalletInfo(wcWalletInfo: wcWalletInfo))
         }
     }
 
     public func server(_ server: Server, didConnect session: Session) {
-        delegate.didConnect(session: session.wcSession(status: .connected))
+        guard let existingSession = findExistingWCSession(for: session) else { return }
+        let updatedSession = session.wcSession(status: .connected, created: existingSession.created)
+        DomainRegistry.walletConnectSessionRepository.save(updatedSession)
+        delegate.didConnect(session: updatedSession)
     }
 
     public func server(_ server: Server, didDisconnect session: Session, error: Error?) {
-        delegate.didDisconnect(session: session.wcSession(status: .disconnected))
+        guard let existingSession = findExistingWCSession(for: session) else { return }
+        DomainRegistry.walletConnectSessionRepository.remove(existingSession)
+        delegate.didDisconnect(session: session.wcSession(status: .disconnected, created: existingSession.created))
+    }
+
+    private func findExistingWCSession(for session: Session) -> WCSession? {
+        return DomainRegistry.walletConnectSessionRepository.find(id: WCSessionID(session.url.topic))
     }
 
 }
@@ -218,11 +249,12 @@ extension Session {
                   walletInfo: Session.WalletInfo(wcWalletInfo: wcSession.walletInfo!))
     }
 
-    func wcSession(status: WCSessionStatus) -> WCSession {
+    func wcSession(status: WCSessionStatus, created: Date) -> WCSession {
         return WCSession(url: url.wcURL,
                          dAppInfo: dAppInfo.wcDAppInfo,
                          walletInfo: walletInfo?.wcWalletInfo,
-                         status: status)
+                         status: status,
+                         created: created)
     }
 
 }

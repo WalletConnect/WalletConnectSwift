@@ -16,6 +16,7 @@ class WalletConnectServiceTests: XCTestCase {
     fileprivate let delegate = MockWalletConnectDelegate()
     let url = "wc:id1@1?bridge=https%3A%2F%2Fbridge.walletconnect.org&key=key"
     let logger = MockLogger()
+    let sessionRepo = InMemoryWCSessionRepository()
 
     override func setUp() {
         super.setUp()
@@ -24,6 +25,7 @@ class WalletConnectServiceTests: XCTestCase {
         server = MockServer(delegate: service)
         service.server = server
         DomainRegistry.put(service: logger, for: Logger.self)
+        DomainRegistry.put(service: sessionRepo, for: WalletConnectSessionRepository.self)
     }
 
     func test_whenConnecting_thenCallsServer() throws {
@@ -32,6 +34,12 @@ class WalletConnectServiceTests: XCTestCase {
         XCTAssertEqual(server.connectUrl?.version, "1")
         XCTAssertEqual(server.connectUrl?.bridgeURL, URL(string: "https://bridge.walletconnect.org"))
         XCTAssertEqual(server.connectUrl?.key, "key")
+    }
+
+    func test_whenConnecting_thenSavesStubSession() throws {
+        XCTAssertNil(sessionRepo.find(id: WCSessionID("id1")))
+        try service.connect(url: url)
+        XCTAssertNotNil(sessionRepo.find(id: WCSessionID("id1")))
     }
 
     func test_whenConnectingWithWrongURL_thenProperErrorIsThrown() {
@@ -55,6 +63,12 @@ class WalletConnectServiceTests: XCTestCase {
         XCTAssertEqual(server.reconnectSession?.url.key, "key")
     }
 
+    func test_whenReconnectingConnectingSession_thenRemovesItFromRepository() throws {
+        sessionRepo.save(WCSession.connectingTestSession)
+        try service.reconnect(session: WCSession.connectingTestSession)
+        XCTAssertNil(sessionRepo.find(id: WCSession.connectingTestSession.id))
+    }
+
     func test_whenReconnectingThrows_thenProperErrorIsThrown() {
         server.shouldThrow = true
         XCTAssertThrowsError(try service.reconnect(session: WCSession.testSession)) {
@@ -67,6 +81,12 @@ class WalletConnectServiceTests: XCTestCase {
         XCTAssertNotNil(server.disconnectSession)
     }
 
+    func test_whenDisconnectingConnectingSession_thenRemovesItFromRepository() throws {
+        sessionRepo.save(WCSession.connectingTestSession)
+        try service.disconnect(session: WCSession.connectingTestSession)
+        XCTAssertNil(sessionRepo.find(id: WCSession.connectingTestSession.id))
+    }
+
     func test_whenDisconnectingThrows_thenProperErrorIsThrown() {
         server.shouldThrow = true
         XCTAssertThrowsError(try service.disconnect(session: WCSession.testSession)) {
@@ -74,9 +94,13 @@ class WalletConnectServiceTests: XCTestCase {
         }
     }
 
-    func test_openSessions_returnsOpenServerSessions() {
-        server.sessions = [Session(wcSession: WCSession.testSession)]
-        XCTAssertEqual(service.openSessions(), [WCSession.testSession])
+    func test_sessions_returnsRepositorySessionsSortedByCreatedDateAscending() {
+        sessionRepo.save(WCSession.connectingTestSession)
+        sessionRepo.save(WCSession.testSession)
+        let sessions = service.sessions()
+        XCTAssertEqual(sessions.count, 2)
+        XCTAssertEqual(sessions[0], WCSession.testSession)
+        XCTAssertEqual(sessions[1], WCSession.connectingTestSession)
     }
 
     func test_whenServerFailsToConnect_thenDelegateCalled() {
@@ -85,19 +109,57 @@ class WalletConnectServiceTests: XCTestCase {
         XCTAssertNotNil(delegate.failedURLToConnect)
     }
 
+    func test_whenServerShouldStartSessionThatIsNotInRepo_thenDelegateIsNotCalled() {
+        server.delegate.server(server, shouldStart: Session(wcSession: WCSession.testSession)) { _ in }
+        XCTAssertNil(delegate.shouldStartSession)
+    }
+
     func test_whenServerShouldStartSession_thenDelegateCalled() {
+        sessionRepo.save(WCSession.testSession)
         server.delegate.server(server, shouldStart: Session(wcSession: WCSession.testSession)) { _ in }
         XCTAssertNotNil(delegate.shouldStartSession)
     }
 
+    func test_whenServerDidConnectSessionThatIsNotInRepo_thenDelegateIsNotCalled() {
+        server.delegate.server(server, didConnect: Session(wcSession: WCSession.testSession))
+        XCTAssertNil(delegate.connectedSession)
+    }
+
     func test_whenServerDidConnect_thenDelegateCalled() {
+        sessionRepo.save(WCSession.testSession)
         server.delegate.server(server, didConnect: Session(wcSession: WCSession.testSession))
         XCTAssertNotNil(delegate.connectedSession)
     }
 
+    func test_whenServerDidConnect_thenUpdatedSessionIsStoredInRepo() {
+        sessionRepo.save(WCSession.connectingTestSession)
+        let newDate = Date()
+        let updatedSession = WCSession(url: WCSession.connectingTestSession.url,
+                                       dAppInfo: WCSession.connectingTestSession.dAppInfo,
+                                       walletInfo: WCSession.testSession.walletInfo,
+                                       status: .connected,
+                                       created: newDate)
+        server.delegate.server(server, didConnect: Session(wcSession: updatedSession))
+        let newRepoSession = sessionRepo.find(id: WCSession.connectingTestSession.id)
+        XCTAssertEqual(newRepoSession?.status, .connected)
+        XCTAssertEqual(newRepoSession?.created, WCSession.connectingTestSession.created)
+    }
+
+    func test_whenServerDidDisconnectFromSessionThatIsNotInRepo_thenDelegateIsNotCalled() {
+        server.delegate.server(server, didDisconnect: Session(wcSession: WCSession.testSession), error: nil)
+        XCTAssertNil(delegate.disconnectedSession)
+    }
+
     func test_whenServerDidDisconnect_thenDelegateCalled() {
+        sessionRepo.save(WCSession.testSession)
         server.delegate.server(server, didDisconnect: Session(wcSession: WCSession.testSession), error: nil)
         XCTAssertNotNil(delegate.disconnectedSession)
+    }
+
+    func test_whenServerDidDisconnect_thenSessionIsRemovedFromRepo() {
+        sessionRepo.save(WCSession.testSession)
+        server.delegate.server(server, didDisconnect: Session(wcSession: WCSession.testSession), error: nil)
+        XCTAssertNil(sessionRepo.find(id: WCSession.testSession.id))
     }
 
     // MARK: - RequestHandler
@@ -180,11 +242,6 @@ fileprivate class MockServer: Server {
     override func disconnect(from session: Session) throws {
         if shouldThrow { throw TestError.error }
         disconnectSession = session
-    }
-
-    var sessions = [Session]()
-    override func openSessions() -> [Session] {
-        return sessions
     }
 
     var sendResponse: Response?
