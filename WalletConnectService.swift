@@ -45,7 +45,7 @@ public class WalletConnectService: WalletConnectDomainService {
 
     public func reconnect(session: WCSession) throws {
         guard session.walletInfo != nil else {
-            // Tryint to reconnect a session without handshake process finished.
+            // Trying to reconnect a session without handshake process finished.
             // It could happed when the app restarts in the middle of the process.
             DomainRegistry.walletConnectSessionRepository.remove(session)
             return
