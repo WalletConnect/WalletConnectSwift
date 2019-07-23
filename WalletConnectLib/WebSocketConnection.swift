@@ -69,16 +69,22 @@ extension WebSocketConnection: WebSocketDelegate {
             print("WC: ==> ping")
             self?.socket.write(ping: Data())
         }
-        onConnect?()
+        DispatchQueue.global.async {
+            self.onConnect?()
+        }
     }
 
     func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
         pingTimer?.invalidate()
-        onDisconnect?(error)
+        DispatchQueue.global.async {
+            self.onDisconnect?(error)
+        }
     }
 
     func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
-        onTextReceive?(text)
+        DispatchQueue.global.async {
+            self.onTextReceive?(text)
+        }
     }
 
     func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
