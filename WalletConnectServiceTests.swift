@@ -26,6 +26,7 @@ class WalletConnectServiceTests: XCTestCase {
         service.server = server
         DomainRegistry.put(service: logger, for: Logger.self)
         DomainRegistry.put(service: sessionRepo, for: WalletConnectSessionRepository.self)
+        DomainRegistry.put(service: EncryptionService(), for: EncryptionDomainService.self)
     }
 
     func test_whenConnecting_thenCallsServer() throws {
