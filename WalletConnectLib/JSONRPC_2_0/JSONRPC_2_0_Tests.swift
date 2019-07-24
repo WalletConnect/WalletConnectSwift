@@ -63,6 +63,13 @@ class JSONRPC_2_0_Tests: XCTestCase {
         XCTAssertEqual(errResp, errResp2)
     }
 
+    func test_my() throws {
+        let string = """
+{"jsonrpc":"2.0","id":1563895837415317,"result":null}
+"""
+        XCTAssertNoThrow(try JSONRPC_2_0.Response.create(from: JSONRPC_2_0.JSON(string)))
+    }
+
 }
 
 fileprivate enum JSONRPC_StubRequest {

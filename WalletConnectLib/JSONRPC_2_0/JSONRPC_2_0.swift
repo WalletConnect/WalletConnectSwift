@@ -239,6 +239,8 @@ public enum JSONRPC_2_0 {
                     self = .error(error)
                 } else if let value = try? container.decode(ValueType.self) {
                     self = .value(value)
+                } else if container.decodeNil() {
+                    self = .value(.null)
                 } else {
                     let context = DecodingError.Context(codingPath: decoder.codingPath,
                                                         debugDescription: "Payload is neither error, nor JSON value")
@@ -311,8 +313,8 @@ public enum JSONRPC_2_0 {
             decoder.keyDecodingStrategy = .custom { codingKeys in
                 let lastKey = codingKeys.last!
                 guard lastKey.intValue == nil else { return lastKey }
-                let strinValue = lastKey.stringValue == "error" ? "result" : lastKey.stringValue
-                return JSONRPC_2_0.KeyType(stringValue: strinValue)!
+                let stringValue = lastKey.stringValue == "error" ? "result" : lastKey.stringValue
+                return JSONRPC_2_0.KeyType(stringValue: stringValue)!
             }
             return try decoder.decode(JSONRPC_2_0.Response.self, from: data)
         }
