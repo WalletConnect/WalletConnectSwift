@@ -63,7 +63,7 @@ class JSONRPC_2_0_Tests: XCTestCase {
         XCTAssertEqual(errResp, errResp2)
     }
 
-    func test_my() throws {
+    func test_null_result() throws {
         let string = """
 {"jsonrpc":"2.0","id":1563895837415317,"result":null}
 """
