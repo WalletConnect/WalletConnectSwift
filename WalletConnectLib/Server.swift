@@ -139,7 +139,9 @@ public class Server {
         guard transport.isConnected(by: session.url) else {
             throw ServerError.tryingToDisconnectInactiveSession
         }
-        try updateSession(session, with: session.walletInfo!.with(approved: false))
+        if let walletInfo = session.walletInfo {
+            try updateSession(session, with: walletInfo.with(approved: false))
+        }
         pendingDisconnectionSessions[session.url] = session
         transport.disconnect(from: session.url)
     }
@@ -155,7 +157,7 @@ public class Server {
             throw ServerError.missingWalletInfoInSession
         }
         // TODO: where to handle error?
-        let request = try! UpdateSessionRequest(url: session.url, walletInfo: walletInfo)!
+        let request = try! UpdateSessionRequest(url: session.url, walletInfo: walletInfo)
         send(request)
     }
 
@@ -166,15 +168,23 @@ public class Server {
     }
 
     private func send(_ response: Response, topic: String) {
-        let text = try! responseSerializer.serialize(response, topic: topic)
-        transport.send(to: response.url, text: text)
+        do {
+            let text = try responseSerializer.serialize(response, topic: topic)
+            transport.send(to: response.url, text: text)
+        } catch {
+            print("WC: Response serialization error: \(error)")
+        }
     }
 
     // TODO: where to handle error?
     public func send(_ request: Request) {
         guard let session = sessions[request.url] else { return }
-        let text = try! requestSerializer.serialize(request, topic: session.dAppInfo.peerId)
-        transport.send(to: request.url, text: text)
+        do {
+            let text = try requestSerializer.serialize(request, topic: session.dAppInfo.peerId)
+            transport.send(to: request.url, text: text)
+        } catch {
+            print("WC: request serialization error: \(error)")
+        }
     }
 
     /// Process incomming text messages from the transport layer.
@@ -205,7 +215,9 @@ public class Server {
     private func onConnect(to url: WCURL) {
         print("WC: didConnect url: \(url.bridgeURL.absoluteString)")
         if let session = sessions[url] { // reconnecting existing session
-            subscribe(on: session.walletInfo!.peerId, url: session.url)
+            // the url's topic must not be used again.
+            guard let topic = session.walletInfo?.peerId else { return }
+            subscribe(on: topic, url: session.url)
             delegate?.server(self, didConnect: session)
         } else { // establishing new connection, handshake in process
             subscribe(on: url.topic, url: url)

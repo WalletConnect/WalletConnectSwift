@@ -10,7 +10,7 @@ protocol UpdateSessionHandlerDelegate: class {
 
 class UpdateSessionHandler: RequestHandler {
 
-    private weak var delegate: UpdateSessionHandlerDelegate!
+    private weak var delegate: UpdateSessionHandlerDelegate?
 
     init(delegate: UpdateSessionHandlerDelegate) {
         self.delegate = delegate
@@ -31,7 +31,7 @@ class UpdateSessionHandler: RequestHandler {
                 print("WC: wrong format of wc_sessionUpdate request: \(params)")
                 return
         }
-        delegate.handler(self, didUpdateSessionByURL: request.url, approved: approved)
+        delegate?.handler(self, didUpdateSessionByURL: request.url, approved: approved)
     }
 
 }

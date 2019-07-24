@@ -122,13 +122,15 @@ extension WalletConnectService: RequestHandler {
     public func handle(request: Request) {
         if request.payload.method == "eth_sendTransaction" {
             do {
+                // guard that id exists in payload
+
                 print("Request payload: \(request.payload)")
                 let data = try JSONEncoder().encode(request.payload.params)
                 let requestWrapper = try JSONDecoder().decode([WCSendTransactionRequest].self, from: data)
                 guard requestWrapper.count == 1 else {
                     let responsePayload = self.errorResponse(code: ErrorCode.wrongSendTransactionRequest.rawValue,
                                                              message: "Wrong send transaction request.",
-                                                             requestId: request.payload.id!)
+                                                             requestId: request.payload.id ?? .null)
                     self.server.send(Response(payload: responsePayload, url: request.url))
                     return
                 }
@@ -140,12 +142,12 @@ extension WalletConnectService: RequestHandler {
                     switch result {
                     case .success(let hash):
                         responsePayload = JSONRPC_2_0.Response(result: .value(.string(hash)),
-                                                               id: request.payload.id!)
+                                                               id: request.payload.id ?? .null)
                     case .failure(let error):
                         let message = "Transaction was declined. Error: \(error.localizedDescription)"
                         responsePayload = self.errorResponse(code: ErrorCode.declinedSendTransactionRequest.rawValue,
                                                              message: message,
-                                                             requestId: request.payload.id!)
+                                                             requestId: request.payload.id ?? .null)
                     }
                     self.server.send(Response(payload: responsePayload, url: request.url))
                 }
@@ -246,7 +248,9 @@ extension Session {
     init(wcSession: WCSession) {
         self.init(url: WCURL(wcURL: wcSession.url),
                   dAppInfo: DAppInfo(wcDAppInfo: wcSession.dAppInfo),
-                  walletInfo: Session.WalletInfo(wcWalletInfo: wcSession.walletInfo!))
+                  walletInfo: wcSession.walletInfo == nil ?
+                    nil :
+                    Session.WalletInfo(wcWalletInfo: wcSession.walletInfo!))
     }
 
     func wcSession(status: WCSessionStatus, created: Date) -> WCSession {
