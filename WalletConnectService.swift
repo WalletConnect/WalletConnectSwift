@@ -122,8 +122,6 @@ extension WalletConnectService: RequestHandler {
     public func handle(request: Request) {
         if request.payload.method == "eth_sendTransaction" {
             do {
-                // guard that id exists in payload
-
                 print("Request payload: \(request.payload)")
                 let data = try JSONEncoder().encode(request.payload.params)
                 let requestWrapper = try JSONDecoder().decode([WCSendTransactionRequest].self, from: data)

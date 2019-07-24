@@ -215,7 +215,6 @@ public class Server {
     private func onConnect(to url: WCURL) {
         print("WC: didConnect url: \(url.bridgeURL.absoluteString)")
         if let session = sessions[url] { // reconnecting existing session
-            // the url's topic must not be used again.
             guard let topic = session.walletInfo?.peerId else { return }
             subscribe(on: topic, url: session.url)
             delegate?.server(self, didConnect: session)
