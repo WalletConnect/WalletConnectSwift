@@ -106,29 +106,29 @@ class WalletConnectServiceTests: XCTestCase {
 
     func test_whenServerFailsToConnect_thenDelegateCalled() {
         let url = MultisigWalletImplementations.WCURL(wcURL: MultisigWalletDomainModel.WCURL.testURL)
-        server.delegate!.server(server, didFailToConnect: url)
+        server.delegate.server(server, didFailToConnect: url)
         XCTAssertNotNil(delegate.failedURLToConnect)
     }
 
     func test_whenServerShouldStartSessionThatIsNotInRepo_thenDelegateIsNotCalled() {
-        server.delegate!.server(server, shouldStart: Session(wcSession: WCSession.testSession)) { _ in }
+        server.delegate.server(server, shouldStart: Session(wcSession: WCSession.testSession)) { _ in }
         XCTAssertNil(delegate.shouldStartSession)
     }
 
     func test_whenServerShouldStartSession_thenDelegateCalled() {
         sessionRepo.save(WCSession.testSession)
-        server.delegate!.server(server, shouldStart: Session(wcSession: WCSession.testSession)) { _ in }
+        server.delegate.server(server, shouldStart: Session(wcSession: WCSession.testSession)) { _ in }
         XCTAssertNotNil(delegate.shouldStartSession)
     }
 
     func test_whenServerDidConnectSessionThatIsNotInRepo_thenDelegateIsNotCalled() {
-        server.delegate!.server(server, didConnect: Session(wcSession: WCSession.testSession))
+        server.delegate.server(server, didConnect: Session(wcSession: WCSession.testSession))
         XCTAssertNil(delegate.connectedSession)
     }
 
     func test_whenServerDidConnect_thenDelegateCalled() {
         sessionRepo.save(WCSession.testSession)
-        server.delegate!.server(server, didConnect: Session(wcSession: WCSession.testSession))
+        server.delegate.server(server, didConnect: Session(wcSession: WCSession.testSession))
         XCTAssertNotNil(delegate.connectedSession)
     }
 
@@ -140,26 +140,26 @@ class WalletConnectServiceTests: XCTestCase {
                                        walletInfo: WCSession.testSession.walletInfo,
                                        status: .connected,
                                        created: newDate)
-        server.delegate!.server(server, didConnect: Session(wcSession: updatedSession))
+        server.delegate.server(server, didConnect: Session(wcSession: updatedSession))
         let newRepoSession = sessionRepo.find(id: WCSession.connectingTestSession.id)
         XCTAssertEqual(newRepoSession?.status, .connected)
         XCTAssertEqual(newRepoSession?.created, WCSession.connectingTestSession.created)
     }
 
     func test_whenServerDidDisconnectFromSessionThatIsNotInRepo_thenDelegateIsNotCalled() {
-        server.delegate!.server(server, didDisconnect: Session(wcSession: WCSession.testSession), error: nil)
+        server.delegate.server(server, didDisconnect: Session(wcSession: WCSession.testSession), error: nil)
         XCTAssertNil(delegate.disconnectedSession)
     }
 
     func test_whenServerDidDisconnect_thenDelegateCalled() {
         sessionRepo.save(WCSession.testSession)
-        server.delegate!.server(server, didDisconnect: Session(wcSession: WCSession.testSession), error: nil)
+        server.delegate.server(server, didDisconnect: Session(wcSession: WCSession.testSession), error: nil)
         XCTAssertNotNil(delegate.disconnectedSession)
     }
 
     func test_whenServerDidDisconnect_thenSessionIsRemovedFromRepo() {
         sessionRepo.save(WCSession.testSession)
-        server.delegate!.server(server, didDisconnect: Session(wcSession: WCSession.testSession), error: nil)
+        server.delegate.server(server, didDisconnect: Session(wcSession: WCSession.testSession), error: nil)
         XCTAssertNil(sessionRepo.find(id: WCSession.testSession.id))
     }
 

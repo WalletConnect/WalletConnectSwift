@@ -10,7 +10,7 @@ protocol HandshakeHandlerDelegate: class {
 
 class HandshakeHandler: RequestHandler {
 
-    private weak var delegate: HandshakeHandlerDelegate?
+    private weak var delegate: HandshakeHandlerDelegate!
 
     init(delegate: HandshakeHandlerDelegate) {
         self.delegate = delegate
@@ -24,7 +24,7 @@ class HandshakeHandler: RequestHandler {
         // TODO: throw proper error
         guard let session = try? Session(wcSessionRequest: request),
             let requestId = request.payload.id else { return }
-        delegate?.handler(self, didReceiveRequestToCreateSession: session, requestId: requestId)
+        delegate.handler(self, didReceiveRequestToCreateSession: session, requestId: requestId)
     }
 
 }
