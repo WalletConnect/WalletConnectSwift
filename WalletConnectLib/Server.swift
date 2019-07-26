@@ -69,9 +69,6 @@ public class Server {
 
     private(set) weak var delegate: ServerDelegate!
 
-    // serial queue to guard access to handlers, sessions, and pendingSessions
-    private let syncQueue = DispatchQueue(label: "org.walletconnect.swift.server")
-
     enum ServerError: Error {
         case tryingToConnectExistingSessionURL
         case missingWalletInfoInSession
@@ -84,9 +81,9 @@ public class Server {
         let serializer = JSONRPCSerializer()
         responseSerializer = serializer
         requestSerializer = serializer
-        sessions = Sessions(queue: syncQueue)
-        pendingDisconnectSessions = Sessions(queue: syncQueue)
-        handlers = Handlers(queue: syncQueue)
+        sessions = Sessions(queue: DispatchQueue(label: "org.walletconnect.swift.server.sessions"))
+        pendingDisconnectSessions = Sessions(queue: DispatchQueue(label: "org.walletconnect.swift.server.pending"))
+        handlers = Handlers(queue: DispatchQueue(label: "org.walletconnect.swift.server.handlers"))
         register(handler: HandshakeHandler(delegate: self))
         register(handler: UpdateSessionHandler(delegate: self))
     }
@@ -268,6 +265,7 @@ public class Server {
         }
 
         func add(_ session: Session) {
+            dispatchPrecondition(condition: .notOnQueue(queue))
             queue.sync { [unowned self] in
                 self.sessions[session.url] = session
             }
@@ -275,6 +273,7 @@ public class Server {
 
         func all() -> [Session] {
             var result: [Session] = []
+            dispatchPrecondition(condition: .notOnQueue(queue))
             queue.sync { [unowned self] in
                 result = Array(self.sessions.values)
             }
@@ -283,6 +282,7 @@ public class Server {
 
         func find(url: WCURL) -> Session? {
             var result: Session?
+            dispatchPrecondition(condition: .notOnQueue(queue))
             queue.sync { [unowned self] in
                 result = self.sessions[url]
             }
@@ -290,6 +290,7 @@ public class Server {
         }
 
         func remove(url: WCURL) {
+            dispatchPrecondition(condition: .notOnQueue(queue))
             queue.sync { [unowned self] in
                 _ = self.sessions.removeValue(forKey: url)
             }
@@ -308,6 +309,7 @@ public class Server {
         }
 
         func add(_ handler: RequestHandler) {
+            dispatchPrecondition(condition: .notOnQueue(queue))
             queue.sync { [unowned self] in
                 guard self.handlers.first(where: { $0 === handler }) == nil else { return }
                 self.handlers.append(handler)
@@ -315,6 +317,7 @@ public class Server {
         }
 
         func remove(_ handler: RequestHandler) {
+            dispatchPrecondition(condition: .notOnQueue(queue))
             queue.sync { [unowned self] in
                 if let index = self.handlers.firstIndex(where: { $0 === handler }) {
                     self.handlers.remove(at: index)
@@ -324,6 +327,7 @@ public class Server {
 
         func find(by request: Request) -> RequestHandler? {
             var result: RequestHandler?
+            dispatchPrecondition(condition: .notOnQueue(queue))
             queue.sync { [unowned self] in
                 result = self.handlers.first { $0.canHandle(request: request) }
             }

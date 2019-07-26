@@ -26,6 +26,7 @@ class Bridge: Transport {
 
     // TODO: if no connection found, then what?
     func send(to url: WCURL, text: String) {
+        dispatchPrecondition(condition: .notOnQueue(syncQueue))
         syncQueue.sync { [unowned self] in
             if let connection = self.findConnection(url: url) {
                 connection.send(text)
@@ -37,6 +38,7 @@ class Bridge: Transport {
                 onConnect: @escaping ((WCURL) -> Void),
                 onDisconnect: @escaping ((WCURL, Error?) -> Void),
                 onTextReceive: @escaping (String, WCURL) -> Void) {
+        dispatchPrecondition(condition: .notOnQueue(syncQueue))
         syncQueue.sync { [unowned self] in
             var connection: WebSocketConnection
             if let existingConnection = self.findConnection(url: url) {
@@ -58,6 +60,7 @@ class Bridge: Transport {
 
     func isConnected(by url: WCURL) -> Bool {
         var connection: WebSocketConnection?
+        dispatchPrecondition(condition: .notOnQueue(syncQueue))
         syncQueue.sync { [unowned self] in
             connection = self.findConnection(url: url)
         }
@@ -65,6 +68,7 @@ class Bridge: Transport {
     }
 
     func disconnect(from url: WCURL) {
+        dispatchPrecondition(condition: .notOnQueue(syncQueue))
         syncQueue.sync { [unowned self] in
             if let connection = self.findConnection(url: url) {
                 connection.close()
@@ -73,6 +77,7 @@ class Bridge: Transport {
     }
 
     private func releaseConnection(by url: WCURL) {
+        dispatchPrecondition(condition: .notOnQueue(syncQueue))
         syncQueue.sync { [unowned self] in
             if let connection = self.findConnection(url: url) {
                 self.connections.removeAll { $0 === connection }
@@ -82,6 +87,7 @@ class Bridge: Transport {
 
     // this method left thread-unsafe on purpose, because guarding the connections in this method is too granular
     private func findConnection(url: WCURL) -> WebSocketConnection? {
+        dispatchPrecondition(condition: .onQueue(syncQueue))
         return connections.first { $0.url == url }
     }
 
