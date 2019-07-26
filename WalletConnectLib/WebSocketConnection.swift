@@ -20,6 +20,9 @@ class WebSocketConnection {
     private var requestSerializer: RequestSerializer = JSONRPCSerializer()
     private var responseSerializer: ResponseSerializer = JSONRPCSerializer()
 
+    // serial queue for receiving the calls.
+    private let serialCallbackQueue: DispatchQueue
+
     var isOpen: Bool {
         return socket.isConnected
     }
@@ -32,8 +35,10 @@ class WebSocketConnection {
         self.onConnect = onConnect
         self.onDisconnect = onDisconnect
         self.onTextReceive = onTextReceive
+        serialCallbackQueue = DispatchQueue(label: "org.walletconnect.swift.connection-\(url.bridgeURL)-\(url.topic)")
         socket = WebSocket(url: url.bridgeURL)
         socket.delegate = self
+        socket.callbackQueue = serialCallbackQueue
     }
 
     func open() {
@@ -69,22 +74,16 @@ extension WebSocketConnection: WebSocketDelegate {
             print("WC: ==> ping")
             self?.socket.write(ping: Data())
         }
-        DispatchQueue.global.async {
-            self.onConnect?()
-        }
+        onConnect?()
     }
 
     func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
         pingTimer?.invalidate()
-        DispatchQueue.global.async {
-            self.onDisconnect?(error)
-        }
+        onDisconnect?(error)
     }
 
     func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
-        DispatchQueue.global.async {
-            self.onTextReceive?(text)
-        }
+        onTextReceive?(text)
     }
 
     func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
