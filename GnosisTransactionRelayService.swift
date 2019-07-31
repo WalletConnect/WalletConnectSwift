@@ -36,6 +36,11 @@ public class GnosisTransactionRelayService: TransactionRelayDomainService {
         return TransactionHash(data.toHexString().addHexPrefix())
     }
 
+    public func safeCreationTransactionBlock(address: Address) throws -> StringifiedBigInt? {
+        let response = try httpClient.execute(request: GetSafeCreationStatusRequest(safeAddress: address.value))
+        return response.blockNumber
+    }
+
     public func gasPrice() throws -> SafeGasPriceResponse {
         return try httpClient.execute(request: SafeGasPriceRequest())
     }

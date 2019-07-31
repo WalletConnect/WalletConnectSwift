@@ -51,6 +51,10 @@ public class MockTransactionRelayService: TransactionRelayDomainService {
         return TransactionHash("0x3b9307c1473e915d04292a0f5b0f425eaf527f53852357e2c649b8c447e3246a")
     }
 
+    public func safeCreationTransactionBlock(address: Address) throws -> StringifiedBigInt? {
+        return StringifiedBigInt(123)
+    }
+
     public func gasPrice() throws -> SafeGasPriceResponse {
         try throwIfNeeded()
         Timer.wait(randomizedNetworkResponseDelay)
@@ -86,6 +90,25 @@ public class MockTransactionRelayService: TransactionRelayDomainService {
             throw HTTPClient.Error.networkRequestFailed(URLRequest(url: URL(string: "http://test.url")!), nil, nil)
         }
         if shouldThrow { throw TestError.error }
+    }
+
+    public func createSafeCreationTransaction(request: SafeCreationRequest) throws
+        -> SafeCreationRequest.Response {
+            preconditionFailure("not implemented")
+    }
+
+    public var estimateSafeCreation_input: EstimateSafeCreationRequest?
+    public var estimateSafeCreation_outputEstimations = [EstimateSafeCreationRequest.Estimation]()
+    public func estimateSafeCreation(request: EstimateSafeCreationRequest) throws ->
+        [EstimateSafeCreationRequest.Estimation] {
+        try throwIfNeeded()
+        estimateSafeCreation_input = request
+        return estimateSafeCreation_outputEstimations
+    }
+
+    public func multiTokenEstimateTransaction(request: MultiTokenEstimateTransactionRequest) throws ->
+        MultiTokenEstimateTransactionRequest.Response {
+            return .init(lastUsedNonce: nil, safeTxGas: nil, operationalGas: nil, estimations: [])
     }
 
 }
