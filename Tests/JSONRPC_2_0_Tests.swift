@@ -3,7 +3,7 @@
 //
 
 import XCTest
-@testable import MultisigWalletImplementations
+@testable import WalletConnectSwift
 
 // swiftlint:disable literal_expression_end_indentation line_length
 class JSONRPC_2_0_Tests: XCTestCase {

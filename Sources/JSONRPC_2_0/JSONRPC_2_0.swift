@@ -141,7 +141,7 @@ public enum JSONRPC_2_0 {
 
         init?(stringValue: String) {
             self.stringValue = stringValue
-            self.intValue = try? Int(string: stringValue)
+            self.intValue = Int(stringValue)
         }
 
         var intValue: Int?

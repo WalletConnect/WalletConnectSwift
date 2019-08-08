@@ -3,7 +3,7 @@
 //
 
 import XCTest
-@testable import MultisigWalletImplementations
+@testable import WalletConnectSwift
 
 class SessionTests: XCTestCase {
 

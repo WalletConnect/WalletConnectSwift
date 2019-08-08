@@ -1,0 +1,6 @@
+[submodule "CryptoSwift"]
+	path = Dependencies/CryptoSwift
+	url = git@github.com:krzyzanowskim/CryptoSwift.git
+[submodule "Starscream"]
+	path = Dependencies/Starscream
+	url = git@github.com:daltoniam/Starscream.git
