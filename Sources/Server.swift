@@ -55,15 +55,11 @@ public protocol ServerDelegate: class {
 
 public class Server {
 
+    private let communicator: Communicator
+
     private let transport: Transport
     private let responseSerializer: ResponseSerializer
     private let requestSerializer: RequestSerializer
-
-    // server session are the approved connections between dApp and Wallet
-    private let sessions: Sessions
-
-    // triggered by Wallet or dApp to disconnect
-    private let pendingDisconnectSessions: Sessions
 
     private let handlers: Handlers
 
@@ -77,12 +73,11 @@ public class Server {
 
     public init(delegate: ServerDelegate) {
         self.delegate = delegate
+        communicator = Communicator()
         transport = Bridge()
         let serializer = JSONRPCSerializer()
         responseSerializer = serializer
         requestSerializer = serializer
-        sessions = Sessions(queue: DispatchQueue(label: "org.walletconnect.swift.server.sessions"))
-        pendingDisconnectSessions = Sessions(queue: DispatchQueue(label: "org.walletconnect.swift.server.pending"))
         handlers = Handlers(queue: DispatchQueue(label: "org.walletconnect.swift.server.handlers"))
         register(handler: HandshakeHandler(delegate: self))
         register(handler: UpdateSessionHandler(delegate: self))
@@ -102,7 +97,7 @@ public class Server {
     /// - Parameter url: WalletConnect url
     /// - Throws: error on trying to connect to existing session url
     public func connect(to url: WCURL) throws {
-        guard sessions.find(url: url) == nil else {
+        guard communicator.session(by: url) == nil else {
             throw ServerError.tryingToConnectExistingSessionURL
         }
         listen(on: url)
@@ -116,7 +111,7 @@ public class Server {
         guard session.walletInfo != nil else {
             throw ServerError.missingWalletInfoInSession
         }
-        sessions.add(session)
+        communicator.addSession(session)
         listen(on: session.url)
     }
 
@@ -131,7 +126,7 @@ public class Server {
     ///
     /// - Returns: sessions list.
     public func openSessions() -> [Session] {
-        return sessions.all().filter { transport.isConnected(by: $0.url) }
+        return communicator.allSessions().filter { transport.isConnected(by: $0.url) }
     }
 
     /// Disconnect from session.
@@ -143,7 +138,7 @@ public class Server {
             throw ServerError.tryingToDisconnectInactiveSession
         }
         try updateSession(session, with: session.walletInfo!.with(approved: false))
-        pendingDisconnectSessions.add(session)
+        communicator.addPendingDisconnectSession(session)
         transport.disconnect(from: session.url)
     }
 
@@ -164,7 +159,7 @@ public class Server {
 
     // TODO: where to handle error?
     public func send(_ response: Response) {
-        guard let session = sessions.find(url: response.url) else { return }
+        guard let session = communicator.session(by: response.url) else { return }
         send(response, topic: session.dAppInfo.peerId)
     }
 
@@ -175,7 +170,7 @@ public class Server {
 
     // TODO: where to handle error?
     public func send(_ request: Request) {
-        guard let session = sessions.find(url: request.url) else { return }
+        guard let session = communicator.session(by: request.url) else { return }
         let text = try! requestSerializer.serialize(request, topic: session.dAppInfo.peerId)
         transport.send(to: request.url, text: text)
     }
@@ -207,7 +202,7 @@ public class Server {
     /// - Parameter url: WalletConnect url
     private func onConnect(to url: WCURL) {
         print("WC: didConnect url: \(url.bridgeURL.absoluteString)")
-        if let session = sessions.find(url: url) { // reconnecting existing session
+        if let session = communicator.session(by: url) { // reconnecting existing session
             subscribe(on: session.walletInfo!.peerId, url: session.url)
             delegate.server(self, didConnect: session)
         } else { // establishing new connection, handshake in process
@@ -223,19 +218,19 @@ public class Server {
     private func onDisconnect(from url: WCURL, error: Error?) {
         print("WC: didDisconnect url: \(url.bridgeURL.absoluteString)")
         // check if disconnect happened during handshake
-        guard let session = sessions.find(url: url) else {
+        guard let session = communicator.session(by: url) else {
             delegate.server(self, didFailToConnect: url)
             return
         }
         // if a session was not initiated by the wallet or the dApp to disconnect, try to reconnect it.
-        guard pendingDisconnectSessions.find(url: url) != nil else {
+        guard communicator.pendingDisconnectSession(by: url) != nil else {
             // TODO: should we notify delegate that we try to reconnect?
             print("WC: trying to reconnect session by url: \(url.bridgeURL.absoluteString)")
             try! reconnect(to: session)
             return
         }
-        sessions.remove(url: url)
-        pendingDisconnectSessions.remove(url: url)
+        communicator.removeSession(by: url)
+        communicator.removePendingDisconnectSession(by: url)
         delegate.server(self, didDisconnect: session, error: error)
     }
 
@@ -252,50 +247,6 @@ public class Server {
     private func subscribe(on topic: String, url: WCURL) {
         let message = PubSubMessage(topic: topic, type: .sub, payload: "")
         transport.send(to: url, text: try! message.json())
-    }
-
-    /// Thread-safe collection of Sessions
-    private class Sessions {
-
-        private var sessions: [WCURL: Session] = [:]
-        private let queue: DispatchQueue
-
-        init(queue: DispatchQueue) {
-            self.queue = queue
-        }
-
-        func add(_ session: Session) {
-            dispatchPrecondition(condition: .notOnQueue(queue))
-            queue.sync { [unowned self] in
-                self.sessions[session.url] = session
-            }
-        }
-
-        func all() -> [Session] {
-            var result: [Session] = []
-            dispatchPrecondition(condition: .notOnQueue(queue))
-            queue.sync { [unowned self] in
-                result = Array(self.sessions.values)
-            }
-            return result
-        }
-
-        func find(url: WCURL) -> Session? {
-            var result: Session?
-            dispatchPrecondition(condition: .notOnQueue(queue))
-            queue.sync { [unowned self] in
-                result = self.sessions[url]
-            }
-            return result
-        }
-
-        func remove(url: WCURL) {
-            dispatchPrecondition(condition: .notOnQueue(queue))
-            queue.sync { [unowned self] in
-                _ = self.sessions.removeValue(forKey: url)
-            }
-        }
-
     }
 
     /// thread-safe collection of RequestHandlers
@@ -348,7 +299,7 @@ extension Server: HandshakeHandlerDelegate {
             send(sessionCreationResponse, topic: session.dAppInfo.peerId)
             if walletInfo.approved {
                 let updatedSession = Session(url: session.url, dAppInfo: session.dAppInfo, walletInfo: walletInfo)
-                sessions.add(updatedSession)
+                communicator.addSession(updatedSession)
                 subscribe(on: walletInfo.peerId, url: updatedSession.url)
                 delegate.server(self, didConnect: updatedSession)
             }
@@ -360,7 +311,7 @@ extension Server: HandshakeHandlerDelegate {
 extension Server: UpdateSessionHandlerDelegate {
 
     func handler(_ handler: UpdateSessionHandler, didUpdateSessionByURL url: WCURL, approved: Bool) {
-        guard let session = sessions.find(url: url) else { return }
+        guard let session = communicator.session(by: url) else { return }
         if !approved {
             do {
                 try disconnect(from: session)
