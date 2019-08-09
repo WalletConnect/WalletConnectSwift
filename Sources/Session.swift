@@ -12,7 +12,9 @@ public struct WCURL: Hashable {
     public var bridgeURL: URL
     public var key: String
 
-    public init(topic: String, version: String, bridgeURL: URL, key: String) {
+    public static let defaultBridgeURL = URL(string: "https://safe-walletconnect.gnosis.io")!
+
+    public init(topic: String, version: String, bridgeURL: URL = WCURL.defaultBridgeURL, key: String) {
         self.topic = topic
         self.version = version
         self.bridgeURL = bridgeURL
@@ -120,6 +122,7 @@ public struct Session {
 
     enum SessionCreationError: Error {
         case wrongRequestFormat
+        case wrongResponseFormat
     }
 
     /// https://docs.walletconnect.org/tech-spec#session-request
@@ -129,6 +132,15 @@ public struct Session {
         guard array.count == 1 else { throw SessionCreationError.wrongRequestFormat }
         self.url = request.url
         self.dAppInfo = array[0]
+    }
+
+    init?(wcSessionResponse response: Response, dAppInfo: DAppInfo) throws {
+        let data = try JSONEncoder().encode(response.payload.result)
+        let array = try JSONDecoder().decode([WalletInfo].self, from: data)
+        guard array.count == 1 else { throw SessionCreationError.wrongResponseFormat }
+        self.url = response.url
+        self.dAppInfo = dAppInfo
+        self.walletInfo = array[0]
     }
 
     func creationResponse(requestId: JSONRPC_2_0.IDType, walletInfo: Session.WalletInfo) -> Response {

@@ -95,6 +95,10 @@ class Communicator {
         return try requestSerializer.deserialize(text, url: url)
     }
 
+    func response(from text: String, url: WCURL) throws -> Response {
+        return try responseSerializer.deserialize(text, url: url)
+    }
+
     /// Thread-safe collection of Sessions
     private class Sessions {
 
