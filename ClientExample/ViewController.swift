@@ -16,7 +16,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // TODO: figure our what is wrong with gnosis bridge
+        // default bridge: https://safe-walletconnect.gnosis.io
+        // test bridge with latest protocol version: https://bridge.walletconnect.org
         let wcUrl =  WCURL(topic: UUID().uuidString,
                            bridgeURL: URL(string: "https://bridge.walletconnect.org")!,
                            key: try! randomKey())
