@@ -57,7 +57,6 @@ public class Server {
 
     private let communicator: Communicator
 
-    private let transport: Transport
     private let responseSerializer: ResponseSerializer
     private let requestSerializer: RequestSerializer
 
@@ -74,7 +73,6 @@ public class Server {
     public init(delegate: ServerDelegate) {
         self.delegate = delegate
         communicator = Communicator()
-        transport = Bridge()
         let serializer = JSONRPCSerializer()
         responseSerializer = serializer
         requestSerializer = serializer
@@ -116,17 +114,17 @@ public class Server {
     }
 
     private func listen(on url: WCURL) {
-        transport.listen(on: url,
-                         onConnect: onConnect(to:),
-                         onDisconnect: onDisconnect(from:error:),
-                         onTextReceive: onTextReceive(_:from:))
+        communicator.listen(on: url,
+                            onConnect: onConnect(to:),
+                            onDisconnect: onDisconnect(from:error:),
+                            onTextReceive: onTextReceive(_:from:))
     }
 
     /// Get all sessions with active connection.
     ///
     /// - Returns: sessions list.
     public func openSessions() -> [Session] {
-        return communicator.allSessions().filter { transport.isConnected(by: $0.url) }
+        return communicator.openSessions()
     }
 
     /// Disconnect from session.
@@ -134,12 +132,12 @@ public class Server {
     /// - Parameter session: Session object
     /// - Throws: error on trying to disconnect inacative sessoin.
     public func disconnect(from session: Session) throws {
-        guard transport.isConnected(by: session.url) else {
+        guard communicator.isConnected(by: session.url) else {
             throw ServerError.tryingToDisconnectInactiveSession
         }
         try updateSession(session, with: session.walletInfo!.with(approved: false))
         communicator.addPendingDisconnectSession(session)
-        transport.disconnect(from: session.url)
+        communicator.disconnect(from: session.url)
     }
 
     /// Update session with new wallet info.
@@ -160,19 +158,13 @@ public class Server {
     // TODO: where to handle error?
     public func send(_ response: Response) {
         guard let session = communicator.session(by: response.url) else { return }
-        send(response, topic: session.dAppInfo.peerId)
-    }
-
-    private func send(_ response: Response, topic: String) {
-        let text = try! responseSerializer.serialize(response, topic: topic)
-        transport.send(to: response.url, text: text)
+        communicator.send(response, topic: session.dAppInfo.peerId)
     }
 
     // TODO: where to handle error?
     public func send(_ request: Request) {
         guard let session = communicator.session(by: request.url) else { return }
-        let text = try! requestSerializer.serialize(request, topic: session.dAppInfo.peerId)
-        transport.send(to: request.url, text: text)
+        communicator.send(request, topic: session.dAppInfo.peerId)
     }
 
     /// Process incomming text messages from the transport layer.
@@ -203,10 +195,10 @@ public class Server {
     private func onConnect(to url: WCURL) {
         print("WC: didConnect url: \(url.bridgeURL.absoluteString)")
         if let session = communicator.session(by: url) { // reconnecting existing session
-            subscribe(on: session.walletInfo!.peerId, url: session.url)
+            communicator.subscribe(on: session.walletInfo!.peerId, url: session.url)
             delegate.server(self, didConnect: session)
         } else { // establishing new connection, handshake in process
-            subscribe(on: url.topic, url: url)
+            communicator.subscribe(on: url.topic, url: url)
         }
     }
 
@@ -241,12 +233,6 @@ public class Server {
             let payload = JSONRPC_2_0.Response.methodDoesNotExistError(id: request.payload.id)
             send(Response(payload: payload, url: request.url))
         }
-    }
-
-    // TODO: where to handle error?
-    private func subscribe(on topic: String, url: WCURL) {
-        let message = PubSubMessage(topic: topic, type: .sub, payload: "")
-        transport.send(to: url, text: try! message.json())
     }
 
     /// thread-safe collection of RequestHandlers
@@ -296,11 +282,11 @@ extension Server: HandshakeHandlerDelegate {
                  requestId: JSONRPC_2_0.IDType) {
         delegate.server(self, shouldStart: session) { walletInfo in
             let sessionCreationResponse = session.creationResponse(requestId: requestId, walletInfo: walletInfo)
-            send(sessionCreationResponse, topic: session.dAppInfo.peerId)
+            communicator.send(sessionCreationResponse, topic: session.dAppInfo.peerId)
             if walletInfo.approved {
                 let updatedSession = Session(url: session.url, dAppInfo: session.dAppInfo, walletInfo: walletInfo)
                 communicator.addSession(updatedSession)
-                subscribe(on: walletInfo.peerId, url: updatedSession.url)
+                communicator.subscribe(on: walletInfo.peerId, url: updatedSession.url)
                 delegate.server(self, didConnect: updatedSession)
             }
         }
