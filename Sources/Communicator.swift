@@ -89,6 +89,12 @@ class Communicator {
         transport.send(to: request.url, text: text)
     }
 
+    // MARK: - Serialization
+
+    func request(from text: String, url: WCURL) throws -> Request {
+        return try requestSerializer.deserialize(text, url: url)
+    }
+
     /// Thread-safe collection of Sessions
     private class Sessions {
 

@@ -56,12 +56,7 @@ public protocol ServerDelegate: class {
 public class Server {
 
     private let communicator: Communicator
-
-    private let responseSerializer: ResponseSerializer
-    private let requestSerializer: RequestSerializer
-
     private let handlers: Handlers
-
     private(set) weak var delegate: ServerDelegate!
 
     enum ServerError: Error {
@@ -73,9 +68,6 @@ public class Server {
     public init(delegate: ServerDelegate) {
         self.delegate = delegate
         communicator = Communicator()
-        let serializer = JSONRPCSerializer()
-        responseSerializer = serializer
-        requestSerializer = serializer
         handlers = Handlers(queue: DispatchQueue(label: "org.walletconnect.swift.server.handlers"))
         register(handler: HandshakeHandler(delegate: self))
         register(handler: UpdateSessionHandler(delegate: self))
@@ -175,7 +167,7 @@ public class Server {
     private func onTextReceive(_ text: String, from url: WCURL) {
         do {
             // we handle only properly formed JSONRPC 2.0 requests. JSONRPC 2.0 responses are ignored.
-            let request = try requestSerializer.deserialize(text, url: url)
+            let request = try communicator.request(from: text, url: url)
             log(request)
             handle(request)
         } catch {
