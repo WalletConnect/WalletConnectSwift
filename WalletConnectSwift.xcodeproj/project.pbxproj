@@ -26,6 +26,12 @@
 		551B65EE22FC7E4100573DBD /* Communicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B65ED22FC7E4100573DBD /* Communicator.swift */; };
 		551B65F922FD78B700573DBD /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B65F822FD78B700573DBD /* Client.swift */; };
 		551B660C22FDA54900573DBD /* CreateSessionRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B660B22FDA54900573DBD /* CreateSessionRequest.swift */; };
+		551B661622FDC47000573DBD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B661522FDC47000573DBD /* AppDelegate.swift */; };
+		551B661822FDC47000573DBD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B661722FDC47000573DBD /* ViewController.swift */; };
+		551B661B22FDC47000573DBD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 551B661922FDC47000573DBD /* Main.storyboard */; };
+		551B661D22FDC47300573DBD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 551B661C22FDC47300573DBD /* Assets.xcassets */; };
+		551B662022FDC47300573DBD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 551B661E22FDC47300573DBD /* LaunchScreen.storyboard */; };
+		551B662E22FDC7EC00573DBD /* libWalletConnectSwift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB072422FC22BA00BC18BB /* libWalletConnectSwift.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -121,6 +127,13 @@
 		551B65ED22FC7E4100573DBD /* Communicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Communicator.swift; sourceTree = "<group>"; };
 		551B65F822FD78B700573DBD /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
 		551B660B22FDA54900573DBD /* CreateSessionRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateSessionRequest.swift; sourceTree = "<group>"; };
+		551B661322FDC47000573DBD /* ClientExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClientExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		551B661522FDC47000573DBD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		551B661722FDC47000573DBD /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		551B661A22FDC47000573DBD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		551B661C22FDC47300573DBD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		551B661F22FDC47300573DBD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		551B662122FDC47300573DBD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +154,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		551B661022FDC47000573DBD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				551B662E22FDC7EC00573DBD /* libWalletConnectSwift.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -151,6 +172,7 @@
 				0ABB075C22FC23DD00BC18BB /* CryptoSwift.xcodeproj */,
 				0ABB072E22FC22F800BC18BB /* Sources */,
 				0ABB075522FC231400BC18BB /* Tests */,
+				551B661422FDC47000573DBD /* ClientExample */,
 				0ABB072522FC22BA00BC18BB /* Products */,
 				0ABB077722FC23F200BC18BB /* Frameworks */,
 			);
@@ -161,6 +183,7 @@
 			children = (
 				0ABB072422FC22BA00BC18BB /* libWalletConnectSwift.a */,
 				0ABB074A22FC230400BC18BB /* WalletConnectSwiftTests.xctest */,
+				551B661322FDC47000573DBD /* ClientExample.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -232,6 +255,19 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		551B661422FDC47000573DBD /* ClientExample */ = {
+			isa = PBXGroup;
+			children = (
+				551B661522FDC47000573DBD /* AppDelegate.swift */,
+				551B661722FDC47000573DBD /* ViewController.swift */,
+				551B661922FDC47000573DBD /* Main.storyboard */,
+				551B661C22FDC47300573DBD /* Assets.xcassets */,
+				551B661E22FDC47300573DBD /* LaunchScreen.storyboard */,
+				551B662122FDC47300573DBD /* Info.plist */,
+			);
+			path = ClientExample;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -270,6 +306,23 @@
 			productReference = 0ABB074A22FC230400BC18BB /* WalletConnectSwiftTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		551B661222FDC47000573DBD /* ClientExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 551B662B22FDC47300573DBD /* Build configuration list for PBXNativeTarget "ClientExample" */;
+			buildPhases = (
+				551B660F22FDC47000573DBD /* Sources */,
+				551B661022FDC47000573DBD /* Frameworks */,
+				551B661122FDC47000573DBD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ClientExample;
+			productName = ClientExample;
+			productReference = 551B661322FDC47000573DBD /* ClientExample.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -286,6 +339,9 @@
 					0ABB074922FC230400BC18BB = {
 						CreatedOnToolsVersion = 10.3;
 					};
+					551B661222FDC47000573DBD = {
+						CreatedOnToolsVersion = 10.3;
+					};
 				};
 			};
 			buildConfigurationList = 0ABB071F22FC22BA00BC18BB /* Build configuration list for PBXProject "WalletConnectSwift" */;
@@ -294,6 +350,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 0ABB071B22FC22BA00BC18BB;
 			productRefGroup = 0ABB072522FC22BA00BC18BB /* Products */;
@@ -312,6 +369,7 @@
 			targets = (
 				0ABB072322FC22BA00BC18BB /* WalletConnectSwift */,
 				0ABB074922FC230400BC18BB /* WalletConnectSwiftTests */,
+				551B661222FDC47000573DBD /* ClientExample */,
 			);
 		};
 /* End PBXProject section */
@@ -376,6 +434,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		551B661122FDC47000573DBD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				551B662022FDC47300573DBD /* LaunchScreen.storyboard in Resources */,
+				551B661D22FDC47300573DBD /* Assets.xcassets in Resources */,
+				551B661B22FDC47000573DBD /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -409,6 +477,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		551B660F22FDC47000573DBD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				551B661822FDC47000573DBD /* ViewController.swift in Sources */,
+				551B661622FDC47000573DBD /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -418,6 +495,25 @@
 			targetProxy = 0ABB075022FC230400BC18BB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		551B661922FDC47000573DBD /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				551B661A22FDC47000573DBD /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		551B661E22FDC47300573DBD /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				551B661F22FDC47300573DBD /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		0ABB072922FC22BA00BC18BB /* Debug */ = {
@@ -598,6 +694,44 @@
 			};
 			name = Release;
 		};
+		551B662222FDC47300573DBD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZKG876RKJ8;
+				INFOPLIST_FILE = ClientExample/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.gnosis.safe.walletconnect.ClientExample;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		551B662322FDC47300573DBD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZKG876RKJ8;
+				INFOPLIST_FILE = ClientExample/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.gnosis.safe.walletconnect.ClientExample;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -624,6 +758,15 @@
 			buildConfigurations = (
 				0ABB075322FC230400BC18BB /* Debug */,
 				0ABB075422FC230400BC18BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		551B662B22FDC47300573DBD /* Build configuration list for PBXNativeTarget "ClientExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				551B662222FDC47300573DBD /* Debug */,
+				551B662322FDC47300573DBD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

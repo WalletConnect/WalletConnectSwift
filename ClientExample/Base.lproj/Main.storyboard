@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DOi-xs-2vS">
+                                <rect key="frame" x="117" y="433" width="181" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Connect to WalletConnect"/>
+                                <connections>
+                                    <segue destination="7xL-3o-hMB" kind="show" id="iHA-bS-V5F"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="380" y="21"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="qZi-N0-UMu">
+            <objects>
+                <viewController id="7xL-3o-hMB" customClass="ViewController" customModule="ClientExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8wj-pM-Kad">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="wc:..." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RxX-mb-Fh4">
+                                <rect key="frame" x="30" y="84" width="354" height="16"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="aL3-e6-BJu">
+                                <rect key="frame" x="30" y="130" width="354" height="68"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3YQ-sx-7O5">
+                                        <rect key="frame" x="0.0" y="0.0" width="354" height="30"/>
+                                        <state key="normal" title="Disconnect"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iXl-u2-jdF">
+                                        <rect key="frame" x="0.0" y="38" width="354" height="30"/>
+                                        <state key="normal" title="personal_sign"/>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="aL3-e6-BJu" firstAttribute="leading" secondItem="RxX-mb-Fh4" secondAttribute="leading" id="Egt-Ao-fxD"/>
+                            <constraint firstItem="aL3-e6-BJu" firstAttribute="trailing" secondItem="RxX-mb-Fh4" secondAttribute="trailing" id="NRv-JN-WO8"/>
+                            <constraint firstItem="LRc-Yy-Ycj" firstAttribute="trailing" secondItem="RxX-mb-Fh4" secondAttribute="trailing" constant="30" id="Ne3-Kz-b9K"/>
+                            <constraint firstItem="aL3-e6-BJu" firstAttribute="top" secondItem="RxX-mb-Fh4" secondAttribute="bottom" constant="30" id="YdD-0D-Ucv"/>
+                            <constraint firstItem="RxX-mb-Fh4" firstAttribute="leading" secondItem="LRc-Yy-Ycj" secondAttribute="leading" constant="30" id="ck0-VO-MDZ"/>
+                            <constraint firstItem="RxX-mb-Fh4" firstAttribute="top" secondItem="LRc-Yy-Ycj" secondAttribute="top" constant="40" id="gSh-Mh-xWk"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="LRc-Yy-Ycj"/>
+                    </view>
+                    <connections>
+                        <outlet property="disconnectButton" destination="3YQ-sx-7O5" id="DxP-ya-x6Y"/>
+                        <outlet property="infoLabel" destination="RxX-mb-Fh4" id="5uf-wk-Vq5"/>
+                        <outlet property="personalSignButton" destination="iXl-u2-jdF" id="ZTK-7z-bHD"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FeH-ZZ-kNg" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1094" y="21"/>
+        </scene>
+    </scenes>
+</document>
