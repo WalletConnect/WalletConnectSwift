@@ -38,8 +38,7 @@ public class Client {
     private(set) weak var delegate: ClientDelegate!
     private let dAppInfo: Session.DAppInfo
     private let communicator: Communicator
-
-    private var pendingRequestsCompletion = [JSONRPC_2_0.IDType: ((Response) -> Void)]()
+    private var responses: Responses
 
     enum ClientError: Error {
         case tryingToConnectExistingSessionURL
@@ -49,6 +48,7 @@ public class Client {
         self.delegate = delegate
         self.dAppInfo = dAppInfo
         communicator = Communicator()
+        responses = Responses(queue: DispatchQueue(label: "org.walletconnect.swift.client.pending"))
     }
 
     public func connect(url: WCURL) throws {
@@ -70,7 +70,7 @@ public class Client {
             communicator.subscribe(on: dAppInfo.peerId, url: url)
             let requestID = nextRequestId()
             let createRequest = try! CreateSessionRequest(url: url, dAppInfo: dAppInfo, id: requestID)!
-            pendingRequestsCompletion[requestID] = { [unowned self] response in
+            responses.add(requestID: requestID) { [unowned self] response in
                 self.handleHandshakeResponse(response)
             }
             communicator.send(createRequest, topic: url.topic)
@@ -83,9 +83,9 @@ public class Client {
         // TODO: handle all situations
         if let response = try? communicator.response(from: text, url: url) {
             log(response)
-            if let completion = pendingRequestsCompletion[response.payload.id] {
+            if let completion = responses.find(requestID: response.payload.id) {
                 completion(response)
-                pendingRequestsCompletion.removeValue(forKey: response.payload.id)
+                responses.remove(requestID: response.payload.id)
             }
         }
     }
@@ -107,6 +107,43 @@ public class Client {
 
     private func nextRequestId() -> JSONRPC_2_0.IDType {
         return JSONRPC_2_0.IDType.int(UUID().hashValue)
+    }
+
+    /// Thread-safe collection of client reponses
+    private class Responses {
+
+        typealias RequestResponse = (Response) -> Void
+
+        private var responses = [JSONRPC_2_0.IDType: RequestResponse]()
+        private let queue: DispatchQueue
+
+        init(queue: DispatchQueue) {
+            self.queue = queue
+        }
+
+        func add(requestID: JSONRPC_2_0.IDType, response: @escaping RequestResponse) {
+            dispatchPrecondition(condition: .notOnQueue(queue))
+            queue.sync { [unowned self] in
+                self.responses[requestID] = response
+            }
+        }
+
+        func find(requestID: JSONRPC_2_0.IDType) -> RequestResponse? {
+            var result: RequestResponse?
+            dispatchPrecondition(condition: .notOnQueue(queue))
+            queue.sync { [unowned self] in
+                result = self.responses[requestID]
+            }
+            return result
+        }
+
+        func remove(requestID: JSONRPC_2_0.IDType) {
+            dispatchPrecondition(condition: .notOnQueue(queue))
+            queue.sync { [unowned self] in
+                _ = self.responses.removeValue(forKey: requestID)
+            }
+        }
+
     }
 
 }
