@@ -77,10 +77,18 @@ public struct Session {
 
         public let peerId: String
         public let peerMeta: ClientMeta
+        public let approved: Bool?
 
-        public init(peerId: String, peerMeta: ClientMeta) {
+        public init(peerId: String, peerMeta: ClientMeta, approved: Bool? = nil) {
             self.peerId = peerId
             self.peerMeta = peerMeta
+            self.approved = approved
+        }
+
+        func with(approved: Bool) -> DAppInfo {
+            return DAppInfo(peerId: self.peerId,
+                            peerMeta: self.peerMeta,
+                            approved: approved)
         }
 
     }
@@ -122,8 +130,7 @@ public struct Session {
                               accounts: self.accounts,
                               chainId: self.chainId,
                               peerId: self.peerId,
-                              peerMeta: self.peerMeta
-            )
+                              peerMeta: self.peerMeta)
         }
 
     }

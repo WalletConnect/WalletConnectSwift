@@ -142,7 +142,6 @@ public class Server {
         guard session.walletInfo != nil else {
             throw ServerError.missingWalletInfoInSession
         }
-        // TODO: where to handle error?
         let request = try! UpdateSessionRequest(url: session.url, walletInfo: walletInfo)!
         send(request)
     }
@@ -194,7 +193,7 @@ public class Server {
         }
     }
 
-    /// Confirmation from Transport layer that connection was dropped by the dApp.
+    /// Confirmation from Transport layer that connection was dropped.
     ///
     /// - Parameters:
     ///   - url: WalletConnect url

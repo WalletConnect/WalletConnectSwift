@@ -12,6 +12,12 @@ class ViewController: UIViewController {
     @IBOutlet weak var personalSignButton: UIButton!
 
     var client: Client!
+    var session: Session?
+
+    @IBAction func disconnect(_ sender: Any) {
+        guard let session = session else { return }
+        try? client.disconnect(from: session)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,6 +38,7 @@ class ViewController: UIViewController {
         infoLabel.text = wcUrl.absoluteString
         infoLabel.isUserInteractionEnabled = true
         infoLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(copyUrl)))
+        disableButtons()
 
         try! client.connect(url: wcUrl)
     }
@@ -77,6 +84,7 @@ extension ViewController: ClientDelegate {
     }
 
     func client(_ client: Client, didConnect session: Session) {
+        self.session = session
         DispatchQueue.main.async {
             self.infoLabel.text = "Connected to: \(session.walletInfo!.accounts[0])"
             self.enableButtons()
