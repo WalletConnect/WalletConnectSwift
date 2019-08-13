@@ -61,6 +61,9 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iXl-u2-jdF">
                                         <rect key="frame" x="0.0" y="38" width="354" height="30"/>
                                         <state key="normal" title="personal_sign"/>
+                                        <connections>
+                                            <action selector="personal_sign:" destination="7xL-3o-hMB" eventType="touchUpInside" id="Q0t-3v-BYO"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                             </stackView>

@@ -65,6 +65,25 @@ public class Client: WalletConnect {
         communicator.send(request, topic: walletInfo.peerId)
     }
 
+    /// https://docs.walletconnect.org/json-rpc/ethereum#personal_sign
+    /// Request to sign a message.
+    ///
+    /// - Parameters:
+    ///   - url: WalletConnect url object.
+    ///   - message: String representin Data to sign.
+    ///   - account: String representing Ethereum address.
+    ///   - completion: String representing signature.
+    public func personal_sign(url: WCURL,
+                              message: String,
+                              account: String,
+                              completion: @escaping RequestResponse) throws {
+        let payload = JSONRPC_2_0.Request(method: "personal_sign",
+                                          params: .positional([.string(message), .string(account)]),
+                                          id: .string(UUID().uuidString))
+        let request = Request(payload: payload, url: url)
+        try send(request, completion: completion)
+    }
+
     override func onConnect(to url: WCURL) {
         print("WC: client didConnect url: \(url.bridgeURL.absoluteString)")
         if let session = communicator.session(by: url) { // reconnecting existing session

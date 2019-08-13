@@ -19,6 +19,23 @@ class ViewController: UIViewController {
         try? client.disconnect(from: session)
     }
 
+    @IBAction func personal_sign(_ sender: Any) {
+        guard let session = session else { return }
+        try? client.personal_sign(url: session.url, message: "0x01", account: session.walletInfo!.accounts[0]) {
+            [weak self] response in
+            var alert: UIAlertController
+            switch response.payload.result {
+            case .value(let value):
+                guard case .string(let signature) = value else { return }
+                alert = UIAlertController(title: "Signature", message: signature, preferredStyle: .alert)
+            case .error(let error):
+                alert = UIAlertController(title: "Error", message: error.message, preferredStyle: .alert)
+            }
+            alert.addAction(UIAlertAction(title: "Close", style: .cancel))
+            self?.show(alert)
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
