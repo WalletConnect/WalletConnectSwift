@@ -6,9 +6,6 @@ import Foundation
 
 /*
  WC API:
- personal_sign
- eth_sign
- eth_signTypedData
  eth_sendTransaction
  eth_signTransaction
  eth_sendRawTransaction
@@ -73,12 +70,53 @@ public class Client: WalletConnect {
     ///   - message: String representin Data to sign.
     ///   - account: String representing Ethereum address.
     ///   - completion: String representing signature.
+    /// - Throws: client error.
     public func personal_sign(url: WCURL,
                               message: String,
                               account: String,
                               completion: @escaping RequestResponse) throws {
-        let payload = JSONRPC_2_0.Request(method: "personal_sign",
-                                          params: .positional([.string(message), .string(account)]),
+        try sign(url: url, method: "personal_sign", param1: message, param2: account, completion: completion)
+    }
+
+    /// https://docs.walletconnect.org/json-rpc/ethereum#eth_sign
+    /// Request to sign a message.
+    ///
+    /// - Parameters:
+    ///   - url: WalletConnect url object.
+    ///   - account: String representing Ethereum address.
+    ///   - message: String representin Data to sign.
+    ///   - completion: String representing signature.
+    /// - Throws: client error.
+    public func eth_sign(url: WCURL,
+                         account: String,
+                         message: String,
+                         completion: @escaping RequestResponse) throws {
+        try sign(url: url, method: "eth_sign", param1: account, param2: message, completion: completion)
+    }
+
+    /// https://docs.walletconnect.org/json-rpc/ethereum#eth_signtypeddata
+    /// Request to sign typed daya.
+    ///
+    /// - Parameters:
+    ///   - url: WalletConnect url object.
+    ///   - account: String representing Ethereum address.
+    ///   - message: String representin Data to sign.
+    ///   - completion: String representing signature.
+    /// - Throws: client error.
+    public func eth_signTypedData(url: WCURL,
+                                  account: String,
+                                  message: String,
+                                  completion: @escaping RequestResponse) throws {
+        try sign(url: url, method: "eth_signTypedData", param1: account, param2: message, completion: completion)
+    }
+
+    private func sign(url: WCURL,
+                      method: String,
+                      param1: String,
+                      param2: String,
+                      completion: @escaping RequestResponse) throws {
+        let payload = JSONRPC_2_0.Request(method: method,
+                                          params: .positional([.string(param1), .string(param2)]),
                                           id: .string(UUID().uuidString))
         let request = Request(payload: payload, url: url)
         try send(request, completion: completion)
