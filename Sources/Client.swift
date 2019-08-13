@@ -18,7 +18,7 @@ public protocol ClientDelegate: class {
 
     func client(_ client: Client, didFailToConnect url: WCURL)
     func client(_ client: Client, didConnect session: Session)
-    func client(_ client: Client, didDisconnect session: Session, error: Error? )
+    func client(_ client: Client, didDisconnect session: Session)
 
 }
 
@@ -31,7 +31,6 @@ public class Client: WalletConnect {
     private var responses: Responses
 
     enum ClientError: Error {
-        case tryingToDisconnectInactiveSession
         case missingWalletInfoInSession
         case missingRequestID
         case sessionNotFound
@@ -44,30 +43,12 @@ public class Client: WalletConnect {
         super.init()
     }
 
-    /// Disconnect from session.
-    ///
-    /// - Parameter session: Session object
-    /// - Throws: error on trying to disconnect inacative sessoin.
-    public func disconnect(from session: Session) throws {
-        guard communicator.isConnected(by: session.url) else {
-            throw ClientError.tryingToDisconnectInactiveSession
-        }
-        try updateSession(session, with: session.dAppInfo.with(approved: false))
-        communicator.addPendingDisconnectSession(session)
-        communicator.disconnect(from: session.url)
-    }
-
-    private func updateSession(_ session: Session, with dAppInfo: Session.DAppInfo) throws {
-        let request = try! UpdateSessionRequest(url: session.url, dAppInfo: dAppInfo)!
-        try send(request, completion: nil)
-    }
-
     /// Send request to wallet.
     ///
     /// - Parameters:
     ///   - request: Request object.
     ///   - completion: RequestResponse completion.
-    /// - Throws: Clietn error.
+    /// - Throws: Client error.
     public func send(_ request: Request, completion: RequestResponse?) throws {
         guard let session = communicator.session(by: request.url) else {
             throw ClientError.sessionNotFound
@@ -100,6 +81,20 @@ public class Client: WalletConnect {
         }
     }
 
+    private func nextRequestId() -> JSONRPC_2_0.IDType {
+        return JSONRPC_2_0.IDType.int(UUID().hashValue)
+    }
+
+    private func handleHandshakeResponse(_ response: Response) {
+        guard let session = try? Session(wcSessionResponse: response, dAppInfo: dAppInfo),
+            session.walletInfo!.approved else {
+                delegate.client(self, didFailToConnect: response.url)
+                return
+        }
+        communicator.addSession(session)
+        delegate.client(self, didConnect: session)
+    }
+
     override func onTextReceive(_ text: String, from url: WCURL) {
         // TODO: handle all situations
         if let response = try? communicator.response(from: text, url: url) {
@@ -111,23 +106,22 @@ public class Client: WalletConnect {
         }
     }
 
-    private func handleHandshakeResponse(_ response: Response) {
-        guard let session = try? Session(wcSessionResponse: response, dAppInfo: dAppInfo),
-            session.walletInfo!.approved else {
-            delegate.client(self, didFailToConnect: response.url)
-            return
-        }
-        communicator.addSession(session)
-        delegate.client(self, didConnect: session)
-    }
-
     private func log(_ response: Response) {
         guard let text = try? response.payload.json().string else { return }
         print("WC: <== \(text)")
     }
 
-    private func nextRequestId() -> JSONRPC_2_0.IDType {
-        return JSONRPC_2_0.IDType.int(UUID().hashValue)
+    override func sendDisconnectSessionRequest(for session: Session) throws {
+        let request = try! UpdateSessionRequest(url: session.url, dAppInfo: session.dAppInfo.with(approved: false))!
+        try send(request, completion: nil)
+    }
+
+    override func failedToConnect(_ url: WCURL) {
+        delegate.client(self, didFailToConnect: url)
+    }
+
+    override func didDisconnect(_ session: Session) {
+        delegate.client(self, didDisconnect: session)
     }
 
     /// Thread-safe collection of client reponses

@@ -12,6 +12,7 @@ public class WalletConnect {
 
     enum WalletConnectError: Error {
         case tryingToConnectExistingSessionURL
+        case tryingToDisconnectInactiveSession
         case missingWalletInfoInSession
     }
 
@@ -37,6 +38,19 @@ public class WalletConnect {
         }
         communicator.addSession(session)
         listen(on: session.url)
+    }
+
+    /// Disconnect from session.
+    ///
+    /// - Parameter session: Session object
+    /// - Throws: error on trying to disconnect inacative sessoin.
+    public func disconnect(from session: Session) throws {
+        guard communicator.isConnected(by: session.url) else {
+            throw WalletConnectError.tryingToDisconnectInactiveSession
+        }
+        try sendDisconnectSessionRequest(for: session)
+        communicator.addPendingDisconnectSession(session)
+        communicator.disconnect(from: session.url)
     }
 
     /// Get all sessions with active connection.
@@ -90,6 +104,10 @@ public class WalletConnect {
     ///   - text: incoming message
     ///   - url: WalletConnect url
     func onTextReceive(_ text: String, from url: WCURL) {
+        preconditionFailure("Should be implemented in subclasses")
+    }
+
+    func sendDisconnectSessionRequest(for session: Session) throws {
         preconditionFailure("Should be implemented in subclasses")
     }
 

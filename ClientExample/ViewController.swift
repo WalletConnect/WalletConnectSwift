@@ -91,7 +91,7 @@ extension ViewController: ClientDelegate {
         }
     }
 
-    func client(_ client: Client, didDisconnect session: Session, error: Error?) {
+    func client(_ client: Client, didDisconnect session: Session) {
         let alert = UIAlertController(title: "Did disconnect", message: nil, preferredStyle: .alert)
         show(alert) { [unowned self] in
             self.dismiss(animated: true)

@@ -25,7 +25,7 @@ public protocol ServerDelegate: class {
     func server(_ server: Server, didConnect session: Session)
 
     /// Called only when the session is disconnect with intention of the dApp or the Wallet.
-    func server(_ server: Server, didDisconnect session: Session, error: Error?)
+    func server(_ server: Server, didDisconnect session: Session)
 
 }
 
@@ -36,7 +36,6 @@ public class Server: WalletConnect {
 
     enum ServerError: Error {
         case missingWalletInfoInSession
-        case tryingToDisconnectInactiveSession
     }
 
     public init(delegate: ServerDelegate) {
@@ -53,19 +52,6 @@ public class Server: WalletConnect {
 
     public func unregister(handler: RequestHandler) {
         handlers.remove(handler)
-    }
-
-    /// Disconnect from session.
-    ///
-    /// - Parameter session: Session object
-    /// - Throws: error on trying to disconnect inacative sessoin.
-    public func disconnect(from session: Session) throws {
-        guard communicator.isConnected(by: session.url) else {
-            throw ServerError.tryingToDisconnectInactiveSession
-        }
-        try updateSession(session, with: session.walletInfo!.with(approved: false))
-        communicator.addPendingDisconnectSession(session)
-        communicator.disconnect(from: session.url)
     }
 
     /// Update session with new wallet info.
@@ -94,11 +80,6 @@ public class Server: WalletConnect {
         communicator.send(request, topic: session.dAppInfo.peerId)
     }
 
-    /// Process incomming text messages from the transport layer.
-    ///
-    /// - Parameters:
-    ///   - text: incoming message
-    ///   - url: WalletConnect url
     override func onTextReceive(_ text: String, from url: WCURL) {
         do {
             // we handle only properly formed JSONRPC 2.0 requests. JSONRPC 2.0 responses are ignored.
@@ -116,9 +97,6 @@ public class Server: WalletConnect {
         print("WC: <== \(text)")
     }
 
-    /// Confirmation from Transport layer that connection was successfully established.
-    ///
-    /// - Parameter url: WalletConnect url
     override func onConnect(to url: WCURL) {
         print("WC: didConnect url: \(url.bridgeURL.absoluteString)")
         if let session = communicator.session(by: url) { // reconnecting existing session
@@ -136,6 +114,21 @@ public class Server: WalletConnect {
             let payload = JSONRPC_2_0.Response.methodDoesNotExistError(id: request.payload.id)
             send(Response(payload: payload, url: request.url))
         }
+    }
+
+    override func sendDisconnectSessionRequest(for session: Session) throws {
+        guard let walletInfo = session.walletInfo else {
+            throw ServerError.missingWalletInfoInSession
+        }
+        try updateSession(session, with: walletInfo.with(approved: false))
+    }
+
+    override func failedToConnect(_ url: WCURL) {
+        delegate.server(self, didFailToConnect: url)
+    }
+
+    override func didDisconnect(_ session: Session) {
+        delegate.server(self, didDisconnect: session)
     }
 
     /// thread-safe collection of RequestHandlers
@@ -205,7 +198,7 @@ extension Server: UpdateSessionHandlerDelegate {
             do {
                 try disconnect(from: session)
             } catch { // session already disconnected
-                delegate.server(self, didDisconnect: session, error: nil)
+                delegate.server(self, didDisconnect: session)
             }
         }
     }
