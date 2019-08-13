@@ -5,13 +5,6 @@
 import Foundation
 
 /*
- Client:
-
- connect
- reconnect
- disconnect
- updateSession
-
  WC API:
  personal_sign
  eth_sign
@@ -19,10 +12,6 @@ import Foundation
  eth_sendTransaction
  eth_signTransaction
  eth_sendRawTransaction
-
- general:
- send(_ request: Request)
-
  */
 
 public protocol ClientDelegate: class {
@@ -33,17 +22,15 @@ public protocol ClientDelegate: class {
 
 }
 
-public class Client {
+public class Client: WalletConnect {
 
     public typealias RequestResponse = (Response) -> Void
 
     private(set) weak var delegate: ClientDelegate!
     private let dAppInfo: Session.DAppInfo
-    private let communicator: Communicator
     private var responses: Responses
 
     enum ClientError: Error {
-        case tryingToConnectExistingSessionURL
         case tryingToDisconnectInactiveSession
         case missingWalletInfoInSession
         case missingRequestID
@@ -53,46 +40,8 @@ public class Client {
     public init(delegate: ClientDelegate, dAppInfo: Session.DAppInfo) {
         self.delegate = delegate
         self.dAppInfo = dAppInfo
-        communicator = Communicator()
         responses = Responses(queue: DispatchQueue(label: "org.walletconnect.swift.client.pending"))
-    }
-
-    /// Connect to WalletConnect url
-    /// https://docs.walletconnect.org/tech-spec#requesting-connection
-    ///
-    /// - Parameter url: WalletConnect url
-    /// - Throws: error on trying to connect to existing session url
-    public func connect(url: WCURL) throws {
-        guard communicator.session(by: url) == nil else {
-            throw ClientError.tryingToConnectExistingSessionURL
-        }
-        listen(on: url)
-    }
-
-    /// Reconnect to the session
-    ///
-    /// - Parameter session: session object with wallet info.
-    /// - Throws: error if wallet info is missing
-    public func reconnect(to session: Session) throws {
-        guard session.walletInfo != nil else {
-            throw ClientError.missingWalletInfoInSession
-        }
-        communicator.addSession(session)
-        listen(on: session.url)
-    }
-
-    private func listen(on url: WCURL) {
-        communicator.listen(on: url,
-                            onConnect: onConnect(to:),
-                            onDisconnect: onDisconnect(from:error:),
-                            onTextReceive: onTextReceive(_:from:))
-    }
-
-    /// Get all sessions with active connection.
-    ///
-    /// - Returns: sessions list.
-    public func openSessions() -> [Session] {
-        return communicator.openSessions()
+        super.init()
     }
 
     /// Disconnect from session.
@@ -135,7 +84,7 @@ public class Client {
         communicator.send(request, topic: walletInfo.peerId)
     }
 
-    private func onConnect(to url: WCURL) {
+    override func onConnect(to url: WCURL) {
         print("WC: client didConnect url: \(url.bridgeURL.absoluteString)")
         if let session = communicator.session(by: url) { // reconnecting existing session
             communicator.subscribe(on: session.dAppInfo.peerId, url: session.url)
@@ -151,31 +100,7 @@ public class Client {
         }
     }
 
-    /// Confirmation from Transport layer that connection was dropped.
-    ///
-    /// - Parameters:
-    ///   - url: WalletConnect url
-    ///   - error: error that triggered the disconnection
-    private func onDisconnect(from url: WCURL, error: Error?) {
-        print("WC: didDisconnect url: \(url.bridgeURL.absoluteString)")
-        // check if disconnect happened during handshake
-        guard let session = communicator.session(by: url) else {
-            delegate.client(self, didFailToConnect: url)
-            return
-        }
-        // if a session was not initiated by the wallet or the dApp to disconnect, try to reconnect it.
-        guard communicator.pendingDisconnectSession(by: url) != nil else {
-            // TODO: should we notify delegate that we try to reconnect?
-            print("WC: trying to reconnect session by url: \(url.bridgeURL.absoluteString)")
-            try! reconnect(to: session)
-            return
-        }
-        communicator.removeSession(by: url)
-        communicator.removePendingDisconnectSession(by: url)
-        delegate.client(self, didDisconnect: session, error: error)
-    }
-
-    private func onTextReceive(_ text: String, from url: WCURL) {
+    override func onTextReceive(_ text: String, from url: WCURL) {
         // TODO: handle all situations
         if let response = try? communicator.response(from: text, url: url) {
             log(response)

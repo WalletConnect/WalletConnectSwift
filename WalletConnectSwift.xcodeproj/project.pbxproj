@@ -32,6 +32,7 @@
 		551B661D22FDC47300573DBD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 551B661C22FDC47300573DBD /* Assets.xcassets */; };
 		551B662022FDC47300573DBD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 551B661E22FDC47300573DBD /* LaunchScreen.storyboard */; };
 		551B662E22FDC7EC00573DBD /* libWalletConnectSwift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB072422FC22BA00BC18BB /* libWalletConnectSwift.a */; };
+		55CE9CCC2302A8E600CB414D /* WalletConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55CE9CCB2302A8E600CB414D /* WalletConnect.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -134,6 +135,7 @@
 		551B661C22FDC47300573DBD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		551B661F22FDC47300573DBD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		551B662122FDC47300573DBD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		55CE9CCB2302A8E600CB414D /* WalletConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnect.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -205,6 +207,7 @@
 				0ABB073322FC22F800BC18BB /* UpdateSessionRequest.swift */,
 				0ABB073722FC22F800BC18BB /* WebSocketConnection.swift */,
 				0ABB072F22FC22F800BC18BB /* JSONRPC_2_0 */,
+				55CE9CCB2302A8E600CB414D /* WalletConnect.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -465,6 +468,7 @@
 				0ABB074022FC22F800BC18BB /* Server.swift in Sources */,
 				551B660C22FDA54900573DBD /* CreateSessionRequest.swift in Sources */,
 				0ABB073B22FC22F800BC18BB /* JSONRPC_2_0.swift in Sources */,
+				55CE9CCC2302A8E600CB414D /* WalletConnect.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -59,6 +59,30 @@ public struct WCURL: Hashable {
 
 }
 
+public class Request {
+
+    public var payload: JSONRPC_2_0.Request
+    public var url: WCURL
+
+    public init(payload: JSONRPC_2_0.Request, url: WCURL) {
+        self.payload = payload
+        self.url = url
+    }
+
+}
+
+public class Response {
+
+    public var payload: JSONRPC_2_0.Response
+    public var url: WCURL
+
+    public init(payload: JSONRPC_2_0.Response, url: WCURL) {
+        self.payload = payload
+        self.url = url
+    }
+
+}
+
 /// Each session is a communication channel between dApp and Wallet on dAppInfo.peerId topic
 public struct Session {
 

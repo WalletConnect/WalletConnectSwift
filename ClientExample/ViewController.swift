@@ -40,7 +40,7 @@ class ViewController: UIViewController {
         infoLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(copyUrl)))
         disableButtons()
 
-        try! client.connect(url: wcUrl)
+        try! client.connect(to: wcUrl)
     }
 
     private func disableButtons() {
