@@ -119,4 +119,36 @@ public class WalletConnect {
         preconditionFailure("Should be implemented in subclasses")
     }
 
+    func log(_ request: Request) {
+        guard let text = try? request.payload.json().string else { return }
+        print("WC: <== \(text)")
+    }
+
+    func log(_ response: Response) {
+        guard let text = try? response.payload.json().string else { return }
+        print("WC: <== \(text)")
+    }
+
+}
+
+extension JSONRPC_2_0.Response {
+
+    typealias PayloadCode = JSONRPC_2_0.Response.Payload.ErrorPayload.Code
+
+    static func errorPayload(code: PayloadCode, message: String) -> JSONRPC_2_0.Response.Payload.ErrorPayload {
+        return JSONRPC_2_0.Response.Payload.ErrorPayload(code: code, message: message, data: nil)
+    }
+
+    static func methodDoesNotExistError(id: JSONRPC_2_0.IDType?) -> JSONRPC_2_0.Response {
+        let message = "The method does not exist / is not available."
+        return JSONRPC_2_0.Response(result: .error(errorPayload(code: PayloadCode.methodNotFound,
+                                                                message: message)),
+                                    id: id ?? .null)
+    }
+
+    static let invalidJSON =
+        JSONRPC_2_0.Response(result: .error(errorPayload(code: PayloadCode.invalidJSON,
+                                                         message: "Invalid JSON was received by the server.")),
+                             id: JSONRPC_2_0.IDType.null)
+
 }

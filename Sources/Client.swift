@@ -55,6 +55,20 @@ public class Client: WalletConnect {
         communicator.send(request, topic: walletInfo.peerId)
     }
 
+    /// Send response to wallet.
+    ///
+    /// - Parameter response: Response object.
+    /// - Throws: Client error.
+    public func send(_ response: Response) throws {
+        guard let session = communicator.session(by: response.url) else {
+            throw ClientError.sessionNotFound
+        }
+        guard let walletInfo = session.walletInfo else {
+            throw ClientError.missingWalletInfoInSession
+        }
+        communicator.send(response, topic: walletInfo.peerId)
+    }
+
     /// https://docs.walletconnect.org/json-rpc/ethereum#personal_sign
     /// Request to sign a message.
     ///
@@ -205,19 +219,40 @@ public class Client: WalletConnect {
     }
 
     override func onTextReceive(_ text: String, from url: WCURL) {
-        // TODO: handle all situations
         if let response = try? communicator.response(from: text, url: url) {
             log(response)
             if let completion = responses.find(requestID: response.payload.id) {
                 completion(response)
                 responses.remove(requestID: response.payload.id)
             }
+        } else if let request = try? communicator.request(from: text, url: url) {
+            log(request)
+            expectUpdateSessionRequest(request)
         }
     }
 
-    private func log(_ response: Response) {
-        guard let text = try? response.payload.json().string else { return }
-        print("WC: <== \(text)")
+    private func expectUpdateSessionRequest(_ request: Request) {
+        if request.payload.method == "wc_sessionUpdate" {
+            guard let params = request.payload.params,
+                case JSONRPC_2_0.Request.Params.positional(let arrayWrapper) = params, !arrayWrapper.isEmpty,
+                case JSONRPC_2_0.ValueType.object(let sessionUpdateParams) = arrayWrapper[0],
+                let requiredApproved = sessionUpdateParams["approved"],
+                case JSONRPC_2_0.ValueType.bool(let approved) = requiredApproved else {
+                    try! send(Response(payload: JSONRPC_2_0.Response.invalidJSON, url: request.url))
+                    return
+            }
+            guard let session = communicator.session(by: request.url) else { return }
+            if !approved {
+                do {
+                    try disconnect(from: session)
+                } catch { // session already disconnected
+                    delegate.client(self, didDisconnect: session)
+                }
+            }
+        } else {
+            let payload = JSONRPC_2_0.Response.methodDoesNotExistError(id: request.payload.id)
+            try! send(Response(payload: payload, url: request.url))
+        }
     }
 
     override func sendDisconnectSessionRequest(for session: Session) throws {

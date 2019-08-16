@@ -102,7 +102,7 @@
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TvZ-Yb-Poa">
                                         <rect key="frame" x="0.0" y="266" width="354" height="30"/>
-                                        <state key="normal" title="Custom Request"/>
+                                        <state key="normal" title="Custom Request (eth_gasPrice)"/>
                                         <connections>
                                             <action selector="customRequest:" destination="7xL-3o-hMB" eventType="touchUpInside" id="vdn-jd-xft"/>
                                         </connections>
@@ -123,6 +123,12 @@
                     </view>
                     <connections>
                         <outlet property="disconnectButton" destination="3YQ-sx-7O5" id="DxP-ya-x6Y"/>
+                        <outlet property="ethCustomRequestButton" destination="TvZ-Yb-Poa" id="NfM-45-7Jt"/>
+                        <outlet property="ethSendRawTransactionButton" destination="LSu-RP-v7j" id="KBS-Bi-DTC"/>
+                        <outlet property="ethSendTransactionButton" destination="UrZ-bo-sXW" id="2BA-8F-3pB"/>
+                        <outlet property="ethSignButton" destination="dgi-1Q-frM" id="fMy-ud-0dB"/>
+                        <outlet property="ethSignTransactionButton" destination="45K-HD-CJS" id="VQv-uF-6rf"/>
+                        <outlet property="ethSignTypedDataButton" destination="f71-0S-8wh" id="8te-v4-V4R"/>
                         <outlet property="infoLabel" destination="RxX-mb-Fh4" id="5uf-wk-Vq5"/>
                         <outlet property="personalSignButton" destination="iXl-u2-jdF" id="ZTK-7z-bHD"/>
                     </connections>
