@@ -49,7 +49,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="aL3-e6-BJu">
-                                <rect key="frame" x="30" y="130" width="354" height="68"/>
+                                <rect key="frame" x="30" y="130" width="354" height="296"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3YQ-sx-7O5">
                                         <rect key="frame" x="0.0" y="0.0" width="354" height="30"/>
@@ -63,6 +63,48 @@
                                         <state key="normal" title="personal_sign"/>
                                         <connections>
                                             <action selector="personal_sign:" destination="7xL-3o-hMB" eventType="touchUpInside" id="Q0t-3v-BYO"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dgi-1Q-frM">
+                                        <rect key="frame" x="0.0" y="76" width="354" height="30"/>
+                                        <state key="normal" title="eth_sign"/>
+                                        <connections>
+                                            <action selector="eth_sign:" destination="7xL-3o-hMB" eventType="touchUpInside" id="8fR-Qw-zHZ"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="f71-0S-8wh">
+                                        <rect key="frame" x="0.0" y="114" width="354" height="30"/>
+                                        <state key="normal" title="eth_signTypedData"/>
+                                        <connections>
+                                            <action selector="eth_signTypedData:" destination="7xL-3o-hMB" eventType="touchUpInside" id="z8H-Sx-6eZ"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UrZ-bo-sXW">
+                                        <rect key="frame" x="0.0" y="152" width="354" height="30"/>
+                                        <state key="normal" title="eth_sendTransaction"/>
+                                        <connections>
+                                            <action selector="eth_sendTransaction:" destination="7xL-3o-hMB" eventType="touchUpInside" id="UNz-SF-8gC"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="45K-HD-CJS">
+                                        <rect key="frame" x="0.0" y="190" width="354" height="30"/>
+                                        <state key="normal" title="eth_signTransaction"/>
+                                        <connections>
+                                            <action selector="eth_signTransaction:" destination="7xL-3o-hMB" eventType="touchUpInside" id="DFf-k5-sFH"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LSu-RP-v7j">
+                                        <rect key="frame" x="0.0" y="228" width="354" height="30"/>
+                                        <state key="normal" title="eth_sendRawTransaction"/>
+                                        <connections>
+                                            <action selector="eth_sendRawTransaction:" destination="7xL-3o-hMB" eventType="touchUpInside" id="F03-dQ-wfW"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TvZ-Yb-Poa">
+                                        <rect key="frame" x="0.0" y="266" width="354" height="30"/>
+                                        <state key="normal" title="Custom Request"/>
+                                        <connections>
+                                            <action selector="customRequest:" destination="7xL-3o-hMB" eventType="touchUpInside" id="vdn-jd-xft"/>
                                         </connections>
                                     </button>
                                 </subviews>

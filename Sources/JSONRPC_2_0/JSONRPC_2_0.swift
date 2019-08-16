@@ -161,6 +161,12 @@ public enum JSONRPC_2_0 {
         public var params: Params?
         public var id: IDType?
 
+        public init(method: String, params: Params?, id: IDType?) {
+            self.method = method
+            self.params = params
+            self.id = id
+        }
+
         public enum Params: Hashable, Codable {
 
             case positional([ValueType])
@@ -227,6 +233,11 @@ public enum JSONRPC_2_0 {
         let jsonrpc = "2.0"
         public var result: Payload
         public var id: IDType
+
+        public init(result: Payload, id: IDType) {
+            self.result = result
+            self.id = id
+        }
 
         public enum Payload: Hashable, Codable {
 
