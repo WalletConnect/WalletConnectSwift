@@ -195,7 +195,9 @@ extension ViewController: ClientDelegate {
 
     func client(_ client: Client, didFailToConnect url: WCURL) {
         let alert = UIAlertController(title: "Failed to connect", message: nil, preferredStyle: .alert)
-        show(alert)
+        show(alert)  { [unowned self] in
+            self.dismiss(animated: true)
+        }
     }
 
     func client(_ client: Client, didConnect session: Session) {

@@ -11,7 +11,7 @@ struct HexString: Codable {
     var data: Data
 
     var string: String {
-        return "0x" + data.toHexString()
+        return data.toHexString()
     }
 
     init(_ data: Data) {
