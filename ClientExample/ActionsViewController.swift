@@ -5,9 +5,8 @@
 import UIKit
 import WalletConnectSwift
 
-class ViewController: UIViewController {
+class ActionsViewController: UIViewController {
 
-    @IBOutlet weak var infoLabel: UILabel!
     @IBOutlet weak var disconnectButton: UIButton!
     @IBOutlet weak var personalSignButton: UIButton!
     @IBOutlet weak var ethSignButton: UIButton!
@@ -19,6 +18,14 @@ class ViewController: UIViewController {
 
     var client: Client!
     var session: Session!
+
+    static func create(walletConnect: WalletConnect) -> ActionsViewController{
+        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        let controller = storyboard.instantiateViewController(withIdentifier: "ActionsViewController") as! ActionsViewController
+        controller.client = walletConnect.client
+        controller.session = walletConnect.session
+        return controller
+    }
 
     var walletAccount: String {
         return session.walletInfo!.accounts[0]
@@ -84,6 +91,11 @@ class ViewController: UIViewController {
         }
     }
 
+    @IBAction func close(_ sender: Any) {
+        dismiss(animated: true)
+    }
+
+
     private func handleReponse(_ response: Response, expecting: String) {
         var alert: UIAlertController
         switch response.payload.result {
@@ -94,7 +106,7 @@ class ViewController: UIViewController {
             alert = UIAlertController(title: "Error", message: error.message, preferredStyle: .alert)
         }
         alert.addAction(UIAlertAction(title: "Close", style: .cancel))
-        show(alert, shouldAutoDismiss: false)
+        present(alert, animated: true)
     }
 
     private func gasPriceRequest() -> Request {
@@ -119,115 +131,6 @@ class ViewController: UIViewController {
             return result
         case .error(_):
             return nil
-        }
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        // default bridge: https://safe-walletconnect.gnosis.io
-        // test bridge with latest protocol version: https://bridge.walletconnect.org
-        let wcUrl =  WCURL(topic: UUID().uuidString,
-                           bridgeURL: URL(string: "https://bridge.walletconnect.org")!,
-                           key: try! randomKey())
-        let clientMeta = Session.ClientMeta(name: "ExampleDApp",
-                                            description: "WalletConnectSwift ",
-                                            icons: [],
-                                            url: URL(string: "https://safe.gnosis.io")!)
-        let dAppInfo = Session.DAppInfo(peerId: UUID().uuidString, peerMeta: clientMeta)
-        client = Client(delegate: self, dAppInfo: dAppInfo)
-
-        print("WalletConnect URL: \(wcUrl.absoluteString)")
-        infoLabel.text = wcUrl.absoluteString
-        infoLabel.isUserInteractionEnabled = true
-        infoLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(copyUrl)))
-        disableButtons()
-
-        try! client.connect(to: wcUrl)
-    }
-
-    private func disableButtons() {
-        disconnectButton.isEnabled = false
-        personalSignButton.isEnabled = false
-        ethSignButton.isEnabled = false
-        ethSignTypedDataButton.isEnabled = false
-        ethSendTransactionButton.isEnabled = false
-        ethSignTransactionButton.isEnabled = false
-        ethSendRawTransactionButton.isEnabled = false
-        ethCustomRequestButton.isEnabled = false
-    }
-
-    private func enableButtons() {
-        disconnectButton.isEnabled = true
-        personalSignButton.isEnabled = true
-        ethSignButton.isEnabled = true
-        ethSignTypedDataButton.isEnabled = true
-        ethSendTransactionButton.isEnabled = true
-        ethSignTransactionButton.isEnabled = true
-        ethSendRawTransactionButton.isEnabled = true
-        ethCustomRequestButton.isEnabled = true
-    }
-
-    @objc private func copyUrl() {
-        UIPasteboard.general.string = infoLabel.text
-        let alert = UIAlertController(title: "Copied", message: nil, preferredStyle: .alert)
-        show(alert)
-    }
-
-    // https://developer.apple.com/documentation/security/1399291-secrandomcopybytes
-    func randomKey() throws -> String {
-        var bytes = [Int8](repeating: 0, count: 32)
-        let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
-        if status == errSecSuccess {
-            return Data(bytes: bytes, count: 32).toHexString()
-        } else {
-            // we don't care in example app
-            enum TestError: Error {
-                case unknown
-            }
-            throw TestError.unknown
-        }
-    }
-
-}
-
-extension ViewController: ClientDelegate {
-
-    func client(_ client: Client, didFailToConnect url: WCURL) {
-        let alert = UIAlertController(title: "Failed to connect", message: nil, preferredStyle: .alert)
-        show(alert)  { [unowned self] in
-            self.dismiss(animated: true)
-        }
-    }
-
-    func client(_ client: Client, didConnect session: Session) {
-        self.session = session
-        DispatchQueue.main.async {
-            self.infoLabel.text = "Connected to: \(session.walletInfo!.accounts[0])"
-            self.enableButtons()
-        }
-    }
-
-    func client(_ client: Client, didDisconnect session: Session) {
-        let alert = UIAlertController(title: "Did disconnect", message: nil, preferredStyle: .alert)
-        show(alert) { [unowned self] in
-            self.dismiss(animated: true)
-        }
-    }
-
-    private func show(_ alert: UIAlertController, shouldAutoDismiss: Bool = true, completion: (() -> Void)? = nil) {
-        DispatchQueue.main.async {
-            self.present(alert, animated: true) {
-                if shouldAutoDismiss {
-                    DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
-                        DispatchQueue.main.async {
-                            alert.dismiss(animated: true) {
-                                completion?()
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 

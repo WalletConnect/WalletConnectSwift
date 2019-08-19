@@ -27,12 +27,15 @@
 		551B65F922FD78B700573DBD /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B65F822FD78B700573DBD /* Client.swift */; };
 		551B660C22FDA54900573DBD /* CreateSessionRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B660B22FDA54900573DBD /* CreateSessionRequest.swift */; };
 		551B661622FDC47000573DBD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B661522FDC47000573DBD /* AppDelegate.swift */; };
-		551B661822FDC47000573DBD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B661722FDC47000573DBD /* ViewController.swift */; };
+		551B661822FDC47000573DBD /* ActionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B661722FDC47000573DBD /* ActionsViewController.swift */; };
 		551B661B22FDC47000573DBD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 551B661922FDC47000573DBD /* Main.storyboard */; };
 		551B661D22FDC47300573DBD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 551B661C22FDC47300573DBD /* Assets.xcassets */; };
 		551B662022FDC47300573DBD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 551B661E22FDC47300573DBD /* LaunchScreen.storyboard */; };
 		551B662E22FDC7EC00573DBD /* libWalletConnectSwift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB072422FC22BA00BC18BB /* libWalletConnectSwift.a */; };
 		55CE9CCC2302A8E600CB414D /* WalletConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55CE9CCB2302A8E600CB414D /* WalletConnect.swift */; };
+		55CE9D1D230AA40D00CB414D /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55CE9D1C230AA40D00CB414D /* MainViewController.swift */; };
+		55CE9D31230AA58100CB414D /* HandshakeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55CE9D30230AA58100CB414D /* HandshakeViewController.swift */; };
+		55CE9D33230AA6AE00CB414D /* WalletConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55CE9D32230AA6AE00CB414D /* WalletConnect.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -130,12 +133,15 @@
 		551B660B22FDA54900573DBD /* CreateSessionRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateSessionRequest.swift; sourceTree = "<group>"; };
 		551B661322FDC47000573DBD /* ClientExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClientExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		551B661522FDC47000573DBD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		551B661722FDC47000573DBD /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		551B661722FDC47000573DBD /* ActionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionsViewController.swift; sourceTree = "<group>"; };
 		551B661A22FDC47000573DBD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		551B661C22FDC47300573DBD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		551B661F22FDC47300573DBD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		551B662122FDC47300573DBD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		55CE9CCB2302A8E600CB414D /* WalletConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnect.swift; sourceTree = "<group>"; };
+		55CE9D1C230AA40D00CB414D /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		55CE9D30230AA58100CB414D /* HandshakeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandshakeViewController.swift; sourceTree = "<group>"; };
+		55CE9D32230AA6AE00CB414D /* WalletConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnect.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -261,12 +267,15 @@
 		551B661422FDC47000573DBD /* ClientExample */ = {
 			isa = PBXGroup;
 			children = (
+				551B662122FDC47300573DBD /* Info.plist */,
+				551B661722FDC47000573DBD /* ActionsViewController.swift */,
 				551B661522FDC47000573DBD /* AppDelegate.swift */,
-				551B661722FDC47000573DBD /* ViewController.swift */,
-				551B661922FDC47000573DBD /* Main.storyboard */,
+				55CE9D30230AA58100CB414D /* HandshakeViewController.swift */,
+				55CE9D1C230AA40D00CB414D /* MainViewController.swift */,
 				551B661C22FDC47300573DBD /* Assets.xcassets */,
 				551B661E22FDC47300573DBD /* LaunchScreen.storyboard */,
-				551B662122FDC47300573DBD /* Info.plist */,
+				551B661922FDC47000573DBD /* Main.storyboard */,
+				55CE9D32230AA6AE00CB414D /* WalletConnect.swift */,
 			);
 			path = ClientExample;
 			sourceTree = "<group>";
@@ -485,8 +494,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				551B661822FDC47000573DBD /* ViewController.swift in Sources */,
+				55CE9D1D230AA40D00CB414D /* MainViewController.swift in Sources */,
+				551B661822FDC47000573DBD /* ActionsViewController.swift in Sources */,
+				55CE9D31230AA58100CB414D /* HandshakeViewController.swift in Sources */,
 				551B661622FDC47000573DBD /* AppDelegate.swift in Sources */,
+				55CE9D33230AA6AE00CB414D /* WalletConnect.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

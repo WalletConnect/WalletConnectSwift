@@ -1,8 +1,4 @@
 //
-//  AppDelegate.swift
-//  ClientExample
-//
-//  Created by Andrey Scherbovich on 09.08.19.
 //  Copyright © 2019 Gnosis Ltd. All rights reserved.
 //
 
