@@ -1,0 +1,6 @@
+framework module WalletConnectSwift {
+  umbrella header "WalletConnectSwift-umbrella.h"
+
+  export *
+  module * { export * }
+}
