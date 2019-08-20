@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -12,6 +12,9 @@
 		0A927895230BFDC300FDCC0D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A927893230BFDC300FDCC0D /* Main.storyboard */; };
 		0A927897230BFDC300FDCC0D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A927896230BFDC300FDCC0D /* Assets.xcassets */; };
 		0A92789A230BFDC300FDCC0D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A927898230BFDC300FDCC0D /* LaunchScreen.storyboard */; };
+		0A9278A5230C02C300FDCC0D /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A9278A2230C02C300FDCC0D /* CryptoSwift.framework */; };
+		0A9278A6230C02C300FDCC0D /* WalletConnectSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A9278A3230C02C300FDCC0D /* WalletConnectSwift.framework */; };
+		0A9278A7230C02C300FDCC0D /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A9278A4230C02C300FDCC0D /* Starscream.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +25,11 @@
 		0A927896230BFDC300FDCC0D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0A927899230BFDC300FDCC0D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0A92789B230BFDC300FDCC0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0A9278A2230C02C300FDCC0D /* CryptoSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoSwift.framework; path = Carthage/Build/iOS/CryptoSwift.framework; sourceTree = "<group>"; };
+		0A9278A3230C02C300FDCC0D /* WalletConnectSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WalletConnectSwift.framework; path = Carthage/Build/iOS/WalletConnectSwift.framework; sourceTree = "<group>"; };
+		0A9278A4230C02C300FDCC0D /* Starscream.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Starscream.framework; path = Carthage/Build/iOS/Starscream.framework; sourceTree = "<group>"; };
+		0A9278A9230C02F600FDCC0D /* input.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = input.xcfilelist; sourceTree = "<group>"; };
+		0A9278AA230C030600FDCC0D /* output.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = output.xcfilelist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -29,6 +37,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A9278A5230C02C300FDCC0D /* CryptoSwift.framework in Frameworks */,
+				0A9278A6230C02C300FDCC0D /* WalletConnectSwift.framework in Frameworks */,
+				0A9278A7230C02C300FDCC0D /* Starscream.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -38,8 +49,11 @@
 		0A927883230BFDC300FDCC0D = {
 			isa = PBXGroup;
 			children = (
+				0A9278AA230C030600FDCC0D /* output.xcfilelist */,
+				0A9278A9230C02F600FDCC0D /* input.xcfilelist */,
 				0A92788E230BFDC300FDCC0D /* Carthage */,
 				0A92788D230BFDC300FDCC0D /* Products */,
+				0A9278A1230C02C300FDCC0D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -64,6 +78,16 @@
 			path = Carthage;
 			sourceTree = "<group>";
 		};
+		0A9278A1230C02C300FDCC0D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0A9278A2230C02C300FDCC0D /* CryptoSwift.framework */,
+				0A9278A4230C02C300FDCC0D /* Starscream.framework */,
+				0A9278A3230C02C300FDCC0D /* WalletConnectSwift.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -74,6 +98,7 @@
 				0A927888230BFDC300FDCC0D /* Sources */,
 				0A927889230BFDC300FDCC0D /* Frameworks */,
 				0A92788A230BFDC300FDCC0D /* Resources */,
+				0A9278A8230C02D500FDCC0D /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -129,6 +154,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0A9278A8230C02D500FDCC0D /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"$(SRCROOT)/input.xcfilelist",
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+				"$(SRCROOT)/output.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n/usr/local/bin/carthage copy-frameworks\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0A927888230BFDC300FDCC0D /* Sources */ = {
@@ -284,6 +331,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZKG876RKJ8;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = Carthage/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -302,6 +353,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZKG876RKJ8;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = Carthage/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

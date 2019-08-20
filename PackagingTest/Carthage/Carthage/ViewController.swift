@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import WalletConnectSwift
 
 class ViewController: UIViewController {
 
