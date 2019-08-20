@@ -17,8 +17,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "0ABB074922FC230400BC18BB"
-               BuildableName = "WalletConnectSwiftTests.xctest"
-               BlueprintName = "WalletConnectSwiftTests"
+               BuildableName = "WalletConnectSwiftLibTests.xctest"
+               BlueprintName = "WalletConnectSwiftLibTests"
                ReferencedContainer = "container:WalletConnectSwift.xcodeproj">
             </BuildableReference>
          </TestableReference>
