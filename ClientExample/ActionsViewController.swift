@@ -108,7 +108,9 @@ class ActionsViewController: UIViewController {
             alert = UIAlertController(title: "Error", message: error.message, preferredStyle: .alert)
         }
         alert.addAction(UIAlertAction(title: "Close", style: .cancel))
-        present(alert, animated: true)
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
     }
 
     private func gasPriceRequest() -> Request {
