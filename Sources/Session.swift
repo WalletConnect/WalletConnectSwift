@@ -118,11 +118,11 @@ public struct Session {
     public struct ClientMeta: Codable {
 
         public let name: String
-        public let description: String
+        public let description: String?
         public let icons: [URL]
         public let url: URL
 
-        public init(name: String, description: String, icons: [URL], url: URL) {
+        public init(name: String, description: String?, icons: [URL], url: URL) {
             self.name = name
             self.description = description
             self.icons = icons

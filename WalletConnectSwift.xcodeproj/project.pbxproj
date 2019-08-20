@@ -37,7 +37,7 @@
 		55CE9D31230AA58100CB414D /* HandshakeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55CE9D30230AA58100CB414D /* HandshakeViewController.swift */; };
 		55CE9D33230AA6AE00CB414D /* WalletConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55CE9D32230AA6AE00CB414D /* WalletConnect.swift */; };
 		55E59D59230BD927005620B8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E59D58230BD927005620B8 /* AppDelegate.swift */; };
-		55E59D5B230BD927005620B8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E59D5A230BD927005620B8 /* ViewController.swift */; };
+		55E59D5B230BD927005620B8 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E59D5A230BD927005620B8 /* MainViewController.swift */; };
 		55E59D5E230BD927005620B8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 55E59D5C230BD927005620B8 /* Main.storyboard */; };
 		55E59D60230BD928005620B8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55E59D5F230BD928005620B8 /* Assets.xcassets */; };
 		55E59D63230BD928005620B8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 55E59D61230BD928005620B8 /* LaunchScreen.storyboard */; };
@@ -46,6 +46,11 @@
 		55E59D8F230BE1A4005620B8 /* EthereumKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E59D82230BE146005620B8 /* EthereumKit.framework */; };
 		55E59D90230BE1A4005620B8 /* EthereumKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 55E59D82230BE146005620B8 /* EthereumKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		55E59D94230BE20D005620B8 /* libWalletConnectSwift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB072422FC22BA00BC18BB /* libWalletConnectSwift.a */; };
+		55E59D9E230BF4CF005620B8 /* ScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E59D9D230BF4CF005620B8 /* ScannerViewController.swift */; };
+		55E59D9F230C32E7005620B8 /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB076522FC23DD00BC18BB /* CryptoSwift.framework */; };
+		55E59DA0230C32E7005620B8 /* CryptoSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB076522FC23DD00BC18BB /* CryptoSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		55E59DA3230C3310005620B8 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB077422FC23E300BC18BB /* Starscream.framework */; };
+		55E59DA4230C3310005620B8 /* Starscream.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB077422FC23E300BC18BB /* Starscream.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -161,6 +166,20 @@
 			remoteGlobalIDString = AEBA90D41FFA21ED003EA2BA;
 			remoteInfo = EthereumKit;
 		};
+		55E59DA1230C32E7005620B8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0ABB075C22FC23DD00BC18BB /* CryptoSwift.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 754BE45419693E190098E6F3;
+			remoteInfo = CryptoSwift;
+		};
+		55E59DA5230C3310005620B8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0ABB076E22FC23E300BC18BB /* Starscream.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 33CCF0841F5DDC030099B092;
+			remoteInfo = Starscream;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -179,6 +198,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				55E59DA0230C32E7005620B8 /* CryptoSwift.framework in Embed Frameworks */,
+				55E59DA4230C3310005620B8 /* Starscream.framework in Embed Frameworks */,
 				55E59D8C230BE1A4005620B8 /* CryptoEthereumSwift.framework in Embed Frameworks */,
 				55E59D90230BE1A4005620B8 /* EthereumKit.framework in Embed Frameworks */,
 			);
@@ -222,13 +243,14 @@
 		55CE9D32230AA6AE00CB414D /* WalletConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnect.swift; sourceTree = "<group>"; };
 		55E59D56230BD927005620B8 /* ServerExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ServerExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		55E59D58230BD927005620B8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		55E59D5A230BD927005620B8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		55E59D5A230BD927005620B8 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		55E59D5D230BD927005620B8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		55E59D5F230BD928005620B8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		55E59D62230BD928005620B8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		55E59D64230BD928005620B8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		55E59D6F230BE13D005620B8 /* CryptoEthereumSwift.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CryptoEthereumSwift.xcodeproj; path = Dependencies/CryptoEthereumSwift/CryptoEthereumSwift.xcodeproj; sourceTree = "<group>"; };
 		55E59D7B230BE146005620B8 /* EthereumKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = EthereumKit.xcodeproj; path = Dependencies/EthereumKit/EthereumKit.xcodeproj; sourceTree = "<group>"; };
+		55E59D9D230BF4CF005620B8 /* ScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -264,6 +286,8 @@
 				55E59D94230BE20D005620B8 /* libWalletConnectSwift.a in Frameworks */,
 				55E59D8B230BE1A4005620B8 /* CryptoEthereumSwift.framework in Frameworks */,
 				55E59D8F230BE1A4005620B8 /* EthereumKit.framework in Frameworks */,
+				55E59DA3230C3310005620B8 /* Starscream.framework in Frameworks */,
+				55E59D9F230C32E7005620B8 /* CryptoSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -384,12 +408,13 @@
 		55E59D57230BD927005620B8 /* ServerExample */ = {
 			isa = PBXGroup;
 			children = (
+				55E59D64230BD928005620B8 /* Info.plist */,
 				55E59D58230BD927005620B8 /* AppDelegate.swift */,
-				55E59D5A230BD927005620B8 /* ViewController.swift */,
-				55E59D5C230BD927005620B8 /* Main.storyboard */,
+				55E59D5A230BD927005620B8 /* MainViewController.swift */,
+				55E59D9D230BF4CF005620B8 /* ScannerViewController.swift */,
 				55E59D5F230BD928005620B8 /* Assets.xcassets */,
 				55E59D61230BD928005620B8 /* LaunchScreen.storyboard */,
-				55E59D64230BD928005620B8 /* Info.plist */,
+				55E59D5C230BD927005620B8 /* Main.storyboard */,
 			);
 			path = ServerExample;
 			sourceTree = "<group>";
@@ -483,6 +508,8 @@
 			dependencies = (
 				55E59D8E230BE1A4005620B8 /* PBXTargetDependency */,
 				55E59D92230BE1A4005620B8 /* PBXTargetDependency */,
+				55E59DA2230C32E7005620B8 /* PBXTargetDependency */,
+				55E59DA6230C3310005620B8 /* PBXTargetDependency */,
 			);
 			name = ServerExample;
 			productName = ServerExample;
@@ -724,7 +751,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				55E59D5B230BD927005620B8 /* ViewController.swift in Sources */,
+				55E59D5B230BD927005620B8 /* MainViewController.swift in Sources */,
+				55E59D9E230BF4CF005620B8 /* ScannerViewController.swift in Sources */,
 				55E59D59230BD927005620B8 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -746,6 +774,16 @@
 			isa = PBXTargetDependency;
 			name = EthereumKit;
 			targetProxy = 55E59D91230BE1A4005620B8 /* PBXContainerItemProxy */;
+		};
+		55E59DA2230C32E7005620B8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CryptoSwift;
+			targetProxy = 55E59DA1230C32E7005620B8 /* PBXContainerItemProxy */;
+		};
+		55E59DA6230C3310005620B8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Starscream;
+			targetProxy = 55E59DA5230C3310005620B8 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
