@@ -14,8 +14,8 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0ABB072322FC22BA00BC18BB"
-               BuildableName = "libWalletConnectSwift.a"
+               BlueprintIdentifier = "0A92784F230BFB2600FDCC0D"
+               BuildableName = "WalletConnectSwift.framework"
                BlueprintName = "WalletConnectSwift"
                ReferencedContainer = "container:WalletConnectSwift.xcodeproj">
             </BuildableReference>
@@ -28,26 +28,7 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0ABB074922FC230400BC18BB"
-               BuildableName = "WalletConnectSwiftTests.xctest"
-               BlueprintName = "WalletConnectSwiftTests"
-               ReferencedContainer = "container:WalletConnectSwift.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "0ABB072322FC22BA00BC18BB"
-            BuildableName = "libWalletConnectSwift.a"
-            BlueprintName = "WalletConnectSwift"
-            ReferencedContainer = "container:WalletConnectSwift.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -64,8 +45,8 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "0ABB072322FC22BA00BC18BB"
-            BuildableName = "libWalletConnectSwift.a"
+            BlueprintIdentifier = "0A92784F230BFB2600FDCC0D"
+            BuildableName = "WalletConnectSwift.framework"
             BlueprintName = "WalletConnectSwift"
             ReferencedContainer = "container:WalletConnectSwift.xcodeproj">
          </BuildableReference>
@@ -82,8 +63,8 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "0ABB072322FC22BA00BC18BB"
-            BuildableName = "libWalletConnectSwift.a"
+            BlueprintIdentifier = "0A92784F230BFB2600FDCC0D"
+            BuildableName = "WalletConnectSwift.framework"
             BlueprintName = "WalletConnectSwift"
             ReferencedContainer = "container:WalletConnectSwift.xcodeproj">
          </BuildableReference>
