@@ -6,7 +6,7 @@ import Foundation
 
 class Communicator {
 
-    // session are the approved connections between dApp and Wallet
+    // sessions are the approved connections between dApp and Wallet
     private let sessions: Sessions
     // triggered by Wallet or dApp to disconnect
     private let pendingDisconnectSessions: Sessions

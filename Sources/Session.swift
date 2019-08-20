@@ -12,8 +12,6 @@ public struct WCURL: Hashable {
     public var bridgeURL: URL
     public var key: String
 
-    public static let defaultBridgeURL = URL(string: "https://safe-walletconnect.gnosis.io")!
-
     public var absoluteString: String {
         let bridge = bridgeURL.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
         return "wc:\(topic)@\(version)?bridge=\(bridge)&key=\(key)"
@@ -21,7 +19,7 @@ public struct WCURL: Hashable {
 
     public init(topic: String,
                 version: String = "1",
-                bridgeURL: URL = WCURL.defaultBridgeURL,
+                bridgeURL: URL,
                 key: String) {
         self.topic = topic
         self.version = version

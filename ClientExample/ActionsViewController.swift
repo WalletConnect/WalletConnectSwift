@@ -19,7 +19,7 @@ class ActionsViewController: UIViewController {
     var client: Client!
     var session: Session!
 
-    static func create(walletConnect: WalletConnect) -> ActionsViewController{
+    static func create(walletConnect: WalletConnect) -> ActionsViewController {
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         let controller = storyboard.instantiateViewController(withIdentifier: "ActionsViewController") as! ActionsViewController
         controller.client = walletConnect.client

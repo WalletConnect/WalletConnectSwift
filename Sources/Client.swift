@@ -69,8 +69,9 @@ public class Client: WalletConnect {
         communicator.send(response, topic: walletInfo.peerId)
     }
 
-    /// https://docs.walletconnect.org/json-rpc/ethereum#personal_sign
     /// Request to sign a message.
+    ///
+    /// https://docs.walletconnect.org/json-rpc/ethereum#personal_sign
     ///
     /// - Parameters:
     ///   - url: WalletConnect url object.
@@ -85,8 +86,9 @@ public class Client: WalletConnect {
         try sign(url: url, method: "personal_sign", param1: message, param2: account, completion: completion)
     }
 
-    /// https://docs.walletconnect.org/json-rpc/ethereum#eth_sign
     /// Request to sign a message.
+    ///
+    /// https://docs.walletconnect.org/json-rpc/ethereum#eth_sign
     ///
     /// - Parameters:
     ///   - url: WalletConnect url object.
@@ -101,8 +103,9 @@ public class Client: WalletConnect {
         try sign(url: url, method: "eth_sign", param1: account, param2: message, completion: completion)
     }
 
-    /// https://docs.walletconnect.org/json-rpc/ethereum#eth_signtypeddata
     /// Request to sign typed daya.
+    ///
+    /// https://docs.walletconnect.org/json-rpc/ethereum#eth_signtypeddata
     ///
     /// - Parameters:
     ///   - url: WalletConnect url object.
@@ -129,8 +132,9 @@ public class Client: WalletConnect {
         try send(request, completion: completion)
     }
 
-    /// https://docs.walletconnect.org/json-rpc/ethereum#eth_sendtransaction
     /// Request to send a transaction.
+    ///
+    /// https://docs.walletconnect.org/json-rpc/ethereum#eth_sendtransaction
     ///
     /// - Parameters:
     ///   - url: WalletConnect url object.
@@ -143,8 +147,9 @@ public class Client: WalletConnect {
         try handleTransaction(url: url, method: "eth_sendTransaction", transaction: transaction, completion: completion)
     }
 
-    /// https://docs.walletconnect.org/json-rpc/ethereum#eth_signtransaction
     /// Request to sign a transaction.
+    ///
+    /// https://docs.walletconnect.org/json-rpc/ethereum#eth_signtransaction
     ///
     /// - Parameters:
     ///   - url: WalletConnect url object.
@@ -170,9 +175,10 @@ public class Client: WalletConnect {
         try send(request, completion: completion)
     }
 
-    /// https://docs.walletconnect.org/json-rpc/ethereum#eth_sendrawtransaction
     /// Request to send a raw transaction. Creates new message call transaction or
     /// a contract creation for signed transactions.
+    ///
+    /// https://docs.walletconnect.org/json-rpc/ethereum#eth_sendrawtransaction
     ///
     /// - Parameters:
     ///   - url: WalletConnect url object.
@@ -190,17 +196,17 @@ public class Client: WalletConnect {
 
     override func onConnect(to url: WCURL) {
         print("WC: client didConnect url: \(url.bridgeURL.absoluteString)")
-        if let session = communicator.session(by: url) { // reconnecting existing session
-            communicator.subscribe(on: session.dAppInfo.peerId, url: session.url)
-            delegate.client(self, didConnect: session)
+        if let existingSession = communicator.session(by: url) {
+            communicator.subscribe(on: existingSession.dAppInfo.peerId, url: existingSession.url)
+            delegate.client(self, didConnect: existingSession)
         } else { // establishing new connection, handshake in process
             communicator.subscribe(on: dAppInfo.peerId, url: url)
             let requestID = nextRequestId()
-            let createRequest = try! CreateSessionRequest(url: url, dAppInfo: dAppInfo, id: requestID)!
+            let createSessionRequest = try! CreateSessionRequest(url: url, dAppInfo: dAppInfo, id: requestID)!
             responses.add(requestID: requestID) { [unowned self] response in
                 self.handleHandshakeResponse(response)
             }
-            communicator.send(createRequest, topic: url.topic)
+            communicator.send(createSessionRequest, topic: url.topic)
         }
     }
 
@@ -233,13 +239,9 @@ public class Client: WalletConnect {
 
     private func expectUpdateSessionRequest(_ request: Request) {
         if request.payload.method == "wc_sessionUpdate" {
-            guard let params = request.payload.params,
-                case JSONRPC_2_0.Request.Params.positional(let arrayWrapper) = params, !arrayWrapper.isEmpty,
-                case JSONRPC_2_0.ValueType.object(let sessionUpdateParams) = arrayWrapper[0],
-                let requiredApproved = sessionUpdateParams["approved"],
-                case JSONRPC_2_0.ValueType.bool(let approved) = requiredApproved else {
-                    try! send(Response(payload: JSONRPC_2_0.Response.invalidJSON, url: request.url))
-                    return
+            guard let approved = sessionApproval(from: request.payload.params) else {
+                try! send(Response(payload: JSONRPC_2_0.Response.invalidJSON, url: request.url))
+                return
             }
             guard let session = communicator.session(by: request.url) else { return }
             if !approved {
@@ -253,6 +255,17 @@ public class Client: WalletConnect {
             let payload = JSONRPC_2_0.Response.methodDoesNotExistError(id: request.payload.id)
             try! send(Response(payload: payload, url: request.url))
         }
+    }
+
+    private func sessionApproval(from requestParams: JSONRPC_2_0.Request.Params?) -> Bool? {
+        guard let params = requestParams,
+            case JSONRPC_2_0.Request.Params.positional(let arrayWrapper) = params, !arrayWrapper.isEmpty,
+            case JSONRPC_2_0.ValueType.object(let sessionUpdateParams) = arrayWrapper[0],
+            let requiredApproved = sessionUpdateParams["approved"],
+            case JSONRPC_2_0.ValueType.bool(let approved) = requiredApproved else {
+                return nil
+        }
+        return approved
     }
 
     override func sendDisconnectSessionRequest(for session: Session) throws {
@@ -305,6 +318,7 @@ public class Client: WalletConnect {
 
     /// https://docs.walletconnect.org/json-rpc/ethereum#parameters-3
     public struct Transaction: Encodable {
+
         var from: String
         var to: String
         var data: String?

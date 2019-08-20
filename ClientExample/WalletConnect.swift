@@ -22,7 +22,7 @@ class WalletConnect {
     }
 
     func connect() -> String {
-        // default bridge: https://safe-walletconnect.gnosis.io
+        // gnosis wc bridge: https://safe-walletconnect.gnosis.io
         // test bridge with latest protocol version: https://bridge.walletconnect.org
         let wcUrl =  WCURL(topic: UUID().uuidString,
                            bridgeURL: URL(string: "https://bridge.walletconnect.org")!,
