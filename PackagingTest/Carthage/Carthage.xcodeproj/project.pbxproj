@@ -51,7 +51,7 @@
 			children = (
 				0A9278AA230C030600FDCC0D /* output.xcfilelist */,
 				0A9278A9230C02F600FDCC0D /* input.xcfilelist */,
-				0A92788E230BFDC300FDCC0D /* Carthage */,
+				0A92788E230BFDC300FDCC0D /* CarthageSources */,
 				0A92788D230BFDC300FDCC0D /* Products */,
 				0A9278A1230C02C300FDCC0D /* Frameworks */,
 			);
@@ -65,7 +65,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		0A92788E230BFDC300FDCC0D /* Carthage */ = {
+		0A92788E230BFDC300FDCC0D /* CarthageSources */ = {
 			isa = PBXGroup;
 			children = (
 				0A92788F230BFDC300FDCC0D /* AppDelegate.swift */,
@@ -75,7 +75,7 @@
 				0A927898230BFDC300FDCC0D /* LaunchScreen.storyboard */,
 				0A92789B230BFDC300FDCC0D /* Info.plist */,
 			);
-			path = Carthage;
+			path = CarthageSources;
 			sourceTree = "<group>";
 		};
 		0A9278A1230C02C300FDCC0D /* Frameworks */ = {
