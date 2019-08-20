@@ -4,3 +4,9 @@
 [submodule "Starscream"]
 	path = Dependencies/Starscream
 	url = git@github.com:daltoniam/Starscream.git
+[submodule "EthereumKit"]
+	path = Dependencies/EthereumKit
+	url = https://github.com/D-Technologies/EthereumKit.git
+[submodule "CryptoEthereumSwift"]
+	path = Dependencies/CryptoEthereumSwift
+	url = https://github.com/yuzushioh/CryptoEthereumSwift.git
