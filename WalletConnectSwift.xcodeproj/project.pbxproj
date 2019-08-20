@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		0A927859230BFB2600FDCC0D /* WalletConnectSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A927850230BFB2600FDCC0D /* WalletConnectSwift.framework */; };
-		0A927860230BFB2600FDCC0D /* WalletConnectSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A92785F230BFB2600FDCC0D /* WalletConnectSwiftTests.swift */; };
 		0A927862230BFB2600FDCC0D /* WalletConnectSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A927852230BFB2600FDCC0D /* WalletConnectSwift.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0A927865230BFB2600FDCC0D /* WalletConnectSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A927850230BFB2600FDCC0D /* WalletConnectSwift.framework */; };
 		0A927866230BFB2600FDCC0D /* WalletConnectSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0A927850230BFB2600FDCC0D /* WalletConnectSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -133,7 +132,6 @@
 		0A927852230BFB2600FDCC0D /* WalletConnectSwift.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WalletConnectSwift.h; sourceTree = "<group>"; };
 		0A927853230BFB2600FDCC0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0A927858230BFB2600FDCC0D /* WalletConnectSwiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WalletConnectSwiftTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		0A92785F230BFB2600FDCC0D /* WalletConnectSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSwiftTests.swift; sourceTree = "<group>"; };
 		0A927861230BFB2600FDCC0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0ABB073022FC22F800BC18BB /* JSONRPC_2_0.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONRPC_2_0.swift; sourceTree = "<group>"; };
 		0ABB073122FC22F800BC18BB /* Session.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
@@ -208,7 +206,6 @@
 		0A92785E230BFB2600FDCC0D /* WalletConnectSwiftTests */ = {
 			isa = PBXGroup;
 			children = (
-				0A92785F230BFB2600FDCC0D /* WalletConnectSwiftTests.swift */,
 				0A927861230BFB2600FDCC0D /* Info.plist */,
 			);
 			path = WalletConnectSwiftTests;
@@ -552,7 +549,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A92787E230BFB4500FDCC0D /* SessionTests.swift in Sources */,
-				0A927860230BFB2600FDCC0D /* WalletConnectSwiftTests.swift in Sources */,
 				0A92787D230BFB4500FDCC0D /* JSONRPC_2_0_Tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
