@@ -1,0 +1,3 @@
+github "daltoniam/Starscream" "3.1.0"
+github "gnosis/WalletConnectSwift" "706250ea5465b97076b2f39d72befc3cadd883c2"
+github "krzyzanowskim/CryptoSwift" "1.0.0"
