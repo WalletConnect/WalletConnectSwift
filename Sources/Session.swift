@@ -12,7 +12,15 @@ public struct WCURL: Hashable {
     public var bridgeURL: URL
     public var key: String
 
-    public init(topic: String, version: String, bridgeURL: URL, key: String) {
+    public var absoluteString: String {
+        let bridge = bridgeURL.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
+        return "wc:\(topic)@\(version)?bridge=\(bridge)&key=\(key)"
+    }
+
+    public init(topic: String,
+                version: String = "1",
+                bridgeURL: URL,
+                key: String) {
         self.topic = topic
         self.version = version
         self.bridgeURL = bridgeURL
@@ -49,6 +57,30 @@ public struct WCURL: Hashable {
 
 }
 
+public class Request {
+
+    public var payload: JSONRPC_2_0.Request
+    public var url: WCURL
+
+    public init(payload: JSONRPC_2_0.Request, url: WCURL) {
+        self.payload = payload
+        self.url = url
+    }
+
+}
+
+public class Response {
+
+    public var payload: JSONRPC_2_0.Response
+    public var url: WCURL
+
+    public init(payload: JSONRPC_2_0.Response, url: WCURL) {
+        self.payload = payload
+        self.url = url
+    }
+
+}
+
 /// Each session is a communication channel between dApp and Wallet on dAppInfo.peerId topic
 public struct Session {
 
@@ -67,10 +99,18 @@ public struct Session {
 
         public let peerId: String
         public let peerMeta: ClientMeta
+        public let approved: Bool?
 
-        public init(peerId: String, peerMeta: ClientMeta) {
+        public init(peerId: String, peerMeta: ClientMeta, approved: Bool? = nil) {
             self.peerId = peerId
             self.peerMeta = peerMeta
+            self.approved = approved
+        }
+
+        func with(approved: Bool) -> DAppInfo {
+            return DAppInfo(peerId: self.peerId,
+                            peerMeta: self.peerMeta,
+                            approved: approved)
         }
 
     }
@@ -112,8 +152,7 @@ public struct Session {
                               accounts: self.accounts,
                               chainId: self.chainId,
                               peerId: self.peerId,
-                              peerMeta: self.peerMeta
-            )
+                              peerMeta: self.peerMeta)
         }
 
     }
@@ -129,6 +168,14 @@ public struct Session {
         guard array.count == 1 else { throw SessionCreationError.wrongRequestFormat }
         self.url = request.url
         self.dAppInfo = array[0]
+    }
+
+    init?(wcSessionResponse response: Response, dAppInfo: DAppInfo) throws {
+        let data = try JSONEncoder().encode(response.payload.result)
+        let walletInfo = try JSONDecoder().decode(WalletInfo.self, from: data)
+        self.url = response.url
+        self.dAppInfo = dAppInfo
+        self.walletInfo = walletInfo
     }
 
     func creationResponse(requestId: JSONRPC_2_0.IDType, walletInfo: Session.WalletInfo) -> Response {

@@ -13,4 +13,13 @@ public class UpdateSessionRequest: Request {
         super.init(payload: JSONRPC_2_0.Request(method: "wc_sessionUpdate", params: params, id: nil), url: url)
     }
 
+    public init?(url: WCURL, dAppInfo: Session.DAppInfo) throws {
+        let data = try JSONEncoder().encode([dAppInfo])
+        let params = try JSONDecoder().decode(JSONRPC_2_0.Request.Params.self, from: data)
+        super.init(payload: JSONRPC_2_0.Request(method: "wc_sessionUpdate",
+                                                params: params,
+                                                id: .string(UUID().uuidString)),
+                   url: url)
+    }
+
 }
