@@ -36,15 +36,17 @@ class ActionsViewController: UIViewController {
         try? client.disconnect(from: session)
     }
 
+    // personal_sign should send a human readable message
     @IBAction func personal_sign(_ sender: Any) {
-        try? client.personal_sign(url: session.url, message: "0x01", account: session.walletInfo!.accounts[0]) {
+        try? client.personal_sign(url: session.url, message: "Hi there!", account: session.walletInfo!.accounts[0]) {
             [weak self] response in
             self?.handleReponse(response, expecting: "Signature")
         }
     }
 
+    // eth_sign should send a properly formed hash: keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))
     @IBAction func eth_sign(_ sender: Any) {
-        try? client.eth_sign(url: session.url, account: session.walletInfo!.accounts[0], message: "0x01") {
+        try? client.eth_sign(url: session.url, account: session.walletInfo!.accounts[0], message: "0x0123") {
             [weak self] response in
             self?.handleReponse(response, expecting: "Signature")
         }
