@@ -1,10 +1,10 @@
-// swift-tools-version:4.2
+// swift-tools-version:5.0
 import PackageDescription
 
 let package = Package(
     name: "WalletConnectSwiftSwiftPM",
         platforms: [
-        .iOS(.v12),
+            .macOS(.v10_14), .iOS(.v12),
     ],
     products: [
         .library(
@@ -12,12 +12,14 @@ let package = Package(
             targets: ["WalletConnectSwiftSwiftPM"])
     ],
     dependencies: [
-        .package(url: "https://github.com/gnosis/WalletConnectSwift.git", .branch("feature/GH-6-packaging"))
+        .package(url: "https://github.com/gnosis/WalletConnectSwift.git", .upToNextMinor("1.0.0"))
     ],
     targets: [
         .target(
             name: "WalletConnectSwiftSwiftPM",
-            dependencies: ["WalletConnectSwift"]
+            dependencies: ["WalletConnectSwift"],
+            path: "Sources"
         )
-    ]
+    ],
+    swiftLanguageVersions: [.v5]
 )
