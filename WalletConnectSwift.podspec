@@ -1,9 +1,9 @@
 Pod::Spec.new do |spec|
   spec.name         = "WalletConnectSwift"
   spec.version      = "0.0.1"
-  spec.summary      = "A delightful way to integrate the WallletConnect into your app."
+  spec.summary      = "A delightful way to integrate the WalletConnect into your app."
   spec.description  = <<-DESC
-  WalletConnect v1 protocol implementation for enabling communication between dapps and
+  WalletConnect protocol implementation for enabling communication between dapps and
   wallets. This library provides both client and server parts so that you can integrate
   it in your wallet, or in your dapp - whatever you are working on.
                    DESC
