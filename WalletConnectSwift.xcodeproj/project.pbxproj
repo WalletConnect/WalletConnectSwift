@@ -30,6 +30,20 @@
 		0A92787E230BFB4500FDCC0D /* SessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABB075722FC231400BC18BB /* SessionTests.swift */; };
 		0A92787F230BFBBF00FDCC0D /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB076522FC23DD00BC18BB /* CryptoSwift.framework */; };
 		0A927880230BFBBF00FDCC0D /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB077422FC23E300BC18BB /* Starscream.framework */; };
+		0AE8DE2D23140C070031FAE5 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB077422FC23E300BC18BB /* Starscream.framework */; };
+		0AE8DE2E23140C070031FAE5 /* Starscream.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB077422FC23E300BC18BB /* Starscream.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		0AE8DE3123140C070031FAE5 /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB076522FC23DD00BC18BB /* CryptoSwift.framework */; };
+		0AE8DE3223140C070031FAE5 /* CryptoSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB076522FC23DD00BC18BB /* CryptoSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		0AE8DE3523140C1E0031FAE5 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB077422FC23E300BC18BB /* Starscream.framework */; };
+		0AE8DE3623140C1E0031FAE5 /* Starscream.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB077422FC23E300BC18BB /* Starscream.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		0AE8DE3923140C1E0031FAE5 /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB076522FC23DD00BC18BB /* CryptoSwift.framework */; };
+		0AE8DE3A23140C1E0031FAE5 /* CryptoSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB076522FC23DD00BC18BB /* CryptoSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		0AE8DE3D23140C1E0031FAE5 /* CryptoEthereumSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E59D76230BE13D005620B8 /* CryptoEthereumSwift.framework */; };
+		0AE8DE3E23140C1E0031FAE5 /* CryptoEthereumSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 55E59D76230BE13D005620B8 /* CryptoEthereumSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		0AE8DE4123140C1E0031FAE5 /* EthereumKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E59D82230BE146005620B8 /* EthereumKit.framework */; };
+		0AE8DE4223140C1E0031FAE5 /* EthereumKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 55E59D82230BE146005620B8 /* EthereumKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		0AE8DE4523140C1E0031FAE5 /* WalletConnectSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A927850230BFB2600FDCC0D /* WalletConnectSwift.framework */; };
+		0AE8DE4623140C1E0031FAE5 /* WalletConnectSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0A927850230BFB2600FDCC0D /* WalletConnectSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		551B661622FDC47000573DBD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B661522FDC47000573DBD /* AppDelegate.swift */; };
 		551B661822FDC47000573DBD /* ActionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B661722FDC47000573DBD /* ActionsViewController.swift */; };
 		551B661B22FDC47000573DBD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 551B661922FDC47000573DBD /* Main.storyboard */; };
@@ -117,6 +131,55 @@
 			remoteGlobalIDString = 335FA2021F5DF71D00F6D2EC;
 			remoteInfo = "Starscream Tests";
 		};
+		0AE8DE2F23140C070031FAE5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0ABB076E22FC23E300BC18BB /* Starscream.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 33CCF0841F5DDC030099B092;
+			remoteInfo = Starscream;
+		};
+		0AE8DE3323140C070031FAE5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0ABB075C22FC23DD00BC18BB /* CryptoSwift.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 754BE45419693E190098E6F3;
+			remoteInfo = CryptoSwift;
+		};
+		0AE8DE3723140C1E0031FAE5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0ABB076E22FC23E300BC18BB /* Starscream.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 33CCF0841F5DDC030099B092;
+			remoteInfo = Starscream;
+		};
+		0AE8DE3B23140C1E0031FAE5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0ABB075C22FC23DD00BC18BB /* CryptoSwift.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 754BE45419693E190098E6F3;
+			remoteInfo = CryptoSwift;
+		};
+		0AE8DE3F23140C1E0031FAE5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 55E59D6F230BE13D005620B8 /* CryptoEthereumSwift.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 1AD1D61A20B7E822007AFF80;
+			remoteInfo = CryptoEthereumSwift;
+		};
+		0AE8DE4323140C1E0031FAE5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 55E59D7B230BE146005620B8 /* EthereumKit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = AEBA90D41FFA21ED003EA2BA;
+			remoteInfo = EthereumKit;
+		};
+		0AE8DE4723140C1E0031FAE5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0ABB071C22FC22BA00BC18BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0A92784F230BFB2600FDCC0D;
+			remoteInfo = WalletConnectSwift;
+		};
 		5520F7102313CF0500D58B74 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0ABB076E22FC23E300BC18BB /* Starscream.xcodeproj */;
@@ -144,20 +207,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = AEBA90D41FFA21ED003EA2BA;
 			remoteInfo = EthereumKit;
-		};
-		5520F7222313CFBE00D58B74 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0ABB076E22FC23E300BC18BB /* Starscream.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 33CCF0841F5DDC030099B092;
-			remoteInfo = Starscream;
-		};
-		5520F7262313CFBE00D58B74 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0ABB075C22FC23DD00BC18BB /* CryptoSwift.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 754BE45419693E190098E6F3;
-			remoteInfo = CryptoSwift;
 		};
 		55E59D75230BE13D005620B8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -210,7 +259,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				0AE8DE3223140C070031FAE5 /* CryptoSwift.framework in Embed Frameworks */,
 				0A927866230BFB2600FDCC0D /* WalletConnectSwift.framework in Embed Frameworks */,
+				0AE8DE2E23140C070031FAE5 /* Starscream.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -221,22 +272,11 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				5520F71B2313CF0500D58B74 /* EthereumKit.framework in Embed Frameworks */,
-				5520F7172313CF0500D58B74 /* CryptoEthereumSwift.framework in Embed Frameworks */,
-				5520F70F2313CF0500D58B74 /* Starscream.framework in Embed Frameworks */,
-				5520F7132313CF0500D58B74 /* CryptoSwift.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		5520F7282313CFBE00D58B74 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				5520F7212313CFBE00D58B74 /* Starscream.framework in Embed Frameworks */,
-				5520F7252313CFBE00D58B74 /* CryptoSwift.framework in Embed Frameworks */,
+				0AE8DE4223140C1E0031FAE5 /* EthereumKit.framework in Embed Frameworks */,
+				0AE8DE3E23140C1E0031FAE5 /* CryptoEthereumSwift.framework in Embed Frameworks */,
+				0AE8DE3623140C1E0031FAE5 /* Starscream.framework in Embed Frameworks */,
+				0AE8DE3A23140C1E0031FAE5 /* CryptoSwift.framework in Embed Frameworks */,
+				0AE8DE4623140C1E0031FAE5 /* WalletConnectSwift.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -309,11 +349,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0AE8DE4923140C1E0031FAE5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0AE8DE4123140C1E0031FAE5 /* EthereumKit.framework in Frameworks */,
+				0AE8DE3D23140C1E0031FAE5 /* CryptoEthereumSwift.framework in Frameworks */,
+				0AE8DE3523140C1E0031FAE5 /* Starscream.framework in Frameworks */,
+				0AE8DE3923140C1E0031FAE5 /* CryptoSwift.framework in Frameworks */,
+				0AE8DE4523140C1E0031FAE5 /* WalletConnectSwift.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		551B661022FDC47000573DBD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0AE8DE3123140C070031FAE5 /* CryptoSwift.framework in Frameworks */,
 				0A927865230BFB2600FDCC0D /* WalletConnectSwift.framework in Frameworks */,
+				0AE8DE2D23140C070031FAE5 /* Starscream.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -548,6 +602,8 @@
 			);
 			dependencies = (
 				0A927864230BFB2600FDCC0D /* PBXTargetDependency */,
+				0AE8DE3023140C070031FAE5 /* PBXTargetDependency */,
+				0AE8DE3423140C070031FAE5 /* PBXTargetDependency */,
 			);
 			name = ClientExample;
 			productName = ClientExample;
@@ -559,9 +615,9 @@
 			buildConfigurationList = 55E59D6E230BD928005620B8 /* Build configuration list for PBXNativeTarget "ServerExample" */;
 			buildPhases = (
 				55E59D52230BD927005620B8 /* Sources */,
-				55E59D53230BD927005620B8 /* Frameworks */,
 				55E59D54230BD927005620B8 /* Resources */,
 				5520F71E2313CF0500D58B74 /* Embed Frameworks */,
+				0AE8DE4923140C1E0031FAE5 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -570,6 +626,11 @@
 				5520F7152313CF0500D58B74 /* PBXTargetDependency */,
 				5520F7192313CF0500D58B74 /* PBXTargetDependency */,
 				5520F71D2313CF0500D58B74 /* PBXTargetDependency */,
+				0AE8DE3823140C1E0031FAE5 /* PBXTargetDependency */,
+				0AE8DE3C23140C1E0031FAE5 /* PBXTargetDependency */,
+				0AE8DE4023140C1E0031FAE5 /* PBXTargetDependency */,
+				0AE8DE4423140C1E0031FAE5 /* PBXTargetDependency */,
+				0AE8DE4823140C1E0031FAE5 /* PBXTargetDependency */,
 			);
 			name = ServerExample;
 			productName = ServerExample;
@@ -843,6 +904,41 @@
 			target = 0A92784F230BFB2600FDCC0D /* WalletConnectSwift */;
 			targetProxy = 0A927863230BFB2600FDCC0D /* PBXContainerItemProxy */;
 		};
+		0AE8DE3023140C070031FAE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Starscream;
+			targetProxy = 0AE8DE2F23140C070031FAE5 /* PBXContainerItemProxy */;
+		};
+		0AE8DE3423140C070031FAE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CryptoSwift;
+			targetProxy = 0AE8DE3323140C070031FAE5 /* PBXContainerItemProxy */;
+		};
+		0AE8DE3823140C1E0031FAE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Starscream;
+			targetProxy = 0AE8DE3723140C1E0031FAE5 /* PBXContainerItemProxy */;
+		};
+		0AE8DE3C23140C1E0031FAE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CryptoSwift;
+			targetProxy = 0AE8DE3B23140C1E0031FAE5 /* PBXContainerItemProxy */;
+		};
+		0AE8DE4023140C1E0031FAE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CryptoEthereumSwift;
+			targetProxy = 0AE8DE3F23140C1E0031FAE5 /* PBXContainerItemProxy */;
+		};
+		0AE8DE4423140C1E0031FAE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = EthereumKit;
+			targetProxy = 0AE8DE4323140C1E0031FAE5 /* PBXContainerItemProxy */;
+		};
+		0AE8DE4823140C1E0031FAE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0A92784F230BFB2600FDCC0D /* WalletConnectSwift */;
+			targetProxy = 0AE8DE4723140C1E0031FAE5 /* PBXContainerItemProxy */;
+		};
 		5520F7112313CF0500D58B74 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = Starscream;
@@ -862,16 +958,6 @@
 			isa = PBXTargetDependency;
 			name = EthereumKit;
 			targetProxy = 5520F71C2313CF0500D58B74 /* PBXContainerItemProxy */;
-		};
-		5520F7232313CFBE00D58B74 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = Starscream;
-			targetProxy = 5520F7222313CFBE00D58B74 /* PBXContainerItemProxy */;
-		};
-		5520F7272313CFBE00D58B74 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = CryptoSwift;
-			targetProxy = 5520F7262313CFBE00D58B74 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
