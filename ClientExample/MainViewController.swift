@@ -19,6 +19,7 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         walletConnect = WalletConnect(delegate: self)
+        walletConnect.reconnectIfNeeded()
     }
 
     func onMainThread(_ closure: @escaping () -> Void) {

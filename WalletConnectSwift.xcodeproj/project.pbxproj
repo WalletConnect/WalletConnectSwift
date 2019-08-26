@@ -368,9 +368,9 @@
 				0ABB073122FC22F800BC18BB /* Session.swift */,
 				0ABB073422FC22F800BC18BB /* UpdateSessionHandler.swift */,
 				0ABB073322FC22F800BC18BB /* UpdateSessionRequest.swift */,
+				55CE9CCB2302A8E600CB414D /* WalletConnect.swift */,
 				0ABB073722FC22F800BC18BB /* WebSocketConnection.swift */,
 				0ABB072F22FC22F800BC18BB /* JSONRPC_2_0 */,
-				55CE9CCB2302A8E600CB414D /* WalletConnect.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -429,10 +429,10 @@
 				551B661522FDC47000573DBD /* AppDelegate.swift */,
 				55CE9D30230AA58100CB414D /* HandshakeViewController.swift */,
 				55CE9D1C230AA40D00CB414D /* MainViewController.swift */,
+				55CE9D32230AA6AE00CB414D /* WalletConnect.swift */,
 				551B661C22FDC47300573DBD /* Assets.xcassets */,
 				551B661E22FDC47300573DBD /* LaunchScreen.storyboard */,
 				551B661922FDC47000573DBD /* Main.storyboard */,
-				55CE9D32230AA6AE00CB414D /* WalletConnect.swift */,
 			);
 			path = ClientExample;
 			sourceTree = "<group>";

@@ -17,6 +17,8 @@ class WalletConnect {
     var session: Session!
     var delegate: WalletConnectDelegate
 
+    let sessionKey = "sessionKey"
+
     init(delegate: WalletConnectDelegate) {
         self.delegate = delegate
     }
@@ -38,6 +40,14 @@ class WalletConnect {
 
         try! client.connect(to: wcUrl)
         return wcUrl.absoluteString
+    }
+
+    func reconnectIfNeeded() {
+        if let oldSessionObject = UserDefaults.standard.object(forKey: sessionKey) as? Data,
+            let session = try? JSONDecoder().decode(Session.self, from: oldSessionObject) {
+            client = Client(delegate: self, dAppInfo: session.dAppInfo)
+            try? client.reconnect(to: session)
+        }
     }
 
     // https://developer.apple.com/documentation/security/1399291-secrandomcopybytes
@@ -65,10 +75,13 @@ extension WalletConnect: ClientDelegate {
 
     func client(_ client: Client, didConnect session: Session) {
         self.session = session
+        let sessionData = try! JSONEncoder().encode(session)
+        UserDefaults.standard.set(sessionData, forKey: sessionKey)
         delegate.didConnect()
     }
 
     func client(_ client: Client, didDisconnect session: Session) {
+        UserDefaults.standard.removeObject(forKey: sessionKey)
         delegate.didDisconnect()
     }
 
