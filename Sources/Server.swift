@@ -17,7 +17,7 @@ public protocol ServerDelegate: class {
     func server(_ server: Server, didFailToConnect url: WCURL)
 
     /// The handshake will be established based on "approved" property of WalletInfo.
-    func server(_ server: Server, shouldStart session: Session, completion: (Session.WalletInfo) -> Void)
+    func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void)
 
     /// Called when the session is connected or reconnected.
     /// Reconnection may happen as a result of Wallet intention to reconnect, or as a result of
@@ -171,14 +171,15 @@ extension Server: HandshakeHandlerDelegate {
     func handler(_ handler: HandshakeHandler,
                  didReceiveRequestToCreateSession session: Session,
                  requestId: JSONRPC_2_0.IDType) {
-        delegate.server(self, shouldStart: session) { walletInfo in
+        delegate.server(self, shouldStart: session) { [weak self] walletInfo in
+            guard let self = self else { return }
             let sessionCreationResponse = session.creationResponse(requestId: requestId, walletInfo: walletInfo)
-            communicator.send(sessionCreationResponse, topic: session.dAppInfo.peerId)
+            self.communicator.send(sessionCreationResponse, topic: session.dAppInfo.peerId)
             if walletInfo.approved {
                 let updatedSession = Session(url: session.url, dAppInfo: session.dAppInfo, walletInfo: walletInfo)
-                communicator.addSession(updatedSession)
-                communicator.subscribe(on: walletInfo.peerId, url: updatedSession.url)
-                delegate.server(self, didConnect: updatedSession)
+                self.communicator.addSession(updatedSession)
+                self.communicator.subscribe(on: walletInfo.peerId, url: updatedSession.url)
+                self.delegate.server(self, didConnect: updatedSession)
             }
         }
     }

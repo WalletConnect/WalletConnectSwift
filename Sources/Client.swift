@@ -320,16 +320,16 @@ public class Client: WalletConnect {
     public struct Transaction: Encodable {
 
         var from: String
-        var to: String
-        var data: String?
+        var to: String?
+        var data: String
         var gasLimit: String?
         var gasPrice: String?
         var value: String?
         var nonce: String?
 
         public init(from: String,
-                    to: String,
-                    data: String?,
+                    to: String?,
+                    data: String,
                     gasLimit: String?,
                     gasPrice: String?,
                     value: String?,

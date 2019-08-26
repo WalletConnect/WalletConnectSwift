@@ -276,6 +276,12 @@ public enum JSONRPC_2_0 {
                 public var message: String
                 public var data: ValueType?
 
+                public init(code: Code, message: String, data: ValueType?) {
+                    self.code = code
+                    self.message = message
+                    self.data = data
+                }
+
                 public struct Code: Hashable, Codable {
 
                     var code: Int

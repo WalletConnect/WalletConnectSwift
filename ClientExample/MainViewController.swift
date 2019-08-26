@@ -19,6 +19,17 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         walletConnect = WalletConnect(delegate: self)
+        walletConnect.reconnectIfNeeded()
+    }
+
+    func onMainThread(_ closure: @escaping () -> Void) {
+        if Thread.isMainThread {
+            closure()
+        } else {
+            DispatchQueue.main.async {
+                closure()
+            }
+        }
     }
 
 }
@@ -26,25 +37,31 @@ class MainViewController: UIViewController {
 extension MainViewController: WalletConnectDelegate {
 
     func failedToConnect() {
-        if let handshakeController = handshakeController {
-            handshakeController.dismiss(animated: true)
+        onMainThread { [unowned self] in
+            if let handshakeController = self.handshakeController {
+                handshakeController.dismiss(animated: true)
+            }
+            UIAlertController.showFailedToConnect(from: self)
         }
-        UIAlertController.showFailedToConnect(from: self)
     }
 
     func didConnect() {
-        actionsController = ActionsViewController.create(walletConnect: walletConnect)
-        if let handshakeController = handshakeController {
-            handshakeController.dismiss(animated: false)
+        onMainThread { [unowned self] in
+            self.actionsController = ActionsViewController.create(walletConnect: self.walletConnect)
+            if let handshakeController = self.handshakeController {
+                handshakeController.dismiss(animated: false)
+            }
+            self.present(self.actionsController, animated: false)
         }
-        present(actionsController, animated: false)
     }
 
     func didDisconnect() {
-        if let presented = presentedViewController {
-            presented.dismiss(animated: false)
+        onMainThread { [unowned self] in
+            if let presented = self.presentedViewController {
+                presented.dismiss(animated: false)
+            }
+            UIAlertController.showDisconnected(from: self)
         }
-        UIAlertController.showDisconnected(from: self)
     }
 
 }
