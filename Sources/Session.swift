@@ -4,7 +4,7 @@
 
 import Foundation
 
-public struct WCURL: Hashable {
+public struct WCURL: Hashable, Codable {
 
     // topic is used for handshake only
     public var topic: String
@@ -82,7 +82,7 @@ public class Response {
 }
 
 /// Each session is a communication channel between dApp and Wallet on dAppInfo.peerId topic
-public struct Session {
+public struct Session: Codable {
 
     // TODO: handle protocol version
     public let url: WCURL

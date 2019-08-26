@@ -15,7 +15,10 @@ class MainViewController: UIViewController {
 
     var scannerController: ScannerViewController?
     var server: Server!
+    var session: Session!
     var wallet: Wallet!
+
+    let sessionKey = "sessionKey"
 
     @IBAction func scan(_ sender: Any) {
         scannerController = ScannerViewController.create(delegate: self)
@@ -23,6 +26,7 @@ class MainViewController: UIViewController {
     }
 
     @IBAction func disconnect(_ sender: Any) {
+        try! server.disconnect(from: session)
     }
 
     override func viewDidLoad() {
@@ -37,6 +41,10 @@ class MainViewController: UIViewController {
     private func configureServer() {
         server = Server(delegate: self)
         server.register(handler: RequestsHandler(for: self, server: server, wallet: wallet))
+        if let oldSessionObject = UserDefaults.standard.object(forKey: sessionKey) as? Data,
+            let session = try? JSONDecoder().decode(Session.self, from: oldSessionObject) {
+            try? server.reconnect(to: session)
+        }
     }
 
     private func configureWallet() {
@@ -59,7 +67,6 @@ class MainViewController: UIViewController {
 
         let allowedRequests = [
             "personal_sign",
-            "eth_sign",
             "eth_signTransaction"
         ]
 
@@ -79,19 +86,34 @@ class MainViewController: UIViewController {
                         self.sever.send(self.rejectResponse(for: request))
                         return
                     }
+                    let decodedMessage = String(data: Data(hex: message), encoding: .utf8) ?? message
                     UIAlertController.showShouldSign(from: self.controller,
                                                      title: "Request to sign a message",
-                                                     message: message,
+                                                     message: decodedMessage,
                                                      onSign: {
-                                                        let signature = try! self.wallet.personalSign(message: message)
+                                                        let signature = try! self.wallet.personalSign(message: decodedMessage)
                                                         self.sever.send(self.approveResponse(for: request, signature: signature))
                     }, onCancel: {
                         self.sever.send(self.rejectResponse(for: request))
                     })
-                case "eth_sign":
-                    break
                 case "eth_signTransaction":
-                    break
+                    guard let (from, transaction) = self.signTransaction(from: request) else {
+                        self.sever.send(self.missingRequiredParametersResponse(for: request))
+                        return
+                    }
+                    guard from == self.wallet.address() else {
+                        self.sever.send(self.rejectResponse(for: request))
+                        return
+                    }
+                    UIAlertController.showShouldSign(from: self.controller,
+                                                     title: "Request to sign a transaction",
+                                                     message: transaction.description,
+                                                     onSign: {
+                                                        let signature = try! self.wallet.sign(rawTransaction: transaction)
+                                                        self.sever.send(self.approveResponse(for: request, signature: signature))
+                    }, onCancel: {
+                        self.sever.send(self.rejectResponse(for: request))
+                    })
                 default:
                     preconditionFailure("this should never happen")
                 }
@@ -108,7 +130,42 @@ class MainViewController: UIViewController {
             return (param1, param2)
         }
 
-        // TODO: improve
+        private func signTransaction(from request: Request) -> (from: String, transaction: RawTransaction)? {
+            guard let params = request.payload.params,
+                case JSONRPC_2_0.Request.Params.positional(let array) = params, array.count == 1,
+                case JSONRPC_2_0.ValueType.object(let object) = array[0],
+                let fromValueType = object["from"],
+                case JSONRPC_2_0.ValueType.string(let from) = fromValueType,
+                let toValueType = object["to"],
+                case JSONRPC_2_0.ValueType.string(let to) = toValueType,
+                let dataValueType = object["data"],
+                case JSONRPC_2_0.ValueType.string(let data) = dataValueType,
+                let gasLimitValueType = object["gasLimit"],
+                case JSONRPC_2_0.ValueType.string(let gasLimit) = gasLimitValueType,
+                let gasPriceValueType = object["gasPrice"],
+                case JSONRPC_2_0.ValueType.string(let gasPrice) = gasPriceValueType,
+                let valueValueType = object["value"],
+                case JSONRPC_2_0.ValueType.string(let value) = valueValueType,
+                let nonceValueType = object["nonce"],
+                case JSONRPC_2_0.ValueType.string(let nonce) = nonceValueType else { return nil }
+
+            let transaction = RawTransaction(wei: value.hasPrefix("0x") ? String(value.suffix(value.count - 2)) : value,
+                                             to: to,
+                                             gasPrice: intFromHex(gasPrice),
+                                             gasLimit: intFromHex(gasLimit),
+                                             nonce: intFromHex(nonce),
+                                             data: Data(hex: data))
+            return (from, transaction)
+        }
+
+        private func intFromHex(_ hex: String) -> Int {
+            if hex.hasPrefix("0x") {
+                return Int(hex.suffix(hex.count - 2), radix: 16)!
+            } else {
+                return Int(hex, radix: 16)!
+            }
+        }
+
         func missingRequiredParametersResponse(for request: Request) -> Response {
             let code = try! JSONRPC_2_0.Response.Payload.ErrorPayload.Code(-100500)
             let payload = JSONRPC_2_0.Response.Payload.ErrorPayload(code: code, message: "Missing required parameters in request", data: nil)
@@ -166,6 +223,9 @@ extension MainViewController: ServerDelegate {
     }
 
     func server(_ server: Server, didConnect session: Session) {
+        self.session = session
+        let sessionData = try! JSONEncoder().encode(session)
+        UserDefaults.standard.set(sessionData, forKey: sessionKey)
         onMainThread {
             self.scanQRCodeButton.isHidden = true
             self.disconnectButton.isHidden = false
@@ -174,6 +234,7 @@ extension MainViewController: ServerDelegate {
     }
 
     func server(_ server: Server, didDisconnect session: Session) {
+        UserDefaults.standard.removeObject(forKey: sessionKey)
         onMainThread {
             self.scanQRCodeButton.isEnabled = true
             self.scanQRCodeButton.isHidden = false
@@ -227,6 +288,14 @@ extension UIAlertController {
         let startAction = UIAlertAction(title: "Sign", style: .default) { _ in onSign() }
         alert.addAction(startAction)
         controller.present(alert.withCloseButton(title: "Reject", onClose: onCancel), animated: true)
+    }
+
+}
+
+extension RawTransaction {
+
+    var description: String {
+        return "to: \(to.string), value: \(value), gasPrice: \(gasPrice), gasLimit: \(gasLimit), data: \(data), nonce: \(nonce)"
     }
 
 }
