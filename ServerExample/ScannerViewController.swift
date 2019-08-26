@@ -29,20 +29,27 @@ class ScannerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let deviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInDualCamera], mediaType: .video, position: .back)
-        guard let captureDevice = deviceDiscoverySession.devices.first,
-            let input = try? AVCaptureDeviceInput(device: captureDevice) else { return }
-        captureSession.addInput(input)
-        let captureMetadataOutput = AVCaptureMetadataOutput()
-        captureSession.addOutput(captureMetadataOutput)
-        captureMetadataOutput.setMetadataObjectsDelegate(self, queue: .main)
-        captureMetadataOutput.metadataObjectTypes = [.qr]
-        captureSession.startRunning()
+        let deviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .back)
+        guard let captureDevice = deviceDiscoverySession.devices.first else {
+            print("can't find capture device")
+            return
+        }
+        do {
+            let input = try AVCaptureDeviceInput(device: captureDevice)
+            captureSession.addInput(input)
+            let captureMetadataOutput = AVCaptureMetadataOutput()
+            captureSession.addOutput(captureMetadataOutput)
+            captureMetadataOutput.setMetadataObjectsDelegate(self, queue: .main)
+            captureMetadataOutput.metadataObjectTypes = [.qr]
+            captureSession.startRunning()
 
-        videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        videoPreviewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
-        videoPreviewLayer.frame = view.layer.bounds
-        view.layer.insertSublayer(videoPreviewLayer, at: 0)        
+            videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+            videoPreviewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+            videoPreviewLayer.frame = view.layer.bounds
+            view.layer.insertSublayer(videoPreviewLayer, at: 0)
+        } catch {
+            print("Error: \(error)")
+        }
     }
 
 }
