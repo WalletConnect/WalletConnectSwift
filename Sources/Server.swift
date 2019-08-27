@@ -32,7 +32,7 @@ public protocol ServerDelegate: class {
 open class Server: WalletConnect {
 
     private let handlers: Handlers
-    private(set) weak var delegate: ServerDelegate!
+    public private(set) weak var delegate: ServerDelegate!
 
     public enum ServerError: Error {
         case missingWalletInfoInSession
