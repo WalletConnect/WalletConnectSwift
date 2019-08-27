@@ -2,15 +2,15 @@
 //  Copyright © 2019 Gnosis Ltd. All rights reserved.
 //
 
-public class WalletConnect {
+open class WalletConnect {
 
     let communicator: Communicator
 
-    init() {
+    public init() {
         communicator = Communicator()
     }
 
-    enum WalletConnectError: Error {
+    public enum WalletConnectError: Error {
         case tryingToConnectExistingSessionURL
         case tryingToDisconnectInactiveSession
         case missingWalletInfoInSession
@@ -21,7 +21,7 @@ public class WalletConnect {
     ///
     /// - Parameter url: WalletConnect url
     /// - Throws: error on trying to connect to existing session url
-    public func connect(to url: WCURL) throws {
+    open func connect(to url: WCURL) throws {
         guard communicator.session(by: url) == nil else {
             throw WalletConnectError.tryingToConnectExistingSessionURL
         }
@@ -32,7 +32,7 @@ public class WalletConnect {
     ///
     /// - Parameter session: session object with wallet info.
     /// - Throws: error if wallet info is missing
-    public func reconnect(to session: Session) throws {
+    open func reconnect(to session: Session) throws {
         guard session.walletInfo != nil else {
             throw WalletConnectError.missingWalletInfoInSession
         }
@@ -44,7 +44,7 @@ public class WalletConnect {
     ///
     /// - Parameter session: Session object
     /// - Throws: error on trying to disconnect inacative sessoin.
-    public func disconnect(from session: Session) throws {
+    open func disconnect(from session: Session) throws {
         guard communicator.isConnected(by: session.url) else {
             throw WalletConnectError.tryingToDisconnectInactiveSession
         }
@@ -56,7 +56,7 @@ public class WalletConnect {
     /// Get all sessions with active connection.
     ///
     /// - Returns: sessions list.
-    public func openSessions() -> [Session] {
+    open func openSessions() -> [Session] {
         return communicator.openSessions()
     }
 

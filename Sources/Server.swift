@@ -29,12 +29,12 @@ public protocol ServerDelegate: class {
 
 }
 
-public class Server: WalletConnect {
+open class Server: WalletConnect {
 
     private let handlers: Handlers
     private(set) weak var delegate: ServerDelegate!
 
-    enum ServerError: Error {
+    public enum ServerError: Error {
         case missingWalletInfoInSession
     }
 
@@ -46,11 +46,11 @@ public class Server: WalletConnect {
         register(handler: UpdateSessionHandler(delegate: self))
     }
 
-    public func register(handler: RequestHandler) {
+    open func register(handler: RequestHandler) {
         handlers.add(handler)
     }
 
-    public func unregister(handler: RequestHandler) {
+    open func unregister(handler: RequestHandler) {
         handlers.remove(handler)
     }
 
@@ -60,7 +60,7 @@ public class Server: WalletConnect {
     ///   - session: Session object
     ///   - walletInfo: WalletInfo object
     /// - Throws: error if wallet info is missing
-    public func updateSession(_ session: Session, with walletInfo: Session.WalletInfo) throws {
+    open func updateSession(_ session: Session, with walletInfo: Session.WalletInfo) throws {
         guard session.walletInfo != nil else {
             throw ServerError.missingWalletInfoInSession
         }
@@ -69,13 +69,13 @@ public class Server: WalletConnect {
     }
 
     // TODO: where to handle error?
-    public func send(_ response: Response) {
+    open func send(_ response: Response) {
         guard let session = communicator.session(by: response.url) else { return }
         communicator.send(response, topic: session.dAppInfo.peerId)
     }
 
     // TODO: where to handle error?
-    public func send(_ request: Request) {
+    open func send(_ request: Request) {
         guard let session = communicator.session(by: request.url) else { return }
         communicator.send(request, topic: session.dAppInfo.peerId)
     }
