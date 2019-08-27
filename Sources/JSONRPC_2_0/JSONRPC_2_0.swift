@@ -135,18 +135,18 @@ public enum JSONRPC_2_0 {
 
     }
 
-    struct KeyType: CodingKey {
+    public struct KeyType: CodingKey {
 
-        var stringValue: String
+        public var stringValue: String
 
-        init?(stringValue: String) {
+        public init?(stringValue: String) {
             self.stringValue = stringValue
             self.intValue = Int(stringValue)
         }
 
-        var intValue: Int?
+        public var intValue: Int?
 
-        init?(intValue: Int) {
+        public init?(intValue: Int) {
             self.intValue = intValue
             self.stringValue = String(describing: intValue)
         }
@@ -284,17 +284,17 @@ public enum JSONRPC_2_0 {
 
                 public struct Code: Hashable, Codable {
 
-                    var code: Int
+                    public var code: Int
 
                     public enum InitializationError: String, Error {
                         case codeAlreadyReservedForPredefinedErrors
                     }
 
-                    static let invalidJSON = Code(code: -32_700)
-                    static let invalidRequest = Code(code: -32_600)
-                    static let methodNotFound = Code(code: -32_601)
-                    static let invalidParams = Code(code: -32_602)
-                    static let internalError = Code(code: -32_603)
+                    public static let invalidJSON = Code(code: -32_700)
+                    public static let invalidRequest = Code(code: -32_600)
+                    public static let methodNotFound = Code(code: -32_601)
+                    public static let invalidParams = Code(code: -32_602)
+                    public static let internalError = Code(code: -32_603)
 
                     public init(_ code: Int) throws {
                         guard !(code >= -32_768 && code <= -32_000) else {
@@ -303,7 +303,7 @@ public enum JSONRPC_2_0 {
                         self.init(code: code)
                     }
 
-                    init(code: Int) {
+                    public init(code: Int) {
                         self.code = code
                     }
 
