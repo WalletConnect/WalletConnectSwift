@@ -55,6 +55,9 @@ extension MainViewController: WalletConnectDelegate {
             if let handshakeController = self.handshakeController {
                 handshakeController.dismiss(animated: false)
             }
+            if self.presentedViewController != nil {
+                return
+            }
             self.present(self.actionsController, animated: false)
         }
     }
