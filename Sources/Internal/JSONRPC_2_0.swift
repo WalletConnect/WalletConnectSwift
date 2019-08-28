@@ -4,26 +4,26 @@
 
 import Foundation
 
-public enum JSONRPC_2_0 {
+enum JSONRPC_2_0 {
 
-    public struct JSON {
+    struct JSON {
 
-        public var string: String
+        var string: String
 
-        public init(_ text: String) {
+        init(_ text: String) {
             string = text
         }
 
     }
 
-    public enum IDType: Hashable, Codable {
+    enum IDType: Hashable, Codable {
 
         case string(String)
         case int(Int)
         case double(Double)
         case null
 
-        public init(from decoder: Decoder) throws {
+        init(from decoder: Decoder) throws {
             let container = try decoder.singleValueContainer()
             if let string = try? container.decode(String.self) {
                 self = .string(string)
@@ -40,7 +40,7 @@ public enum JSONRPC_2_0 {
             }
         }
 
-        public func encode(to encoder: Encoder) throws {
+        func encode(to encoder: Encoder) throws {
             var container = encoder.singleValueContainer()
             switch self {
             case .string(let value):
@@ -56,7 +56,7 @@ public enum JSONRPC_2_0 {
 
     }
 
-    public enum ValueType: Hashable, Codable {
+    enum ValueType: Hashable, Codable {
 
         case object([String: ValueType])
         case array([ValueType])
@@ -66,7 +66,7 @@ public enum JSONRPC_2_0 {
         case bool(Bool)
         case null
 
-        public init(from decoder: Decoder) throws {
+        init(from decoder: Decoder) throws {
             if let keyedContainer = try? decoder.container(keyedBy: KeyType.self) {
                 var result = [String: ValueType]()
                 for key in keyedContainer.allKeys {
@@ -103,7 +103,7 @@ public enum JSONRPC_2_0 {
             }
         }
 
-        public func encode(to encoder: Encoder) throws {
+        func encode(to encoder: Encoder) throws {
             switch self {
             case .object(let object):
                 var container = encoder.container(keyedBy: KeyType.self)
@@ -133,7 +133,7 @@ public enum JSONRPC_2_0 {
             }
         }
 
-        public func jsonString() throws -> String {
+        func jsonString() throws -> String {
             let data = try JSONEncoder().encode(self)
             guard let string = String(data: data, encoding: .utf8) else {
                 throw DataConversionError.dataToStringFailed
@@ -143,18 +143,18 @@ public enum JSONRPC_2_0 {
 
     }
 
-    public struct KeyType: CodingKey {
+    struct KeyType: CodingKey {
 
-        public var stringValue: String
+        var stringValue: String
 
-        public init?(stringValue: String) {
+        init?(stringValue: String) {
             self.stringValue = stringValue
             self.intValue = Int(stringValue)
         }
 
-        public var intValue: Int?
+        var intValue: Int?
 
-        public init?(intValue: Int) {
+        init?(intValue: Int) {
             self.intValue = intValue
             self.stringValue = String(describing: intValue)
         }
@@ -162,25 +162,25 @@ public enum JSONRPC_2_0 {
     }
 
     /// https://www.jsonrpc.org/specification#request_object
-    public struct Request: Hashable, Codable {
+    struct Request: Hashable, Codable {
 
-        public let jsonrpc = "2.0"
-        public var method: String
-        public var params: Params?
-        public var id: IDType?
+        let jsonrpc = "2.0"
+        var method: String
+        var params: Params?
+        var id: IDType?
 
-        public init(method: String, params: Params?, id: IDType?) {
+        init(method: String, params: Params?, id: IDType?) {
             self.method = method
             self.params = params
             self.id = id
         }
 
-        public enum Params: Hashable, Codable {
+        enum Params: Hashable, Codable {
 
             case positional([ValueType])
             case named([String: ValueType])
 
-            public init(from decoder: Decoder) throws {
+            init(from decoder: Decoder) throws {
                 if let keyedContainer = try? decoder.container(keyedBy: KeyType.self) {
                     var result = [String: ValueType]()
                     for key in keyedContainer.allKeys {
@@ -201,7 +201,7 @@ public enum JSONRPC_2_0 {
                 }
             }
 
-            public func encode(to encoder: Encoder) throws {
+            func encode(to encoder: Encoder) throws {
                 switch self {
                 case .named(let object):
                     var container = encoder.container(keyedBy: KeyType.self)
@@ -218,14 +218,14 @@ public enum JSONRPC_2_0 {
 
         }
 
-        public static func create(from json: JSONRPC_2_0.JSON) throws -> JSONRPC_2_0.Request {
+        static func create(from json: JSONRPC_2_0.JSON) throws -> JSONRPC_2_0.Request {
             guard let data = json.string.data(using: .utf8) else {
                 throw DataConversionError.stringToDataFailed
             }
             return try JSONDecoder().decode(JSONRPC_2_0.Request.self, from: data)
         }
 
-        public func json() throws -> JSONRPC_2_0.JSON {
+        func json() throws -> JSONRPC_2_0.JSON {
             let data = try JSONEncoder().encode(self)
             guard let string = String(data: data, encoding: .utf8) else {
                 throw DataConversionError.dataToStringFailed
@@ -236,23 +236,23 @@ public enum JSONRPC_2_0 {
     }
 
     /// https://www.jsonrpc.org/specification#response_object
-    public struct Response: Hashable, Codable {
+    struct Response: Hashable, Codable {
 
         let jsonrpc = "2.0"
-        public var result: Payload
-        public var id: IDType
+        var result: Payload
+        var id: IDType
 
-        public init(result: Payload, id: IDType) {
+        init(result: Payload, id: IDType) {
             self.result = result
             self.id = id
         }
 
-        public enum Payload: Hashable, Codable {
+        enum Payload: Hashable, Codable {
 
             case value(ValueType)
             case error(ErrorPayload)
 
-            public init(from decoder: Decoder) throws {
+            init(from decoder: Decoder) throws {
                 let container = try decoder.singleValueContainer()
                 if let error = try? container.decode(ErrorPayload.self) {
                     self = .error(error)
@@ -267,7 +267,7 @@ public enum JSONRPC_2_0 {
                 }
             }
 
-            public func encode(to encoder: Encoder) throws {
+            func encode(to encoder: Encoder) throws {
                 var container = encoder.singleValueContainer()
                 switch self {
                 case .value(let value):
@@ -278,33 +278,33 @@ public enum JSONRPC_2_0 {
             }
 
             /// https://www.jsonrpc.org/specification#error_object
-            public struct ErrorPayload: Hashable, Codable {
+            struct ErrorPayload: Hashable, Codable {
 
-                public var code: Code
-                public var message: String
-                public var data: ValueType?
+                var code: Code
+                var message: String
+                var data: ValueType?
 
-                public init(code: Code, message: String, data: ValueType?) {
+                init(code: Code, message: String, data: ValueType?) {
                     self.code = code
                     self.message = message
                     self.data = data
                 }
 
-                public struct Code: Hashable, Codable {
+                struct Code: Hashable, Codable {
 
-                    public var code: Int
+                    var code: Int
 
-                    public enum InitializationError: String, Error {
+                    enum InitializationError: String, Error {
                         case codeAlreadyReservedForPredefinedErrors
                     }
 
-                    public static let invalidJSON = Code(code: -32_700)
-                    public static let invalidRequest = Code(code: -32_600)
-                    public static let methodNotFound = Code(code: -32_601)
-                    public static let invalidParams = Code(code: -32_602)
-                    public static let internalError = Code(code: -32_603)
+                    static let invalidJSON = Code(code: -32_700)
+                    static let invalidRequest = Code(code: -32_600)
+                    static let methodNotFound = Code(code: -32_601)
+                    static let invalidParams = Code(code: -32_602)
+                    static let internalError = Code(code: -32_603)
 
-                    public init(_ code: Int) throws {
+                    init(_ code: Int) throws {
                         let forbiddenPredefinedRange = (-32768 ... -32000)
                         let allowedServerErrorsRange = (-32099 ... -32000)
                         let allowedPredefinedErrors = [-32700, -32600, -32601, -32602, -32603]
@@ -316,16 +316,16 @@ public enum JSONRPC_2_0 {
                         self.init(code: code)
                     }
 
-                    public init(code: Int) {
+                    init(code: Int) {
                         self.code = code
                     }
 
-                    public init(from decoder: Decoder) throws {
+                    init(from decoder: Decoder) throws {
                         let container = try decoder.singleValueContainer()
                         code = try container.decode(Int.self)
                     }
 
-                    public func encode(to encoder: Encoder) throws {
+                    func encode(to encoder: Encoder) throws {
                         var container = encoder.singleValueContainer()
                         try container.encode(code)
                     }
@@ -335,7 +335,7 @@ public enum JSONRPC_2_0 {
 
         }
 
-        public static func create(from json: JSONRPC_2_0.JSON) throws -> JSONRPC_2_0.Response {
+        static func create(from json: JSONRPC_2_0.JSON) throws -> JSONRPC_2_0.Response {
             guard let data = json.string.data(using: .utf8) else {
                 throw DataConversionError.stringToDataFailed
             }
@@ -349,7 +349,7 @@ public enum JSONRPC_2_0 {
             return try decoder.decode(JSONRPC_2_0.Response.self, from: data)
         }
 
-        public func json() throws -> JSONRPC_2_0.JSON {
+        func json() throws -> JSONRPC_2_0.JSON {
             let encoder = JSONEncoder()
             if case Payload.error(_) = result {
                 encoder.keyEncodingStrategy = .custom { codingKeys in

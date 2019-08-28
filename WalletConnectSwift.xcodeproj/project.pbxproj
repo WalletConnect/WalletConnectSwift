@@ -425,32 +425,10 @@
 		0ABB072E22FC22F800BC18BB /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				0ABB073822FC22F800BC18BB /* AES_256_CBC_HMAC_SHA256_Codec.swift */,
-				0ABB073622FC22F800BC18BB /* BridgeTransport.swift */,
-				551B65F822FD78B700573DBD /* Client.swift */,
-				551B65ED22FC7E4100573DBD /* Communicator.swift */,
-				0ABB073922FC22F800BC18BB /* HandshakeHandler.swift */,
-				0ABB073222FC22F800BC18BB /* PubSubMessage.swift */,
-				0ABB073A22FC22F800BC18BB /* Serializer.swift */,
-				0ABB073522FC22F800BC18BB /* Server.swift */,
-				0ABB073122FC22F800BC18BB /* Session.swift */,
-				0AD7D41623168008002BF84B /* WCURL.swift */,
-				0AD7D4212316802C002BF84B /* Request.swift */,
-				0AD7D42323168033002BF84B /* Response.swift */,
-				0ABB073422FC22F800BC18BB /* UpdateSessionHandler.swift */,
-				55CE9CCB2302A8E600CB414D /* WalletConnect.swift */,
-				0ABB073722FC22F800BC18BB /* WebSocketConnection.swift */,
-				0ABB072F22FC22F800BC18BB /* JSONRPC_2_0 */,
+				0AD7D4362316CF1B002BF84B /* PublicInterface */,
+				0AD7D4372316CF34002BF84B /* Internal */,
 			);
 			path = Sources;
-			sourceTree = "<group>";
-		};
-		0ABB072F22FC22F800BC18BB /* JSONRPC_2_0 */ = {
-			isa = PBXGroup;
-			children = (
-				0ABB073022FC22F800BC18BB /* JSONRPC_2_0.swift */,
-			);
-			path = JSONRPC_2_0;
 			sourceTree = "<group>";
 		};
 		0ABB075522FC231400BC18BB /* Tests */ = {
@@ -489,6 +467,36 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		0AD7D4362316CF1B002BF84B /* PublicInterface */ = {
+			isa = PBXGroup;
+			children = (
+				55CE9CCB2302A8E600CB414D /* WalletConnect.swift */,
+				551B65F822FD78B700573DBD /* Client.swift */,
+				0ABB073522FC22F800BC18BB /* Server.swift */,
+				0ABB073122FC22F800BC18BB /* Session.swift */,
+				0AD7D41623168008002BF84B /* WCURL.swift */,
+				0AD7D4212316802C002BF84B /* Request.swift */,
+				0AD7D42323168033002BF84B /* Response.swift */,
+			);
+			path = PublicInterface;
+			sourceTree = "<group>";
+		};
+		0AD7D4372316CF34002BF84B /* Internal */ = {
+			isa = PBXGroup;
+			children = (
+				0ABB073822FC22F800BC18BB /* AES_256_CBC_HMAC_SHA256_Codec.swift */,
+				0ABB073622FC22F800BC18BB /* BridgeTransport.swift */,
+				551B65ED22FC7E4100573DBD /* Communicator.swift */,
+				0ABB073922FC22F800BC18BB /* HandshakeHandler.swift */,
+				0ABB073222FC22F800BC18BB /* PubSubMessage.swift */,
+				0ABB073A22FC22F800BC18BB /* Serializer.swift */,
+				0ABB073422FC22F800BC18BB /* UpdateSessionHandler.swift */,
+				0ABB073722FC22F800BC18BB /* WebSocketConnection.swift */,
+				0ABB073022FC22F800BC18BB /* JSONRPC_2_0.swift */,
+			);
+			path = Internal;
 			sourceTree = "<group>";
 		};
 		551B661422FDC47000573DBD /* ClientExample */ = {
