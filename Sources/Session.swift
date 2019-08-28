@@ -4,83 +4,6 @@
 
 import Foundation
 
-public struct WCURL: Hashable, Codable {
-
-    // topic is used for handshake only
-    public var topic: String
-    public var version: String
-    public var bridgeURL: URL
-    public var key: String
-
-    public var absoluteString: String {
-        let bridge = bridgeURL.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
-        return "wc:\(topic)@\(version)?bridge=\(bridge)&key=\(key)"
-    }
-
-    public init(topic: String,
-                version: String = "1",
-                bridgeURL: URL,
-                key: String) {
-        self.topic = topic
-        self.version = version
-        self.bridgeURL = bridgeURL
-        self.key = key
-    }
-
-    public init?(_ str: String) {
-        guard str.hasPrefix("wc:") else {
-            return nil
-        }
-        let urlStr = str.replacingOccurrences(of: "wc:", with: "wc://")
-        guard let url = URL(string: urlStr),
-            let topic = url.user,
-            let version = url.host,
-            let components = NSURLComponents(url: url, resolvingAgainstBaseURL: false) else {
-                return nil
-        }
-        var dict = [String: String]()
-        for query in components.queryItems ?? [] {
-            if let value = query.value {
-                dict[query.name] = value
-            }
-        }
-        guard let bridge = dict["bridge"],
-            let bridgeUrl = URL(string: bridge),
-            let key = dict["key"] else {
-                return nil
-        }
-        self.topic = topic
-        self.version = version
-        self.bridgeURL = bridgeUrl
-        self.key = key
-    }
-
-}
-
-public class Request {
-
-    public var payload: JSONRPC_2_0.Request
-    public var url: WCURL
-
-    public init(payload: JSONRPC_2_0.Request, url: WCURL) {
-        self.payload = payload
-        self.url = url
-    }
-
-}
-
-public class Response {
-
-    public var payload: JSONRPC_2_0.Response
-    public var url: WCURL
-
-    public init(payload: JSONRPC_2_0.Response, url: WCURL) {
-        self.payload = payload
-        self.url = url
-    }
-
-}
-
 /// Each session is a communication channel between dApp and Wallet on dAppInfo.peerId topic
 public struct Session: Codable {
 
@@ -95,7 +18,7 @@ public struct Session: Codable {
         self.walletInfo = walletInfo
     }
 
-    public struct DAppInfo: Codable {
+    public struct DAppInfo: Codable, Equatable {
 
         public let peerId: String
         public let peerMeta: ClientMeta
@@ -115,7 +38,7 @@ public struct Session: Codable {
 
     }
 
-    public struct ClientMeta: Codable {
+    public struct ClientMeta: Codable, Equatable {
 
         public let name: String
         public let description: String?
@@ -131,7 +54,7 @@ public struct Session: Codable {
 
     }
 
-    public struct WalletInfo: Codable {
+    public struct WalletInfo: Codable, Equatable {
 
         public let approved: Bool
         public let accounts: [String]
@@ -155,35 +78,6 @@ public struct Session: Codable {
                               peerMeta: self.peerMeta)
         }
 
-    }
-
-    enum SessionCreationError: Error {
-        case wrongRequestFormat
-    }
-
-    /// https://docs.walletconnect.org/tech-spec#session-request
-    init?(wcSessionRequest request: Request) throws {
-        let data = try JSONEncoder().encode(request.payload.params)
-        let array = try JSONDecoder().decode([DAppInfo].self, from: data)
-        guard array.count == 1 else { throw SessionCreationError.wrongRequestFormat }
-        self.url = request.url
-        self.dAppInfo = array[0]
-    }
-
-    init?(wcSessionResponse response: Response, dAppInfo: DAppInfo) throws {
-        let data = try JSONEncoder().encode(response.payload.result)
-        let walletInfo = try JSONDecoder().decode(WalletInfo.self, from: data)
-        self.url = response.url
-        self.dAppInfo = dAppInfo
-        self.walletInfo = walletInfo
-    }
-
-    func creationResponse(requestId: JSONRPC_2_0.IDType, walletInfo: Session.WalletInfo) -> Response {
-        let infoValueData = try! JSONEncoder().encode(walletInfo)
-        let infoValue = try! JSONDecoder().decode(JSONRPC_2_0.ValueType.self, from: infoValueData)
-        let result = JSONRPC_2_0.Response.Payload.value(infoValue)
-        let JSONRPCResponse = JSONRPC_2_0.Response(result: result, id: requestId)
-        return Response(payload: JSONRPCResponse, url: self.url)
     }
 
 }

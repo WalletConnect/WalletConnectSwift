@@ -15,14 +15,12 @@
 		0A92786F230BFB3F00FDCC0D /* BridgeTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABB073622FC22F800BC18BB /* BridgeTransport.swift */; };
 		0A927870230BFB3F00FDCC0D /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B65F822FD78B700573DBD /* Client.swift */; };
 		0A927871230BFB3F00FDCC0D /* Communicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B65ED22FC7E4100573DBD /* Communicator.swift */; };
-		0A927872230BFB3F00FDCC0D /* CreateSessionRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551B660B22FDA54900573DBD /* CreateSessionRequest.swift */; };
 		0A927873230BFB3F00FDCC0D /* HandshakeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABB073922FC22F800BC18BB /* HandshakeHandler.swift */; };
 		0A927874230BFB3F00FDCC0D /* PubSubMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABB073222FC22F800BC18BB /* PubSubMessage.swift */; };
 		0A927875230BFB3F00FDCC0D /* Serializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABB073A22FC22F800BC18BB /* Serializer.swift */; };
 		0A927876230BFB3F00FDCC0D /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABB073522FC22F800BC18BB /* Server.swift */; };
 		0A927877230BFB3F00FDCC0D /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABB073122FC22F800BC18BB /* Session.swift */; };
 		0A927878230BFB3F00FDCC0D /* UpdateSessionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABB073422FC22F800BC18BB /* UpdateSessionHandler.swift */; };
-		0A927879230BFB3F00FDCC0D /* UpdateSessionRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABB073322FC22F800BC18BB /* UpdateSessionRequest.swift */; };
 		0A92787A230BFB3F00FDCC0D /* WebSocketConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABB073722FC22F800BC18BB /* WebSocketConnection.swift */; };
 		0A92787B230BFB3F00FDCC0D /* JSONRPC_2_0.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABB073022FC22F800BC18BB /* JSONRPC_2_0.swift */; };
 		0A92787C230BFB3F00FDCC0D /* WalletConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55CE9CCB2302A8E600CB414D /* WalletConnect.swift */; };
@@ -30,6 +28,9 @@
 		0A92787E230BFB4500FDCC0D /* SessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABB075722FC231400BC18BB /* SessionTests.swift */; };
 		0A92787F230BFBBF00FDCC0D /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB076522FC23DD00BC18BB /* CryptoSwift.framework */; };
 		0A927880230BFBBF00FDCC0D /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB077422FC23E300BC18BB /* Starscream.framework */; };
+		0AD7D426231680BC002BF84B /* WCURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD7D41623168008002BF84B /* WCURL.swift */; };
+		0AD7D427231680CE002BF84B /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD7D4212316802C002BF84B /* Request.swift */; };
+		0AD7D428231680CE002BF84B /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD7D42323168033002BF84B /* Response.swift */; };
 		0AE8DE2D23140C070031FAE5 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB077422FC23E300BC18BB /* Starscream.framework */; };
 		0AE8DE2E23140C070031FAE5 /* Starscream.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB077422FC23E300BC18BB /* Starscream.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0AE8DE3123140C070031FAE5 /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB076522FC23DD00BC18BB /* CryptoSwift.framework */; };
@@ -292,7 +293,6 @@
 		0ABB073022FC22F800BC18BB /* JSONRPC_2_0.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONRPC_2_0.swift; sourceTree = "<group>"; };
 		0ABB073122FC22F800BC18BB /* Session.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		0ABB073222FC22F800BC18BB /* PubSubMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubSubMessage.swift; sourceTree = "<group>"; };
-		0ABB073322FC22F800BC18BB /* UpdateSessionRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UpdateSessionRequest.swift; sourceTree = "<group>"; };
 		0ABB073422FC22F800BC18BB /* UpdateSessionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UpdateSessionHandler.swift; sourceTree = "<group>"; };
 		0ABB073522FC22F800BC18BB /* Server.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
 		0ABB073622FC22F800BC18BB /* BridgeTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BridgeTransport.swift; sourceTree = "<group>"; };
@@ -305,9 +305,11 @@
 		0ABB075722FC231400BC18BB /* SessionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionTests.swift; sourceTree = "<group>"; };
 		0ABB075C22FC23DD00BC18BB /* CryptoSwift.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CryptoSwift.xcodeproj; path = Dependencies/CryptoSwift/CryptoSwift.xcodeproj; sourceTree = "<group>"; };
 		0ABB076E22FC23E300BC18BB /* Starscream.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Starscream.xcodeproj; path = Dependencies/Starscream/Starscream.xcodeproj; sourceTree = "<group>"; };
+		0AD7D41623168008002BF84B /* WCURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCURL.swift; sourceTree = "<group>"; };
+		0AD7D4212316802C002BF84B /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
+		0AD7D42323168033002BF84B /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
 		551B65ED22FC7E4100573DBD /* Communicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Communicator.swift; sourceTree = "<group>"; };
 		551B65F822FD78B700573DBD /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
-		551B660B22FDA54900573DBD /* CreateSessionRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateSessionRequest.swift; sourceTree = "<group>"; };
 		551B661322FDC47000573DBD /* ClientExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClientExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		551B661522FDC47000573DBD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		551B661722FDC47000573DBD /* ActionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionsViewController.swift; sourceTree = "<group>"; };
@@ -427,14 +429,15 @@
 				0ABB073622FC22F800BC18BB /* BridgeTransport.swift */,
 				551B65F822FD78B700573DBD /* Client.swift */,
 				551B65ED22FC7E4100573DBD /* Communicator.swift */,
-				551B660B22FDA54900573DBD /* CreateSessionRequest.swift */,
 				0ABB073922FC22F800BC18BB /* HandshakeHandler.swift */,
 				0ABB073222FC22F800BC18BB /* PubSubMessage.swift */,
 				0ABB073A22FC22F800BC18BB /* Serializer.swift */,
 				0ABB073522FC22F800BC18BB /* Server.swift */,
 				0ABB073122FC22F800BC18BB /* Session.swift */,
+				0AD7D41623168008002BF84B /* WCURL.swift */,
+				0AD7D4212316802C002BF84B /* Request.swift */,
+				0AD7D42323168033002BF84B /* Response.swift */,
 				0ABB073422FC22F800BC18BB /* UpdateSessionHandler.swift */,
-				0ABB073322FC22F800BC18BB /* UpdateSessionRequest.swift */,
 				55CE9CCB2302A8E600CB414D /* WalletConnect.swift */,
 				0ABB073722FC22F800BC18BB /* WebSocketConnection.swift */,
 				0ABB072F22FC22F800BC18BB /* JSONRPC_2_0 */,
@@ -840,10 +843,11 @@
 				0A927877230BFB3F00FDCC0D /* Session.swift in Sources */,
 				0A927878230BFB3F00FDCC0D /* UpdateSessionHandler.swift in Sources */,
 				0A92786F230BFB3F00FDCC0D /* BridgeTransport.swift in Sources */,
-				0A927872230BFB3F00FDCC0D /* CreateSessionRequest.swift in Sources */,
+				0AD7D426231680BC002BF84B /* WCURL.swift in Sources */,
+				0AD7D428231680CE002BF84B /* Response.swift in Sources */,
 				0A92786E230BFB3F00FDCC0D /* AES_256_CBC_HMAC_SHA256_Codec.swift in Sources */,
 				0A92787B230BFB3F00FDCC0D /* JSONRPC_2_0.swift in Sources */,
-				0A927879230BFB3F00FDCC0D /* UpdateSessionRequest.swift in Sources */,
+				0AD7D427231680CE002BF84B /* Request.swift in Sources */,
 				0A927871230BFB3F00FDCC0D /* Communicator.swift in Sources */,
 				0A927873230BFB3F00FDCC0D /* HandshakeHandler.swift in Sources */,
 				0A927875230BFB3F00FDCC0D /* Serializer.swift in Sources */,

@@ -46,7 +46,7 @@ public class Client: WalletConnect {
         guard let walletInfo = session.walletInfo else {
             throw ClientError.missingWalletInfoInSession
         }
-        guard let requestID = request.payload.id else {
+        guard let requestID = request.internalID else {
             throw ClientError.missingRequestID
         }
         if let completion = completion {
@@ -125,10 +125,7 @@ public class Client: WalletConnect {
                       param1: String,
                       param2: String,
                       completion: @escaping RequestResponse) throws {
-        let payload = JSONRPC_2_0.Request(method: method,
-                                          params: .positional([.string(param1), .string(param2)]),
-                                          id: .string(UUID().uuidString))
-        let request = Request(payload: payload, url: url)
+        let request = try Request(url: url, method: method, params: [param1, param2])
         try send(request, completion: completion)
     }
 
@@ -166,12 +163,7 @@ public class Client: WalletConnect {
                                    method: String,
                                    transaction: Transaction,
                                    completion: @escaping RequestResponse) throws {
-        let requestParamsData = try JSONEncoder().encode([transaction])
-        let requestParams = try JSONDecoder().decode(JSONRPC_2_0.Request.Params.self, from: requestParamsData)
-        let payload = JSONRPC_2_0.Request(method: method,
-                                          params: requestParams,
-                                          id: .string(UUID().uuidString))
-        let request = Request(payload: payload, url: url)
+        let request = try Request(url: url, method: method, params: [transaction])
         try send(request, completion: completion)
     }
 
@@ -187,10 +179,7 @@ public class Client: WalletConnect {
     ///                 yet available, or error.
     /// - Throws: client error.
     public func eth_sendRawTransaction(url: WCURL, data: String, completion: @escaping RequestResponse) throws {
-        let payload = JSONRPC_2_0.Request(method: "eth_sendRawTransaction",
-                                          params: .positional([.string(data)]),
-                                          id: .string(UUID().uuidString))
-        let request = Request(payload: payload, url: url)
+        let request = try Request(url: url, method: "eth_sendRawTransaction", params: [data])
         try send(request, completion: completion)
     }
 
@@ -201,35 +190,41 @@ public class Client: WalletConnect {
             delegate.client(self, didConnect: existingSession)
         } else { // establishing new connection, handshake in process
             communicator.subscribe(on: dAppInfo.peerId, url: url)
-            let requestID = nextRequestId()
-            let createSessionRequest = try! CreateSessionRequest(url: url, dAppInfo: dAppInfo, id: requestID)!
+            let request = try! Request(url: url, method: "wc_sessionRequest", params: [dAppInfo], id: UUID().hashValue)
+            let requestID = request.internalID!
             responses.add(requestID: requestID) { [unowned self] response in
                 self.handleHandshakeResponse(response)
             }
-            communicator.send(createSessionRequest, topic: url.topic)
+            communicator.send(request, topic: url.topic)
         }
     }
 
-    private func nextRequestId() -> JSONRPC_2_0.IDType {
-        return JSONRPC_2_0.IDType.int(UUID().hashValue)
-    }
 
     private func handleHandshakeResponse(_ response: Response) {
-        guard let session = try? Session(wcSessionResponse: response, dAppInfo: dAppInfo),
-            session.walletInfo!.approved else {
+        do {
+            let walletInfo = try response.result(as: Session.WalletInfo.self)
+            let session = Session(url: response.url, dAppInfo: dAppInfo, walletInfo: walletInfo)
+
+            guard walletInfo.approved else {
+                // TODO: handle Error
                 delegate.client(self, didFailToConnect: response.url)
                 return
+            }
+
+            communicator.addSession(session)
+            delegate.client(self, didConnect: session)
+        } catch {
+            // TODO: handle error
+            delegate.client(self, didFailToConnect: response.url)
         }
-        communicator.addSession(session)
-        delegate.client(self, didConnect: session)
     }
 
     override func onTextReceive(_ text: String, from url: WCURL) {
         if let response = try? communicator.response(from: text, url: url) {
             log(response)
-            if let completion = responses.find(requestID: response.payload.id) {
+            if let completion = responses.find(requestID: response.internalID) {
                 completion(response)
-                responses.remove(requestID: response.payload.id)
+                responses.remove(requestID: response.internalID)
             }
         } else if let request = try? communicator.request(from: text, url: url) {
             log(request)
@@ -238,38 +233,38 @@ public class Client: WalletConnect {
     }
 
     private func expectUpdateSessionRequest(_ request: Request) {
-        if request.payload.method == "wc_sessionUpdate" {
-            guard let approved = sessionApproval(from: request.payload.params) else {
-                try! send(Response(payload: JSONRPC_2_0.Response.invalidJSON, url: request.url))
+        if request.method == "wc_sessionUpdate" {
+            guard let approval = sessionApproval(from: request) else {
+                // TODO: error handling
+                try! send(Response(request: request, error: .invalidJSON))
                 return
             }
-            guard let session = communicator.session(by: request.url) else { return }
-            if !approved {
-                do {
-                    try disconnect(from: session)
-                } catch { // session already disconnected
-                    delegate.client(self, didDisconnect: session)
-                }
+            guard let session = communicator.session(by: request.url), !approval else { return }
+            do {
+                try disconnect(from: session)
+            } catch { // session already disconnected
+                delegate.client(self, didDisconnect: session)
             }
         } else {
-            let payload = JSONRPC_2_0.Response.methodDoesNotExistError(id: request.payload.id)
-            try! send(Response(payload: payload, url: request.url))
+            // TODO: error handling
+            let response = try! Response(request: request, error: .methodNotFound)
+            try! send(response)
         }
     }
 
-    private func sessionApproval(from requestParams: JSONRPC_2_0.Request.Params?) -> Bool? {
-        guard let params = requestParams,
-            case JSONRPC_2_0.Request.Params.positional(let arrayWrapper) = params, !arrayWrapper.isEmpty,
-            case JSONRPC_2_0.ValueType.object(let sessionUpdateParams) = arrayWrapper[0],
-            let requiredApproved = sessionUpdateParams["approved"],
-            case JSONRPC_2_0.ValueType.bool(let approved) = requiredApproved else {
-                return nil
+    private func sessionApproval(from request: Request) -> Bool? {
+        do {
+            let info = try request.parameter(of: SessionInfo.self, at: 0)
+            return info.approved
+        } catch {
+            print("WC: incoming approval cannot be parsed: \(error)")
+            return nil
         }
-        return approved
     }
 
     override func sendDisconnectSessionRequest(for session: Session) throws {
-        let request = try! UpdateSessionRequest(url: session.url, dAppInfo: session.dAppInfo.with(approved: false))!
+        let dappInfo = session.dAppInfo.with(approved: false)
+        let request = try Request(url: session.url, method: "wc_sessionUpdate", params: [dappInfo], id: nil)
         try send(request, completion: nil)
     }
 

@@ -56,9 +56,9 @@ class WebSocketConnection {
     }
 
     private func log(_ text: String) {
-        if let request = try? requestSerializer.deserialize(text, url: url).payload.json().string {
+        if let request = try? requestSerializer.deserialize(text, url: url).json().string {
             print("WC: ==> \(request)")
-        } else if let response = try? responseSerializer.deserialize(text, url: url).payload.json().string {
+        } else if let response = try? responseSerializer.deserialize(text, url: url).json().string {
             print("WC: ==> \(response)")
         } else {
             print("WC: ==> \(text)")

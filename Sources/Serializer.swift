@@ -109,7 +109,7 @@ class JSONRPCSerializer: RequestSerializer, ResponseSerializer {
 fileprivate class JSONRPCAdapter {
 
     func json(from request: Request) throws -> String {
-        return try request.payload.json().string
+        return try request.json().string
     }
 
     func request(from json: String, url: WCURL) throws -> Request {
@@ -118,7 +118,7 @@ fileprivate class JSONRPCAdapter {
     }
 
     func json(from response: Response) throws -> String {
-        return try response.payload.json().string
+        return try response.json().string
     }
 
     func response(from json: String, url: WCURL) throws -> Response {

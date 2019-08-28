@@ -133,6 +133,14 @@ public enum JSONRPC_2_0 {
             }
         }
 
+        public func jsonString() throws -> String {
+            let data = try JSONEncoder().encode(self)
+            guard let string = String(data: data, encoding: .utf8) else {
+                throw DataConversionError.dataToStringFailed
+            }
+            return string
+        }
+
     }
 
     public struct KeyType: CodingKey {

@@ -17,21 +17,23 @@ class UpdateSessionHandler: RequestHandler {
     }
 
     func canHandle(request: Request) -> Bool {
-        return request.payload.method == "wc_sessionUpdate"
+        return request.method == "wc_sessionUpdate"
     }
 
     func handle(request: Request) {
-        // TODO: throw proper error
-        guard let requiredArrayWrapper = request.payload.params,
-            case JSONRPC_2_0.Request.Params.positional(let arrayWrapper) = requiredArrayWrapper, !arrayWrapper.isEmpty,
-            case JSONRPC_2_0.ValueType.object(let params) = arrayWrapper[0],
-            let requiredApproved = params["approved"],
-            case JSONRPC_2_0.ValueType.bool(let approved) = requiredApproved else {
-                let params = (try? request.payload.json().string) ?? "could not encode payload"
-                print("WC: wrong format of wc_sessionUpdate request: \(params)")
-                return
+        do {
+            let sessionInfo = try request.parameter(of: SessionInfo.self, at: 0)
+            delegate.handler(self, didUpdateSessionByURL: request.url, approved: sessionInfo.approved)
+        } catch {
+            print("WC: wrong format of wc_sessionUpdate request: \(error)")
+            // TODO: send error response
         }
-        delegate.handler(self, didUpdateSessionByURL: request.url, approved: approved)
     }
 
+}
+
+struct SessionInfo: Decodable {
+    var approved: Bool
+    var chainId: Int
+    var accounts: [String]
 }
