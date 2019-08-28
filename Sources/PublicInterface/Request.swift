@@ -47,7 +47,6 @@ public class Request {
         self.init(payload: payload, url: url)
     }
 
-
     public var parameterCount: Int {
         guard let params = payload.params else { return 0 }
         switch params {
