@@ -12,8 +12,12 @@ class MainViewController: UIViewController {
 
     @IBAction func connect(_ sender: Any) {
         let connectionUrl = walletConnect.connect()
-        handshakeController = HandshakeViewController.create(code: connectionUrl)
-        present(handshakeController, animated: true)
+        if let url = URL(string: connectionUrl), UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        } else {
+            handshakeController = HandshakeViewController.create(code: connectionUrl)
+            present(handshakeController, animated: true)
+        }
     }
 
     override func viewDidLoad() {
