@@ -305,7 +305,12 @@ public enum JSONRPC_2_0 {
                     public static let internalError = Code(code: -32_603)
 
                     public init(_ code: Int) throws {
-                        guard !(code >= -32_768 && code <= -32_000) else {
+                        let forbiddenPredefinedRange = (-32768 ... -32000)
+                        let allowedServerErrorsRange = (-32099 ... -32000)
+                        let allowedPredefinedErrors = [-32700, -32600, -32601, -32602, -32603]
+
+                        if forbiddenPredefinedRange.contains(code) &&
+                            !(allowedServerErrorsRange.contains(code) || allowedPredefinedErrors.contains(code)) {
                             throw InitializationError.codeAlreadyReservedForPredefinedErrors
                         }
                         self.init(code: code)

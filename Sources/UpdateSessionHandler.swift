@@ -34,6 +34,4 @@ class UpdateSessionHandler: RequestHandler {
 
 struct SessionInfo: Decodable {
     var approved: Bool
-    var chainId: Int
-    var accounts: [String]
 }

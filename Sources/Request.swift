@@ -26,15 +26,21 @@ public class Request {
         self.url = url
     }
 
-    public convenience init(url: WCURL, method: Method, params: [Encodable], id: RequestID? = UUID().uuidString) throws {
-        let values = try params.map { try JSONRPC_2_0.ValueType($0) }
+    public convenience init(url: WCURL, method: Method, id: RequestID? = UUID().uuidString) throws {
+        let payload = JSONRPC_2_0.Request(method: method, params: nil, id: JSONRPC_2_0.IDType(id))
+        self.init(payload: payload, url: url)
+    }
+
+    public convenience init<T: Encodable>(url: WCURL, method: Method, params: [T], id: RequestID? = UUID().uuidString) throws {
+        let data = try JSONEncoder().encode(params)
+        let values = try JSONDecoder().decode([JSONRPC_2_0.ValueType].self, from: data)
         let parameters = JSONRPC_2_0.Request.Params.positional(values)
         let payload = JSONRPC_2_0.Request(method: method, params: parameters, id: JSONRPC_2_0.IDType(id))
         self.init(payload: payload, url: url)
     }
 
-    public convenience init(url: WCURL, method: Method, params: Encodable, id: RequestID? = UUID().uuidString) throws {
-        let data = try JSONEncoder().encode(AnyEncodable(value: params))
+    public convenience init<T: Encodable>(url: WCURL, method: Method, namedParams params: T, id: RequestID? = UUID().uuidString) throws {
+        let data = try JSONEncoder().encode(params)
         let values = try JSONDecoder().decode([String: JSONRPC_2_0.ValueType].self, from: data)
         let parameters = JSONRPC_2_0.Request.Params.named(values)
         let payload = JSONRPC_2_0.Request(method: method, params: parameters, id: JSONRPC_2_0.IDType(id))
@@ -61,11 +67,14 @@ public class Request {
             if position >= values.count {
                 throw RequestError.parameterPositionOutOfBounds
             }
-            let param = values[0]
-            let data = try JSONEncoder().encode(param)
-            let result = try JSONDecoder().decode(type, from: data)
-            return result
+            return try values[position].decode(to: type)
         }
+    }
+
+    private func decode<T: Decodable>(from param: JSONRPC_2_0.ValueType) throws -> T {
+        let data = try JSONEncoder().encode([param]) // wrap in array because values can be primitive types which is invalid json
+        let result = try JSONDecoder().decode([T].self, from: data)
+        return result[0]
     }
 
     public func parameter<T: Decodable>(of type: T.Type, key: String) throws -> T? {
@@ -80,9 +89,7 @@ public class Request {
             guard let value = values[key] else {
                 return nil
             }
-            let data = try JSONEncoder().encode(value)
-            let result = try JSONDecoder().decode(type, from: data)
-            return result
+            return try value.decode(to: type)
         }
     }
 
@@ -109,36 +116,20 @@ extension String: RequestID {}
 extension Int: RequestID {}
 extension Double: RequestID {}
 
-// problem: using Encodable as-is in JSONEncoder().encode(encodable) generates error
-// because the encodable has its type erased. Therefore, we wrap it in a concrete struct!
-//
-// thanks to http://www.yourfriendlyioscoder.com/blog/2019/04/27/any-encodable/
-internal struct AnyEncodable: Encodable {
-
-    let value: Encodable
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        // container.encode(value) doesn't work because of the error (see comment above)
-        try value.encode(to: &container)
-    }
-
-}
-
-internal extension Encodable {
-
-    func encode(to container: inout SingleValueEncodingContainer) throws {
-        // here, `self` knows what concrete type it is, so it encodes happily
-        try container.encode(self)
-    }
-
-}
 
 internal extension JSONRPC_2_0.ValueType {
 
-    init(_ value: Encodable) throws {
-        let data = try JSONEncoder().encode(AnyEncodable(value: value))
-        self = try JSONDecoder().decode(JSONRPC_2_0.ValueType.self, from: data)
+    init<T: Encodable>(_ value: T) throws {
+        // Encodable types can be primitives (i.e. String), which encode to invalid JSON (root must be Array or Dict)
+        let wrapped = try JSONEncoder().encode([value])
+        let unwrapped = try JSONDecoder().decode([JSONRPC_2_0.ValueType].self, from: wrapped)
+        self = unwrapped[0]
+    }
+
+    func decode<T: Decodable>(to type: T.Type) throws -> T {
+        let data = try JSONEncoder().encode([self]) // wrap in array because values can be primitive types which is invalid json
+        let result = try JSONDecoder().decode([T].self, from: data)
+        return result[0]
     }
 
 }

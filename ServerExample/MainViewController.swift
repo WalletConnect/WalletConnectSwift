@@ -121,7 +121,7 @@ class PersonalSignHandler: BaseHandler {
                 return
             }
 
-            let decodedMessage = String(data: Data(hex: message), encoding: .utf8) ?? message
+            let decodedMessage = message.hasPrefix("0x") ? (String(data: Data(hex: message), encoding: .utf8) ?? message) : message
 
             askToSign(request: request, message: decodedMessage) {
                 try! self.wallet.personalSign(message: decodedMessage)
@@ -153,10 +153,9 @@ class SignTransactionHandler: BaseHandler {
         do {
             let param = try request.parameter(of: SignTransaction.self, at: 0)
 
-            let wei: String = param.value == nil ? "0" :
-                (param.value!.hasPrefix("0x") ? String(param.value!.dropFirst(2)) : param.value!)
+            let hexValue = param.value == nil ? "0x" : param.value!
 
-            let transaction = RawTransaction(wei: wei,
+            let transaction = RawTransaction(wei: String(Wei(hexValue, radix: 16)!), // base-10
                                              to: param.to ?? "0x",
                                              gasPrice: intFromHex(param.gasPrice ?? "0x"),
                                              gasLimit: intFromHex(param.gasLimit ?? "0x"),

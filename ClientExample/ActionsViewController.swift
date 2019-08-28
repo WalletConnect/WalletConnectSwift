@@ -61,6 +61,7 @@ class ActionsViewController: UIViewController {
     }
 
     @IBAction func eth_sendTransaction(_ sender: Any) {
+        // example when we make 2 chained requests: 1) get nonce 2) sendTransaction
         try? client.send(nonceRequest()) { [weak self] response in
             guard let self = self, let nonce = self.nonce(from: response) else { return }
             let transaction = Stub.transaction(from: self.walletAccount, nonce: nonce)
@@ -71,12 +72,9 @@ class ActionsViewController: UIViewController {
     }
 
     @IBAction func eth_signTransaction(_ sender: Any) {
-        try? client.send(nonceRequest()) { [weak self] response in
-            guard let self = self, let nonce = self.nonce(from: response) else { return }
-            let transaction = Stub.transaction(from: self.walletAccount, nonce: nonce)
-            try? self.client.eth_signTransaction(url: response.url, transaction: transaction) { [weak self] response in
-                self?.handleReponse(response, expecting: "Signature")
-            }
+        let transaction = Stub.transaction(from: self.walletAccount, nonce: "0x0")
+        try? self.client.eth_signTransaction(url: session.url, transaction: transaction) { [weak self] response in
+            self?.handleReponse(response, expecting: "Signature")
         }
     }
 
@@ -131,11 +129,11 @@ class ActionsViewController: UIViewController {
 extension Request {
 
     static func eth_getTransactionCount(url: WCURL, account: String) -> Request {
-        return try! Request(url: url,method: "eth_getTransactionCount", params: [account, "latest"])
+        return try! Request(url: url, method: "eth_getTransactionCount", params: [account, "latest"])
     }
 
     static func eth_gasPrice(url: WCURL) -> Request {
-        return try! Request(url: url, method: "eth_gasPrice", params: [])
+        return try! Request(url: url, method: "eth_gasPrice")
     }
 
 }

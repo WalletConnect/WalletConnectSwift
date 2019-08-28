@@ -20,26 +20,29 @@ public class Response {
         self.url = url
     }
 
-    public convenience init(url: WCURL, value: Encodable, id: RequestID) throws {
+    public convenience init<T: Encodable>(url: WCURL, value: T, id: RequestID) throws {
         let result = try JSONRPC_2_0.Response.Payload.value(JSONRPC_2_0.ValueType(value))
         let response = JSONRPC_2_0.Response(result: result, id: JSONRPC_2_0.IDType(id))
         self.init(payload: response, url: url)
     }
 
-    public convenience init(url: WCURL, errorCode: Int, message: String, value: Encodable?, id: RequestID?) throws {
+    public convenience init<T: Encodable>(url: WCURL, errorCode: Int, message: String, value: T?, id: RequestID?) throws {
         let code = try JSONRPC_2_0.Response.Payload.ErrorPayload.Code(errorCode)
-        let data: JSONRPC_2_0.ValueType? = value == nil ? nil : try JSONRPC_2_0.ValueType(value!)
+        let data: JSONRPC_2_0.ValueType? = try value == nil ? nil : JSONRPC_2_0.ValueType(value!)
         let error = JSONRPC_2_0.Response.Payload.ErrorPayload(code: code, message: message, data: data)
         let result = JSONRPC_2_0.Response.Payload.error(error)
         let response = JSONRPC_2_0.Response(result: result, id: JSONRPC_2_0.IDType(id))
         self.init(payload: response, url: url)
     }
 
+    public convenience init(url: WCURL, errorCode: Int, message: String, id: RequestID?) throws {
+        try self.init(url: url, errorCode: errorCode, message: message, value: Optional<String>.none, id: id)
+    }
+
     public convenience init(request: Request, error: ResponseError) throws {
         try self.init(url: request.url,
                       errorCode: error.rawValue,
                       message: error.message,
-                      value: nil,
                       id: request.id)
     }
 
@@ -47,7 +50,6 @@ public class Response {
         try self.init(url: url,
                       errorCode: error.rawValue,
                       message: error.message,
-                      value: nil,
                       id: nil)
     }
 
@@ -56,9 +58,7 @@ public class Response {
         case .error:
             throw ResponseError.errorResponse
         case .value(let value):
-            let data = try JSONEncoder().encode(value)
-            let result = try JSONDecoder().decode(type, from: data)
-            return result
+            return try value.decode(to: type)
         }
     }
 
