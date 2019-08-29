@@ -50,6 +50,9 @@
 		551B661B22FDC47000573DBD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 551B661922FDC47000573DBD /* Main.storyboard */; };
 		551B661D22FDC47300573DBD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 551B661C22FDC47300573DBD /* Assets.xcassets */; };
 		551B662022FDC47300573DBD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 551B661E22FDC47300573DBD /* LaunchScreen.storyboard */; };
+		5520F7B82317C0E600D58B74 /* ClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5520F7B72317C0E600D58B74 /* ClientTests.swift */; };
+		5520F7C32317C11F00D58B74 /* WalletConnectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5520F7C22317C11F00D58B74 /* WalletConnectTests.swift */; };
+		5520F7C52317C1A600D58B74 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5520F7C42317C1A600D58B74 /* Helpers.swift */; };
 		55CE9D1D230AA40D00CB414D /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55CE9D1C230AA40D00CB414D /* MainViewController.swift */; };
 		55CE9D31230AA58100CB414D /* HandshakeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55CE9D30230AA58100CB414D /* HandshakeViewController.swift */; };
 		55CE9D33230AA6AE00CB414D /* WalletConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55CE9D32230AA6AE00CB414D /* WalletConnect.swift */; };
@@ -317,6 +320,9 @@
 		551B661C22FDC47300573DBD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		551B661F22FDC47300573DBD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		551B662122FDC47300573DBD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5520F7B72317C0E600D58B74 /* ClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientTests.swift; sourceTree = "<group>"; };
+		5520F7C22317C11F00D58B74 /* WalletConnectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectTests.swift; sourceTree = "<group>"; };
+		5520F7C42317C1A600D58B74 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		55CE9CCB2302A8E600CB414D /* WalletConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnect.swift; sourceTree = "<group>"; };
 		55CE9D1C230AA40D00CB414D /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		55CE9D30230AA58100CB414D /* HandshakeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandshakeViewController.swift; sourceTree = "<group>"; };
@@ -437,6 +443,9 @@
 				0ABB074E22FC230400BC18BB /* Info.plist */,
 				0ABB075622FC231400BC18BB /* JSONRPC_2_0_Tests.swift */,
 				0ABB075722FC231400BC18BB /* SessionTests.swift */,
+				5520F7B72317C0E600D58B74 /* ClientTests.swift */,
+				5520F7C22317C11F00D58B74 /* WalletConnectTests.swift */,
+				5520F7C42317C1A600D58B74 /* Helpers.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -872,6 +881,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A92787E230BFB4500FDCC0D /* SessionTests.swift in Sources */,
+				5520F7C32317C11F00D58B74 /* WalletConnectTests.swift in Sources */,
+				5520F7B82317C0E600D58B74 /* ClientTests.swift in Sources */,
+				5520F7C52317C1A600D58B74 /* Helpers.swift in Sources */,
 				0A92787D230BFB4500FDCC0D /* JSONRPC_2_0_Tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

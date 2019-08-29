@@ -4,11 +4,9 @@
 
 open class WalletConnect {
 
-    let communicator: Communicator
+    var communicator = Communicator()
 
-    public init() {
-        communicator = Communicator()
-    }
+    public init() {}
 
     public enum WalletConnectError: Error {
         case tryingToConnectExistingSessionURL
