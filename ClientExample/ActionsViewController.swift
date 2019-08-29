@@ -133,7 +133,7 @@ extension Request {
     }
 
     static func eth_gasPrice(url: WCURL) -> Request {
-        return try! Request(url: url, method: "eth_gasPrice")
+        return Request(url: url, method: "eth_gasPrice")
     }
 
 }
