@@ -31,7 +31,7 @@ struct PubSubMessage: Codable {
     }
 
     func json() throws -> String {
-        let data = try JSONEncoder().encode(self)
+        let data = try JSONEncoder.encoder().encode(self)
         guard let string = String(data: data, encoding: .utf8) else {
             throw DataConversionError.dataToStringFailed
         }

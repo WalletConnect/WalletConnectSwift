@@ -61,6 +61,7 @@ class ActionsViewController: UIViewController {
     }
 
     @IBAction func eth_sendTransaction(_ sender: Any) {
+        // example when we make 2 chained requests: 1) get nonce 2) sendTransaction
         try? client.send(nonceRequest()) { [weak self] response in
             guard let self = self, let nonce = self.nonce(from: response) else { return }
             let transaction = Stub.transaction(from: self.walletAccount, nonce: nonce)
@@ -68,16 +69,12 @@ class ActionsViewController: UIViewController {
                 self?.handleReponse(response, expecting: "Hash")
             }
         }
-
     }
 
     @IBAction func eth_signTransaction(_ sender: Any) {
-        try? client.send(nonceRequest()) { [weak self] response in
-            guard let self = self, let nonce = self.nonce(from: response) else { return }
-            let transaction = Stub.transaction(from: self.walletAccount, nonce: nonce)
-            try? self.client.eth_signTransaction(url: response.url, transaction: transaction) { [weak self] response in
-                self?.handleReponse(response, expecting: "Signature")
-            }
+        let transaction = Stub.transaction(from: self.walletAccount, nonce: "0x0")
+        try? self.client.eth_signTransaction(url: session.url, transaction: transaction) { [weak self] response in
+            self?.handleReponse(response, expecting: "Signature")
         }
     }
 
@@ -88,7 +85,7 @@ class ActionsViewController: UIViewController {
     }
 
     @IBAction func customRequest(_ sender: Any) {
-        try? client.send(gasPriceRequest()) { [weak self] response in
+        try? client.send(.eth_gasPrice(url: session.url)) { [weak self] response in
             self?.handleReponse(response, expecting: "Gas Price")
         }
     }
@@ -97,45 +94,46 @@ class ActionsViewController: UIViewController {
         dismiss(animated: true)
     }
 
-
     private func handleReponse(_ response: Response, expecting: String) {
-        var alert: UIAlertController
-        switch response.payload.result {
-        case .value(let value):
-            guard case .string(let result) = value else { return }
-            alert = UIAlertController(title: expecting, message: result, preferredStyle: .alert)
-        case .error(let error):
-            alert = UIAlertController(title: "Error", message: error.message, preferredStyle: .alert)
+        if let error = response.error {
+            show(UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert))
+            return
         }
+        do {
+            let result = try response.result(as: String.self)
+            show(UIAlertController(title: expecting, message: result, preferredStyle: .alert))
+        } catch {
+            show(UIAlertController(title: "Error",
+                                      message: "Unexpected response type error: \(error)",
+                                      preferredStyle: .alert))
+        }
+    }
+
+    private func show(_ alert: UIAlertController) {
         alert.addAction(UIAlertAction(title: "Close", style: .cancel))
         DispatchQueue.main.async {
             self.present(alert, animated: true)
         }
     }
 
-    private func gasPriceRequest() -> Request {
-        let payload = JSONRPC_2_0.Request(method: "eth_gasPrice",
-                                          params: .positional([]),
-                                          id: .string(UUID().uuidString))
-        return Request(payload: payload, url: session.url)
-    }
-
     private func nonceRequest() -> Request {
-        let payload = JSONRPC_2_0.Request(method: "eth_getTransactionCount",
-                                          params: .positional([.string(session.walletInfo!.accounts[0]),
-                                                               .string("latest")]),
-                                          id: .string(UUID().uuidString))
-        return Request(payload: payload, url: session.url)
+        return .eth_getTransactionCount(url: session.url, account: session.walletInfo!.accounts[0])
     }
 
     private func nonce(from response: Response) -> String? {
-        switch response.payload.result {
-        case .value(let value):
-            guard case .string(let result) = value else { return nil }
-            return result
-        case .error(_):
-            return nil
-        }
+        return try? response.result(as: String.self)
+    }
+
+}
+
+extension Request {
+
+    static func eth_getTransactionCount(url: WCURL, account: String) -> Request {
+        return try! Request(url: url, method: "eth_getTransactionCount", params: [account, "latest"])
+    }
+
+    static func eth_gasPrice(url: WCURL) -> Request {
+        return try! Request(url: url, method: "eth_gasPrice")
     }
 
 }

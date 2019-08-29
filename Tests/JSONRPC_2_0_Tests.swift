@@ -9,7 +9,7 @@ import XCTest
 class JSONRPC_2_0_Tests: XCTestCase {
 
     let decoder = JSONDecoder()
-    let encoder = JSONEncoder()
+    let encoder = JSONEncoder.encoder()
 
     func test_JSONRPC_ValueType_Serialization_Decerialization() throws {
         let data = JSONRPC_StubRequest.json1_Text.data(using: .utf8)!

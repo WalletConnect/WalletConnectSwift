@@ -64,7 +64,7 @@ open class Server: WalletConnect {
         guard session.walletInfo != nil else {
             throw ServerError.missingWalletInfoInSession
         }
-        let request = try! UpdateSessionRequest(url: session.url, walletInfo: walletInfo)!
+        let request = try Request(url: session.url, method: "wc_sessionUpdate", params: [walletInfo], id: nil)
         send(request)
     }
 
@@ -88,7 +88,8 @@ open class Server: WalletConnect {
             handle(request)
         } catch {
             print("WC: incomming text deserialization to JSONRPC 2.0 requests error: \(error.localizedDescription)")
-            send(Response(payload: JSONRPC_2_0.Response.invalidJSON, url: url))
+            // TODO: handle error
+            try! send(Response(url: url, error: .invalidJSON))
         }
     }
 
@@ -106,8 +107,9 @@ open class Server: WalletConnect {
         if let handler = handlers.find(by: request) {
             handler.handle(request: request)
         } else {
-            let payload = JSONRPC_2_0.Response.methodDoesNotExistError(id: request.payload.id)
-            send(Response(payload: payload, url: request.url))
+            // TODO: error handling
+            let response = try! Response(request: request, error: .methodNotFound)
+            send(response)
         }
     }
 
@@ -170,11 +172,12 @@ extension Server: HandshakeHandlerDelegate {
 
     func handler(_ handler: HandshakeHandler,
                  didReceiveRequestToCreateSession session: Session,
-                 requestId: JSONRPC_2_0.IDType) {
+                 requestId: RequestID) {
         delegate.server(self, shouldStart: session) { [weak self] walletInfo in
             guard let self = self else { return }
-            let sessionCreationResponse = session.creationResponse(requestId: requestId, walletInfo: walletInfo)
-            self.communicator.send(sessionCreationResponse, topic: session.dAppInfo.peerId)
+            // TODO: error handling!
+            let response = try! Response(url: session.url, value: walletInfo, id: requestId)
+            self.communicator.send(response, topic: session.dAppInfo.peerId)
             if walletInfo.approved {
                 let updatedSession = Session(url: session.url, dAppInfo: session.dAppInfo, walletInfo: walletInfo)
                 self.communicator.addSession(updatedSession)
