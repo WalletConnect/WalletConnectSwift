@@ -130,6 +130,12 @@ After that, open `WalletConnectSwift.xcodeproj` and select `ClientExample` or `S
 
 # Installation
 
+## Prerequisites
+
+- iOS 12.0 or macOS 10.14
+- Xcode 10.3
+- Swift 5
+
 ## Manual
 
 Add this repository as a submodule:
