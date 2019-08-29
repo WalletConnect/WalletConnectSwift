@@ -20,7 +20,7 @@ public class Client: WalletConnect {
     private let dAppInfo: Session.DAppInfo
     private var responses: Responses
 
-    enum ClientError: Error {
+    public enum ClientError: Error {
         case missingWalletInfoInSession
         case missingRequestID
         case sessionNotFound
@@ -46,7 +46,7 @@ public class Client: WalletConnect {
         guard let walletInfo = session.walletInfo else {
             throw ClientError.missingWalletInfoInSession
         }
-        guard let requestID = request.internalID else {
+        guard let requestID = request.internalID, requestID != .null else {
             throw ClientError.missingRequestID
         }
         if let completion = completion {

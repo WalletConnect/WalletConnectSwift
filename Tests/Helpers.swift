@@ -25,6 +25,16 @@ class MockCommunicator: Communicator {
         return sessions.first { $0.url == url }
     }
 
+    var sentRequest: Request?
+    override func send(_ request: Request, topic: String) {
+        sentRequest = request
+    }
+
+    var subscribedOn: (topic: String, url: WCURL)?
+    override func subscribe(on topic: String, url: WCURL) {
+        subscribedOn = (topic: topic, url: url)
+    }
+
 }
 
 extension WCURL {
@@ -72,4 +82,23 @@ extension Session.ClientMeta {
                                              description: nil,
                                              icons: [],
                                              url: URL(string: "https://walletconnect.org")!)
+}
+
+extension Request {
+
+    static let testRequest = try! Request(url: WCURL.testURL, method: "personal_sign", id: 1)
+    static let testRequestWithoutId = try! Request(url: WCURL.testURL, method: "personal_sign", id: nil)
+
+}
+
+extension Client.Transaction {
+
+    static let testTransaction = Client.Transaction(from: "0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95",
+                                                    to: nil,
+                                                    data: "0x0",
+                                                    gasLimit: nil,
+                                                    gasPrice: nil,
+                                                    value: nil,
+                                                    nonce: nil)
+
 }
