@@ -31,7 +31,7 @@ public struct WCURL: Hashable, Codable {
         guard str.hasPrefix("wc:") else {
             return nil
         }
-        let urlStr = str.replacingOccurrences(of: "wc:", with: "wc://")
+        let urlStr = !str.hasPrefix("wc://") ? str.replacingOccurrences(of: "wc:", with: "wc://") : str
         guard let url = URL(string: urlStr),
             let topic = url.user,
             let version = url.host,
