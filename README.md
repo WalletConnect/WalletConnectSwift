@@ -46,9 +46,12 @@ By default, the server cannot handle any other reqeusts - you need to provide yo
 
 You do this by registering request handlers. You have the flexibility to register one handler per request method, or a catch-all request handler.
 
+
 ```Swift
 server.register(handler: PersonalSignHandler(for: self, server: server, wallet: wallet))
 ```
+
+Handlers are asked (in order of registration) whether they can handle each request. First handler that returns `true` from `canHandle(request:)` method will get the `hanlde(request:)` call. All other handlers will be skipped.
 
 In the request handler, check the incoming request's method in `canHandle` implementation, and handle actual request in the `handle(request:)` implementation.
 
@@ -67,8 +70,8 @@ func handle(request: Request) {
   // error response - rejected by user
   server.send(.reject(request))
 
-  // or send actual response - assuming the request.id exists
-  try server.send(Response(url: request.url, value: "Something", id: request.id!))
+  // or send actual response - assuming the request.id exists, and MyCodableStruct type defined
+  try server.send(Response(url: request.url, value: MyCodableStruct(value: "Something"), id: request.id!))
 }
 ```
 
@@ -179,7 +182,7 @@ You can use Carthage. In your `Cartfile`:
 
     github "gnosis/WalletConnectSwift"
 
-Run `carthage` to build the framework and drag the WalletConnectSwift.framework in your Xcode project.
+Run `carthage update` to build the framework and drag the WalletConnectSwift.framework in your Xcode project.
 
 ## Swift Package Manager
 
@@ -191,7 +194,7 @@ You can use Swift Package Manager and add dependency in your `Package.swift`:
 
 # Acknowledgments
 
-We'd like to thank [Trust Wallet](https://github.com/trustwallet/wallet-connect-swift) team for inspiration in imlpementing the Swift library.
+We'd like to thank [Trust Wallet](https://github.com/trustwallet/wallet-connect-swift) team for inspiration in imlpementing this library.
 
 # Contributors
 
