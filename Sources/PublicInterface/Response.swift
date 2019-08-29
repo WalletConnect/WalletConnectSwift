@@ -68,7 +68,7 @@ public class Response {
         case .error(let value):
             var userInfo: [String: Any] = [NSLocalizedDescriptionKey: value.message]
             if let data = value.data {
-                userInfo[NSUnderlyingErrorKey] = try? data.jsonString()
+                userInfo[WCResponseErrorDataKey] = try? data.jsonString()
             }
             return NSError(domain: "org.walletconnect", code: value.code.code, userInfo: userInfo)
         }
@@ -87,6 +87,8 @@ public class Response {
     }
 
 }
+
+public let WCResponseErrorDataKey: String = "WCResponseErrorDataKey"
 
 public enum ResponseError: Int, Error {
     case invalidJSON = -32700

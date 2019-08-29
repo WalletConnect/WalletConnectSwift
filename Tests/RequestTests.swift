@@ -10,10 +10,6 @@ class RequestTests: XCTestCase {
     let url = WCURL(topic: "topic", version: "1", bridgeURL: URL(string: "https://example.org/")!, key: "key")
     let method = "some_rpc_method_name"
 
-    override func setUp() {
-        super.setUp()
-    }
-
     func test_noParameters() {
         let request = Request(url: url, method: method, id: "1")
         XCTAssertEqual(request.url, url)

@@ -29,6 +29,7 @@
 		0A92787F230BFBBF00FDCC0D /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB076522FC23DD00BC18BB /* CryptoSwift.framework */; };
 		0A927880230BFBBF00FDCC0D /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABB077422FC23E300BC18BB /* Starscream.framework */; };
 		0AB4B7F02317D3FD00FDEB49 /* RequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB4B7EF2317D3FD00FDEB49 /* RequestTests.swift */; };
+		0AB4B7FB2317FCFC00FDEB49 /* ResponseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB4B7FA2317FCFC00FDEB49 /* ResponseTests.swift */; };
 		0AD7D426231680BC002BF84B /* WCURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD7D41623168008002BF84B /* WCURL.swift */; };
 		0AD7D427231680CE002BF84B /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD7D4212316802C002BF84B /* Request.swift */; };
 		0AD7D428231680CE002BF84B /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD7D42323168033002BF84B /* Response.swift */; };
@@ -295,6 +296,7 @@
 		0A927858230BFB2600FDCC0D /* WalletConnectSwiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WalletConnectSwiftTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A927861230BFB2600FDCC0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0AB4B7EF2317D3FD00FDEB49 /* RequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestTests.swift; sourceTree = "<group>"; };
+		0AB4B7FA2317FCFC00FDEB49 /* ResponseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseTests.swift; sourceTree = "<group>"; };
 		0ABB073022FC22F800BC18BB /* JSONRPC_2_0.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONRPC_2_0.swift; sourceTree = "<group>"; };
 		0ABB073122FC22F800BC18BB /* Session.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		0ABB073222FC22F800BC18BB /* PubSubMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubSubMessage.swift; sourceTree = "<group>"; };
@@ -449,6 +451,7 @@
 				5520F7C22317C11F00D58B74 /* WalletConnectTests.swift */,
 				5520F7C42317C1A600D58B74 /* Helpers.swift */,
 				0AB4B7EF2317D3FD00FDEB49 /* RequestTests.swift */,
+				0AB4B7FA2317FCFC00FDEB49 /* ResponseTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -886,6 +889,7 @@
 				0A92787E230BFB4500FDCC0D /* SessionTests.swift in Sources */,
 				5520F7C32317C11F00D58B74 /* WalletConnectTests.swift in Sources */,
 				5520F7B82317C0E600D58B74 /* ClientTests.swift in Sources */,
+				0AB4B7FB2317FCFC00FDEB49 /* ResponseTests.swift in Sources */,
 				0AB4B7F02317D3FD00FDEB49 /* RequestTests.swift in Sources */,
 				5520F7C52317C1A600D58B74 /* Helpers.swift in Sources */,
 				0A92787D230BFB4500FDCC0D /* JSONRPC_2_0_Tests.swift in Sources */,

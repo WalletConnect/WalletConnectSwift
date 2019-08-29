@@ -138,11 +138,24 @@ enum JSONRPC_2_0 {
         }
 
         func jsonString() throws -> String {
-            let data = try JSONEncoder.encoder().encode(self)
-            guard let string = String(data: data, encoding: .utf8) else {
-                throw DataConversionError.dataToStringFailed
+            switch self {
+            case .int, .double, .string, .bool, .null:
+                // we have to wrap primitives into array becuase otheriwse it is not a valid json
+                let data = try JSONEncoder.encoder().encode([self])
+                guard let string = String(data: data, encoding: .utf8) else {
+                    throw DataConversionError.dataToStringFailed
+                }
+                assert(string.hasPrefix("["))
+                assert(string.hasSuffix("]"))
+                // now strip the json string of the wrapping array symbols '[' ']'
+                return String(string.dropFirst(1).dropLast(1))
+            case .object, .array:
+                let data = try JSONEncoder.encoder().encode(self)
+                guard let string = String(data: data, encoding: .utf8) else {
+                    throw DataConversionError.dataToStringFailed
+                }
+                return string
             }
-            return string
         }
 
     }
