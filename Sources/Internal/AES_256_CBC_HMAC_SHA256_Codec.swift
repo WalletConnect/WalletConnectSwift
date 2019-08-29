@@ -113,7 +113,7 @@ class AES_256_CBC_HMAC_SHA256_Codec: Codec {
     }
 
     private func data(from payload: EncryptionPayload) throws -> Data {
-        return try JSONEncoder().encode(payload)
+        return try JSONEncoder.encoder().encode(payload)
     }
 
 }

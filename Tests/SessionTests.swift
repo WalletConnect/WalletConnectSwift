@@ -47,24 +47,20 @@ class SessionTests: XCTestCase {
                                                                    description: "Secure Wallet",
                                                                    icons: [URL(string: "https://example.com/1.png")!],
                                                                    url: URL(string: "gnosissafe://")!))
-        let response = session.creationResponse(requestId: .int(100), walletInfo: info)
+        let response = try Response(url: session.url, value: info, id: 100)
         XCTAssertEqual(response.url, session.url)
-        XCTAssertEqual(response.payload.id, .int(100))
-        XCTAssertEqual(response.payload.result,
-                       .value(.object(["approved": .bool(true),
-                                       "accounts": .array([.string("0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95")]),
-                                       "chainId": .int(1),
-                                       "peerId": .string(walletId),
-                                       "peerMeta": .object(["name": .string("Gnosis Safe"),
-                                                            "description": .string("Secure Wallet"),
-                                                            "icons": .array([.string("https://example.com/1.png")]),
-                                                            "url": .string("gnosissafe://")])])))
+        XCTAssertEqual(response.internalID, .int(100))
+
+        let resultInfo = try response.result(as: Session.WalletInfo.self)
+        XCTAssertEqual(resultInfo, info)
     }
 
     private func createServerSession() throws -> Session {
         let JSONPRCRequest = try JSONRPC_2_0.Request.create(from: JSONRPC_2_0.JSON(WCSessionRequest.json))
         let request = Request(payload: JSONPRCRequest, url: url)
-        return try Session(wcSessionRequest: request)!
+        let dappInfo = try! request.parameter(of: Session.DAppInfo.self, at: 0)
+        let session = Session(url: request.url, dAppInfo: dappInfo, walletInfo: nil)
+        return session
     }
 
     private func createClientSession() throws -> Session {
@@ -75,7 +71,8 @@ class SessionTests: XCTestCase {
                                                                      description: "Good trades take time",
                                                                      icons: [URL(string: "https://example.com/1.png")!],
                                                                      url: URL(string: "https://slow.trade")!))
-        return try Session(wcSessionResponse: response, dAppInfo: dAppInfo)!
+        let walletInfo = try response.result(as: [Session.WalletInfo].self)
+        return Session(url: url, dAppInfo: dAppInfo, walletInfo: walletInfo[0])
     }
 
 }
