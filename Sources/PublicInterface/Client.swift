@@ -75,7 +75,7 @@ public class Client: WalletConnect {
     ///
     /// - Parameters:
     ///   - url: WalletConnect url object.
-    ///   - message: String representin Data to sign.
+    ///   - message: String representing human readable message to sign.
     ///   - account: String representing Ethereum address.
     ///   - completion: Response with string representing signature, or error.
     /// - Throws: client error.
@@ -83,7 +83,8 @@ public class Client: WalletConnect {
                               message: String,
                               account: String,
                               completion: @escaping RequestResponse) throws {
-        try sign(url: url, method: "personal_sign", param1: message, param2: account, completion: completion)
+        let messageHex = message.data(using: .utf8)!.map { String(format: "%02x", $0) }.joined()
+        try sign(url: url, method: "personal_sign", param1: messageHex, param2: account, completion: completion)
     }
 
     /// Request to sign a message.
