@@ -31,14 +31,6 @@ class ClientTests: XCTestCase {
         }
     }
 
-    func test_sendRequest_whenNoId_thenThrows() {
-        communicator.addSession(Session.testSession)
-        XCTAssertThrowsError(try client.send(Request.testRequestWithoutId, completion: nil),
-                             "missingRequestID") { error in
-                                XCTAssertEqual(error as? Client.ClientError, .missingRequestID)
-        }
-    }
-
     func test_sendRequest_callsCommunicator() {
         communicator.addSession(Session.testSession)
         try? client.send(Request.testRequest, completion: nil)

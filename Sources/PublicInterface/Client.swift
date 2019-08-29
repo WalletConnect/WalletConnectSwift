@@ -22,7 +22,6 @@ public class Client: WalletConnect {
 
     public enum ClientError: Error {
         case missingWalletInfoInSession
-        case missingRequestID
         case sessionNotFound
     }
 
@@ -46,10 +45,7 @@ public class Client: WalletConnect {
         guard let walletInfo = session.walletInfo else {
             throw ClientError.missingWalletInfoInSession
         }
-        guard let requestID = request.internalID, requestID != .null else {
-            throw ClientError.missingRequestID
-        }
-        if let completion = completion {
+        if let completion = completion, let requestID = request.internalID, requestID != .null {
             responses.add(requestID: requestID, response: completion)
         }
         communicator.send(request, topic: walletInfo.peerId)
