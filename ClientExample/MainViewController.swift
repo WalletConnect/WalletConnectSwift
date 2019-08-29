@@ -53,12 +53,12 @@ extension MainViewController: WalletConnectDelegate {
         onMainThread { [unowned self] in
             self.actionsController = ActionsViewController.create(walletConnect: self.walletConnect)
             if let handshakeController = self.handshakeController {
-                handshakeController.dismiss(animated: false)
+                handshakeController.dismiss(animated: false) { [unowned self] in
+                    self.present(self.actionsController, animated: false)
+                }
+            } else if self.presentedViewController == nil {
+                self.present(self.actionsController, animated: false)
             }
-            if self.presentedViewController != nil {
-                return
-            }
-            self.present(self.actionsController, animated: false)
         }
     }
 

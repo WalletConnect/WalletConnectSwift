@@ -113,7 +113,7 @@ class PersonalSignHandler: BaseHandler {
 
     override func handle(request: Request) {
         do {
-            let message = try request.parameter(of: String.self, at: 0)
+            let messageBytes = try request.parameter(of: String.self, at: 0)
             let address = try request.parameter(of: String.self, at: 1)
 
             guard address == wallet.address() else {
@@ -121,7 +121,7 @@ class PersonalSignHandler: BaseHandler {
                 return
             }
 
-            let decodedMessage = message.hasPrefix("0x") ? (String(data: Data(hex: message), encoding: .utf8) ?? message) : message
+            let decodedMessage = String(data: Data(hex: messageBytes), encoding: .utf8) ?? messageBytes
 
             askToSign(request: request, message: decodedMessage) {
                 try! self.wallet.personalSign(message: decodedMessage)
@@ -213,10 +213,12 @@ extension MainViewController: ServerDelegate {
                                             peerId: UUID().uuidString,
                                             peerMeta: walletMeta)
         onMainThread {
-            UIAlertController.showShouldStart(from: self, clientName: session.dAppInfo.peerMeta.name) { [unowned self] in
+            UIAlertController.showShouldStart(from: self, clientName: session.dAppInfo.peerMeta.name, onStart: {
                 completion(walletInfo)
-                self.scanQRCodeButton.isEnabled = false
-            }
+            }, onClose: {
+                completion(Session.WalletInfo(approved: false, accounts: [], chainId: 4, peerId: "", peerMeta: walletMeta))
+                self.scanQRCodeButton.isEnabled = true
+            })
         }
     }
 
@@ -247,12 +249,14 @@ extension MainViewController: ScannerViewControllerDelegate {
 
     func didScan(_ code: String) {
         guard let url = WCURL(code) else { return }
-        do {
-            try server.connect(to: url)
-        } catch {
-            return
+        scanQRCodeButton.isEnabled = false
+        scannerController?.dismiss(animated: true) { [unowned self] in
+            do {
+                try self.server.connect(to: url)
+            } catch {
+                return
+            }
         }
-        scannerController?.dismiss(animated: true)
     }
 
 }
@@ -264,11 +268,11 @@ extension UIAlertController {
         return self
     }
 
-    static func showShouldStart(from controller: UIViewController, clientName: String, onStart: @escaping () -> Void) {
+    static func showShouldStart(from controller: UIViewController, clientName: String, onStart: @escaping () -> Void, onClose: @escaping (() -> Void)) {
         let alert = UIAlertController(title: "Request to start a session", message: clientName, preferredStyle: .alert)
         let startAction = UIAlertAction(title: "Start", style: .default) { _ in onStart() }
         alert.addAction(startAction)
-        controller.present(alert.withCloseButton(), animated: true)
+        controller.present(alert.withCloseButton(onClose: onClose), animated: true)
     }
 
     static func showFailedToConnect(from controller: UIViewController) {
