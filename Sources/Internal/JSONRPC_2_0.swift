@@ -6,12 +6,16 @@ import Foundation
 
 enum JSONRPC_2_0 {
 
-    struct JSON {
+    struct JSON: Equatable, ExpressibleByStringInterpolation {
 
         var string: String
 
         init(_ text: String) {
             string = text
+        }
+
+        init(stringLiteral value: String) {
+            self.init(value)
         }
 
     }
@@ -134,7 +138,7 @@ enum JSONRPC_2_0 {
         }
 
         func jsonString() throws -> String {
-            let data = try JSONEncoder().encode(self)
+            let data = try JSONEncoder.encoder().encode(self)
             guard let string = String(data: data, encoding: .utf8) else {
                 throw DataConversionError.dataToStringFailed
             }
@@ -226,7 +230,7 @@ enum JSONRPC_2_0 {
         }
 
         func json() throws -> JSONRPC_2_0.JSON {
-            let data = try JSONEncoder().encode(self)
+            let data = try JSONEncoder.encoder().encode(self)
             guard let string = String(data: data, encoding: .utf8) else {
                 throw DataConversionError.dataToStringFailed
             }
@@ -350,7 +354,7 @@ enum JSONRPC_2_0 {
         }
 
         func json() throws -> JSONRPC_2_0.JSON {
-            let encoder = JSONEncoder()
+            let encoder = JSONEncoder.encoder()
             if case Payload.error(_) = result {
                 encoder.keyEncodingStrategy = .custom { codingKeys in
                     let lastKey = codingKeys.last!
@@ -366,6 +370,16 @@ enum JSONRPC_2_0 {
             return JSONRPC_2_0.JSON(string)
         }
 
+    }
+
+}
+
+extension JSONEncoder {
+
+    static func encoder() -> JSONEncoder {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        return encoder
     }
 
 }

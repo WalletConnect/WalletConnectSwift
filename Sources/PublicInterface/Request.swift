@@ -26,13 +26,13 @@ public class Request {
         self.url = url
     }
 
-    public convenience init(url: WCURL, method: Method, id: RequestID? = UUID().uuidString) throws {
+    public convenience init(url: WCURL, method: Method, id: RequestID? = UUID().uuidString) {
         let payload = JSONRPC_2_0.Request(method: method, params: nil, id: JSONRPC_2_0.IDType(id))
         self.init(payload: payload, url: url)
     }
 
     public convenience init<T: Encodable>(url: WCURL, method: Method, params: [T], id: RequestID? = UUID().uuidString) throws {
-        let data = try JSONEncoder().encode(params)
+        let data = try JSONEncoder.encoder().encode(params)
         let values = try JSONDecoder().decode([JSONRPC_2_0.ValueType].self, from: data)
         let parameters = JSONRPC_2_0.Request.Params.positional(values)
         let payload = JSONRPC_2_0.Request(method: method, params: parameters, id: JSONRPC_2_0.IDType(id))
@@ -40,7 +40,7 @@ public class Request {
     }
 
     public convenience init<T: Encodable>(url: WCURL, method: Method, namedParams params: T, id: RequestID? = UUID().uuidString) throws {
-        let data = try JSONEncoder().encode(params)
+        let data = try JSONEncoder.encoder().encode(params)
         let values = try JSONDecoder().decode([String: JSONRPC_2_0.ValueType].self, from: data)
         let parameters = JSONRPC_2_0.Request.Params.named(values)
         let payload = JSONRPC_2_0.Request(method: method, params: parameters, id: JSONRPC_2_0.IDType(id))
@@ -68,12 +68,6 @@ public class Request {
             }
             return try values[position].decode(to: type)
         }
-    }
-
-    private func decode<T: Decodable>(from param: JSONRPC_2_0.ValueType) throws -> T {
-        let data = try JSONEncoder().encode([param]) // wrap in array because values can be primitive types which is invalid json
-        let result = try JSONDecoder().decode([T].self, from: data)
-        return result[0]
     }
 
     public func parameter<T: Decodable>(of type: T.Type, key: String) throws -> T? {
@@ -120,13 +114,13 @@ internal extension JSONRPC_2_0.ValueType {
 
     init<T: Encodable>(_ value: T) throws {
         // Encodable types can be primitives (i.e. String), which encode to invalid JSON (root must be Array or Dict)
-        let wrapped = try JSONEncoder().encode([value])
+        let wrapped = try JSONEncoder.encoder().encode([value])
         let unwrapped = try JSONDecoder().decode([JSONRPC_2_0.ValueType].self, from: wrapped)
         self = unwrapped[0]
     }
 
     func decode<T: Decodable>(to type: T.Type) throws -> T {
-        let data = try JSONEncoder().encode([self]) // wrap in array because values can be primitive types which is invalid json
+        let data = try JSONEncoder.encoder().encode([self]) // wrap in array because values can be primitive types which is invalid json
         let result = try JSONDecoder().decode([T].self, from: data)
         return result[0]
     }
