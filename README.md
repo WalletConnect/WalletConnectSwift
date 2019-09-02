@@ -144,7 +144,7 @@ After that, open `WalletConnectSwift.xcodeproj` and select `ClientExample` or `S
 Add this repository as a submodule:
 
 ```
-git submodule add https://github.com/gnosis/WalletConnectSwift.git
+git submodule add https://github.com/WalletConnect/WalletConnectSwift.git
 ```
 
 Fetch the dependencies
@@ -180,7 +180,7 @@ You can use CocoaPods
 
 You can use Carthage. In your `Cartfile`:
 
-    github "gnosis/WalletConnectSwift"
+    github "WalletConnect/WalletConnectSwift"
 
 Run `carthage update` to build the framework and drag the WalletConnectSwift.framework in your Xcode project.
 
@@ -189,7 +189,7 @@ Run `carthage update` to build the framework and drag the WalletConnectSwift.fra
 You can use Swift Package Manager and add dependency in your `Package.swift`:
 
     dependencies: [
-        .package(url: "https://github.com/gnosis/WalletConnectSwift.git", .upToNextMinor(from: "1.0.0"))
+        .package(url: "https://github.com/WalletConnect/WalletConnectSwift.git", .upToNextMinor(from: "1.0.0"))
     ]
 
 # Acknowledgments
