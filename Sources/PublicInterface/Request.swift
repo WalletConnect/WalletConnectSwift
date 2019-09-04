@@ -14,6 +14,9 @@ public class Request {
     public var id: RequestID? {
         return internalID?.requestID
     }
+    public var jsonString: String {
+        return try? json().string ?? ""
+    }
 
     internal var internalID: JSONRPC_2_0.IDType? {
         return payload.id

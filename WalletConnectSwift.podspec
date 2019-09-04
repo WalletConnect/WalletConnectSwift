@@ -7,13 +7,13 @@ Pod::Spec.new do |spec|
   wallets. This library provides both client and server parts so that you can integrate
   it in your wallet, or in your dapp - whatever you are working on.
                    DESC
-  spec.homepage     = "https://github.com/gnosis/WalletConnectSwift"
+  spec.homepage     = "https://github.com/WalletConnect/WalletConnectSwift"
   spec.license      = { :type => "MIT", :file => "LICENSE" }
-  spec.author             = { "Andrey Scherbovich" => "andrey@gnosis.pm", "Dmitry Bespalov" => "dmitry.bespalov@gnosis.pm" }
+  spec.author             = { "Andrey Scherbovich" => "andrey@gnosis.io", "Dmitry Bespalov" => "dmitry.bespalov@gnosis.io" }
   spec.cocoapods_version = '>= 1.4.0'
   spec.platform     = :ios, "12.0"
   spec.swift_version = "5.0"
-  spec.source       = { :git => "https://github.com/gnosis/WalletConnectSwift.git", :tag => "#{spec.version}" }
+  spec.source       = { :git => "https://github.com/WalletConnect/WalletConnectSwift.git", :tag => "#{spec.version}" }
   spec.source_files  = "Sources/**/*.swift"
   spec.requires_arc = true
   spec.dependency "CryptoSwift", "~> 1.0"
