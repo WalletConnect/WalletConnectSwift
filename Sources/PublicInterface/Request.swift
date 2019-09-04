@@ -15,7 +15,10 @@ public class Request {
         return internalID?.requestID
     }
     public var jsonString: String {
-        return try? json().string ?? ""
+        if let str = try? json().string {
+            return str
+        }
+        return ""
     }
 
     internal var internalID: JSONRPC_2_0.IDType? {
