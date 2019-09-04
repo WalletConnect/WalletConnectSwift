@@ -14,7 +14,6 @@ public class Response {
 
     private var payload: JSONRPC_2_0.Response
 
-
     internal init(payload: JSONRPC_2_0.Response, url: WCURL) {
         self.payload = payload
         self.url = url
@@ -51,6 +50,11 @@ public class Response {
                       errorCode: error.rawValue,
                       message: error.message,
                       id: nil)
+    }
+
+    public convenience init(url: WCURL, jsonString: String) throws {
+        let payload = try JSONRPC_2_0.Response.create(from: JSONRPC_2_0.JSON(jsonString))
+        self.init(payload: payload, url: url)
     }
 
     public func result<T: Decodable>(as type: T.Type) throws -> T {

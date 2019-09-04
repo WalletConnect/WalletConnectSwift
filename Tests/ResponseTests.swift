@@ -83,4 +83,16 @@ class ResponseTests: XCTestCase {
         XCTAssertEqual(invalid.error?.code, ResponseError.invalidRequest.rawValue)
     }
 
+    func test_withJsonString() throws {
+        let jsonString =
+        """
+        {"id":"1","jsonrpc":"2.0","result":[{"a":"1"}]}
+        """
+        let response = try Response(url: url, jsonString: jsonString)
+        XCTAssertEqual(try response.json(), """
+                                            {"id":"1","jsonrpc":"2.0","result":[{"a":"1"}]}
+                                            """)
+        XCTAssertEqual(response.url, url)
+    }
+
 }
