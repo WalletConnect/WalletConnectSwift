@@ -135,7 +135,7 @@ After that, open `WalletConnectSwift.xcodeproj` and select `ClientExample` or `S
 
 ## Prerequisites
 
-- iOS 12.0 or macOS 10.14
+- iOS 11.0 or macOS 10.14
 - Xcode 10.3
 - Swift 5
 
@@ -169,7 +169,7 @@ Drag and drop the `WalletConnectSwift.xcodeproj` in your project and link the
 
 You can use CocoaPods
 
-    platform :ios, '12.0'
+    platform :ios, '11.0'
     use_frameworks!
 
     target 'MyApp' do
