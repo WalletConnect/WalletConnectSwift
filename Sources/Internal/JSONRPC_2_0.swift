@@ -140,7 +140,7 @@ enum JSONRPC_2_0 {
         func jsonString() throws -> String {
             switch self {
             case .int, .double, .string, .bool, .null:
-                // we have to wrap primitives into array becuase otheriwse it is not a valid json
+                // we have to wrap primitives into array because otherwise it is not a valid json
                 let data = try JSONEncoder.encoder().encode([self])
                 guard let string = String(data: data, encoding: .utf8) else {
                     throw DataConversionError.dataToStringFailed
