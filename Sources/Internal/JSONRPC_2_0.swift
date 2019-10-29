@@ -372,8 +372,8 @@ enum JSONRPC_2_0 {
                 encoder.keyEncodingStrategy = .custom { codingKeys in
                     let lastKey = codingKeys.last!
                     guard lastKey.intValue == nil else { return lastKey }
-                    let strinValue = lastKey.stringValue == "result" ? "error" : lastKey.stringValue
-                    return JSONRPC_2_0.KeyType(stringValue: strinValue)!
+                    let stringValue = lastKey.stringValue == "result" ? "error" : lastKey.stringValue
+                    return JSONRPC_2_0.KeyType(stringValue: stringValue)!
                 }
             }
             let data = try encoder.encode(self)
