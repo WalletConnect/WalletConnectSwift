@@ -314,7 +314,7 @@ public class Client: WalletConnect {
         var from: String
         var to: String?
         var data: String
-        var gasLimit: String?
+        var gas: String?
         var gasPrice: String?
         var value: String?
         var nonce: String?
@@ -322,14 +322,14 @@ public class Client: WalletConnect {
         public init(from: String,
                     to: String?,
                     data: String,
-                    gasLimit: String?,
+                    gas: String?,
                     gasPrice: String?,
                     value: String?,
                     nonce: String?) {
             self.from = from
             self.to = to
             self.data = data
-            self.gasLimit = gasLimit
+            self.gas = gas
             self.gasPrice = gasPrice
             self.value = value
             self.nonce = nonce

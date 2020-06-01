@@ -96,7 +96,7 @@ extension Client.Transaction {
     static let testTransaction = Client.Transaction(from: "0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95",
                                                     to: nil,
                                                     data: "0x0",
-                                                    gasLimit: nil,
+                                                    gas: nil,
                                                     gasPrice: nil,
                                                     value: nil,
                                                     nonce: nil)
