@@ -1,0 +1,79 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "COpenSSL",
+        "repositoryURL": "https://github.com/vapor-community/copenssl.git",
+        "state": {
+          "branch": null,
+          "revision": "a347e9ec038b134aecf42e0c21f2deb9035adf3f",
+          "version": "1.0.0-rc.1"
+        }
+      },
+      {
+        "package": "CryptoEthereumSwift",
+        "repositoryURL": "https://github.com/cuhte3/CryptoEthereumSwiftSMP.git",
+        "state": {
+          "branch": null,
+          "revision": "ca360a207c8d77ad260c9a622fda0d6f4ba03fba",
+          "version": "2.0.0"
+        }
+      },
+      {
+        "package": "CryptoSwift",
+        "repositoryURL": "https://github.com/krzyzanowskim/CryptoSwift.git",
+        "state": {
+          "branch": null,
+          "revision": "79ac632c85df81f2618dd838fc3869633e163370",
+          "version": "1.2.0"
+        }
+      },
+      {
+        "package": "EthereumKit",
+        "repositoryURL": "https://github.com/cuhte3/EthereumKitSPM.git",
+        "state": {
+          "branch": null,
+          "revision": "a5d4b894b0fc9f813e0e79258ea55220247c92ba",
+          "version": "2.0.2"
+        }
+      },
+      {
+        "package": "secp256k1",
+        "repositoryURL": "https://github.com/Boilertalk/secp256k1.swift",
+        "state": {
+          "branch": null,
+          "revision": "823281fe9def21b384099b72a9a53ca988317b20",
+          "version": "0.1.4"
+        }
+      },
+      {
+        "package": "Starscream",
+        "repositoryURL": "https://github.com/daltoniam/Starscream.git",
+        "state": {
+          "branch": null,
+          "revision": "e6b65c6d9077ea48b4a7bdda8994a1d3c6969c8d",
+          "version": "3.1.1"
+        }
+      },
+      {
+        "package": "swift-nio-zlib-support",
+        "repositoryURL": "https://github.com/apple/swift-nio-zlib-support.git",
+        "state": {
+          "branch": null,
+          "revision": "37760e9a52030bb9011972c5213c3350fa9d41fd",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "package": "WalletConnectSwift",
+        "repositoryURL": "https://github.com/WalletConnect/WalletConnectSwift.git",
+        "state": {
+          "branch": "fixes",
+          "revision": "8fa3a064ed3f92ef0b503ab0063e2d9b04ff0090",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}
