@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		555DE0B324BC3516002714B9 /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = 555DE0B224BC3516002714B9 /* Web3 */; };
 		55B781C624A619A80036F8E5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B781C524A619A80036F8E5 /* AppDelegate.swift */; };
 		55B781CD24A619A80036F8E5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 55B781CB24A619A80036F8E5 /* Main.storyboard */; };
 		55B781CF24A619A90036F8E5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55B781CE24A619A90036F8E5 /* Assets.xcassets */; };
@@ -14,7 +15,6 @@
 		55B781D924A61A3C0036F8E5 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B781D724A61A3C0036F8E5 /* MainViewController.swift */; };
 		55B781DA24A61A3C0036F8E5 /* ScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B781D824A61A3C0036F8E5 /* ScannerViewController.swift */; };
 		55B781DD24A61B0D0036F8E5 /* WalletConnectSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 55B781DC24A61B0D0036F8E5 /* WalletConnectSwift */; };
-		55B781E024A61B5E0036F8E5 /* EthereumKit in Frameworks */ = {isa = PBXBuildFile; productRef = 55B781DF24A61B5E0036F8E5 /* EthereumKit */; };
 		55B781E824A61CE60036F8E5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B781E724A61CE60036F8E5 /* AppDelegate.swift */; };
 		55B781EF24A61CE60036F8E5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 55B781ED24A61CE60036F8E5 /* Main.storyboard */; };
 		55B781F124A61CE70036F8E5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55B781F024A61CE70036F8E5 /* Assets.xcassets */; };
@@ -52,8 +52,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				55B781E024A61B5E0036F8E5 /* EthereumKit in Frameworks */,
 				55B781DD24A61B0D0036F8E5 /* WalletConnectSwift in Frameworks */,
+				555DE0B324BC3516002714B9 /* Web3 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,7 +142,7 @@
 			name = ServerApp;
 			packageProductDependencies = (
 				55B781DC24A61B0D0036F8E5 /* WalletConnectSwift */,
-				55B781DF24A61B5E0036F8E5 /* EthereumKit */,
+				555DE0B224BC3516002714B9 /* Web3 */,
 			);
 			productName = ServerApp;
 			productReference = 55B781C324A619A80036F8E5 /* ServerApp.app */;
@@ -197,7 +197,7 @@
 			mainGroup = 55B7819F24A616A20036F8E5;
 			packageReferences = (
 				55B781DB24A61B0D0036F8E5 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */,
-				55B781DE24A61B5D0036F8E5 /* XCRemoteSwiftPackageReference "EthereumKitSPM" */,
+				555DE0B124BC3516002714B9 /* XCRemoteSwiftPackageReference "Web3.swift" */,
 			);
 			productRefGroup = 55B781A924A616A20036F8E5 /* Products */;
 			projectDirPath = "";
@@ -520,6 +520,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		555DE0B124BC3516002714B9 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Boilertalk/Web3.swift.git";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 0.4.2;
+			};
+		};
 		55B781DB24A61B0D0036F8E5 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/WalletConnect/WalletConnectSwift.git";
@@ -528,26 +536,18 @@
 				kind = branch;
 			};
 		};
-		55B781DE24A61B5D0036F8E5 /* XCRemoteSwiftPackageReference "EthereumKitSPM" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/cuhte3/EthereumKitSPM.git";
-			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 2.0.2;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		555DE0B224BC3516002714B9 /* Web3 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 555DE0B124BC3516002714B9 /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			productName = Web3;
+		};
 		55B781DC24A61B0D0036F8E5 /* WalletConnectSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 55B781DB24A61B0D0036F8E5 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */;
 			productName = WalletConnectSwift;
-		};
-		55B781DF24A61B5E0036F8E5 /* EthereumKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 55B781DE24A61B5D0036F8E5 /* XCRemoteSwiftPackageReference "EthereumKitSPM" */;
-			productName = EthereumKit;
 		};
 		55B7820224A61D600036F8E5 /* WalletConnectSwift */ = {
 			isa = XCSwiftPackageProductDependency;

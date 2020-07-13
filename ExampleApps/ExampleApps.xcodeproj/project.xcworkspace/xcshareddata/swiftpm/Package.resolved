@@ -2,21 +2,12 @@
   "object": {
     "pins": [
       {
-        "package": "COpenSSL",
-        "repositoryURL": "https://github.com/vapor-community/copenssl.git",
+        "package": "BigInt",
+        "repositoryURL": "https://github.com/attaswift/BigInt.git",
         "state": {
           "branch": null,
-          "revision": "a347e9ec038b134aecf42e0c21f2deb9035adf3f",
-          "version": "1.0.0-rc.1"
-        }
-      },
-      {
-        "package": "CryptoEthereumSwift",
-        "repositoryURL": "https://github.com/cuhte3/CryptoEthereumSwiftSMP.git",
-        "state": {
-          "branch": null,
-          "revision": "ca360a207c8d77ad260c9a622fda0d6f4ba03fba",
-          "version": "2.0.0"
+          "revision": "108801d539eb014469c758bc0d7f734690791fb4",
+          "version": "4.0.0"
         }
       },
       {
@@ -29,17 +20,35 @@
         }
       },
       {
-        "package": "EthereumKit",
-        "repositoryURL": "https://github.com/cuhte3/EthereumKitSPM.git",
+        "package": "Nimble",
+        "repositoryURL": "https://github.com/Quick/Nimble.git",
         "state": {
           "branch": null,
-          "revision": "a5d4b894b0fc9f813e0e79258ea55220247c92ba",
-          "version": "2.0.2"
+          "revision": "2b1809051b4a65c1d7f5233331daa24572cd7fca",
+          "version": "8.1.1"
+        }
+      },
+      {
+        "package": "PromiseKit",
+        "repositoryURL": "https://github.com/mxcl/PromiseKit.git",
+        "state": {
+          "branch": null,
+          "revision": "f6b15b7626a4399864ffa1d5ec2ed9cf0cea5556",
+          "version": "6.13.2"
+        }
+      },
+      {
+        "package": "Quick",
+        "repositoryURL": "https://github.com/Quick/Quick.git",
+        "state": {
+          "branch": null,
+          "revision": "09b3becb37cb2163919a3842a4c5fa6ec7130792",
+          "version": "2.2.1"
         }
       },
       {
         "package": "secp256k1",
-        "repositoryURL": "https://github.com/Boilertalk/secp256k1.swift",
+        "repositoryURL": "https://github.com/Boilertalk/secp256k1.swift.git",
         "state": {
           "branch": null,
           "revision": "823281fe9def21b384099b72a9a53ca988317b20",
@@ -71,6 +80,15 @@
           "branch": "fixes",
           "revision": "8fa3a064ed3f92ef0b503ab0063e2d9b04ff0090",
           "version": null
+        }
+      },
+      {
+        "package": "Web3",
+        "repositoryURL": "https://github.com/Boilertalk/Web3.swift.git",
+        "state": {
+          "branch": null,
+          "revision": "242f8878e91939db82e0d89e430d52d9a88ad9cf",
+          "version": "0.4.2"
         }
       }
     ]

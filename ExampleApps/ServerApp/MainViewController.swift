@@ -3,11 +3,10 @@
 //
 
 import UIKit
-import EthereumKit
+import Web3
 import WalletConnectSwift
 
 class MainViewController: UIViewController {
-
     @IBOutlet weak var walletAddressLabel: UILabel!
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var scanQRCodeButton: UIButton!
@@ -16,7 +15,7 @@ class MainViewController: UIViewController {
     var scannerController: ScannerViewController?
     var server: Server!
     var session: Session!
-    var wallet: Wallet!
+    let privateKey: EthereumPrivateKey = try! EthereumPrivateKey()
 
     let sessionKey = "sessionKey"
 
@@ -31,27 +30,20 @@ class MainViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureWallet()
         configureServer()
-        walletAddressLabel.text = wallet.address()
+        walletAddressLabel.text = privateKey.address.hex(eip55: true)
         statusLabel.text = "Disconnected"
         disconnectButton.isHidden = true
     }
 
     private func configureServer() {
         server = Server(delegate: self)
-        server.register(handler: PersonalSignHandler(for: self, server: server, wallet: wallet))
-        server.register(handler: SignTransactionHandler(for: self, server: server, wallet: wallet))
+        server.register(handler: PersonalSignHandler(for: self, server: server, privateKey: privateKey))
+        server.register(handler: SignTransactionHandler(for: self, server: server, privateKey: privateKey))
         if let oldSessionObject = UserDefaults.standard.object(forKey: sessionKey) as? Data,
             let session = try? JSONDecoder().decode(Session.self, from: oldSessionObject) {
             try? server.reconnect(to: session)
         }
-    }
-
-    private func configureWallet() {
-        let mnemonic = ["diagram", "myth", "surface", "whip", "mansion", "edit", "injury", "they", "want", "solid", "list", "outer"]
-        let seed = try! Mnemonic.createSeed(mnemonic: mnemonic)
-        wallet = try! Wallet(seed: seed, network: .private(chainID: 4, testUse: true), debugPrints: false)
     }
 
     func onMainThread(_ closure: @escaping () -> Void) {
@@ -63,19 +55,17 @@ class MainViewController: UIViewController {
             }
         }
     }
-
 }
 
 class BaseHandler: RequestHandler {
-
     weak var controller: UIViewController!
     weak var sever: Server!
-    weak var wallet: Wallet!
+    weak var privateKey: EthereumPrivateKey!
 
-    init(for controller: UIViewController, server: Server, wallet: Wallet) {
+    init(for controller: UIViewController, server: Server, privateKey: EthereumPrivateKey) {
         self.controller = controller
         self.sever = server
-        self.wallet = wallet
+        self.privateKey = privateKey
     }
 
     func canHandle(request: Request) -> Bool {
@@ -101,12 +91,10 @@ class BaseHandler: RequestHandler {
                                              onSign: onSign,
                                              onCancel: onCancel)
         }
-
     }
 }
 
 class PersonalSignHandler: BaseHandler {
-
     override func canHandle(request: Request) -> Bool {
         return request.method == "personal_sign"
     }
@@ -116,7 +104,7 @@ class PersonalSignHandler: BaseHandler {
             let messageBytes = try request.parameter(of: String.self, at: 0)
             let address = try request.parameter(of: String.self, at: 1)
 
-            guard address == wallet.address() else {
+            guard address == privateKey.address.hex(eip55: true) else {
                 sever.send(.reject(request))
                 return
             }
@@ -124,12 +112,20 @@ class PersonalSignHandler: BaseHandler {
             let decodedMessage = String(data: Data(hex: messageBytes), encoding: .utf8) ?? messageBytes
 
             askToSign(request: request, message: decodedMessage) {
-                try! self.wallet.personalSign(message: decodedMessage)
+                let personalMessageData = self.personalMessageData(messageData: Data(hex: messageBytes))
+                let (v, r, s) = try! self.privateKey.sign(message: .init(hex: personalMessageData.toHexString()))
+                return "0x" + r.toHexString() + s.toHexString() + String(v + 27, radix: 16) // v in [0, 1]
             }
         } catch {
             sever.send(.invalid(request))
             return
         }
+    }
+
+    private func personalMessageData(messageData: Data) -> Data {
+        let prefix = "\u{19}Ethereum Signed Message:\n"
+        let prefixData = (prefix + String(messageData.count)).data(using: .ascii)!
+        return prefixData + messageData
     }
 }
 
@@ -155,22 +151,22 @@ class SignTransactionHandler: BaseHandler {
 
             let hexValue = param.value == nil ? "0x" : param.value!
 
-            let transaction = RawTransaction(wei: String(Wei(hexValue, radix: 16)!), // base-10
-                                             to: param.to ?? "0x",
-                                             gasPrice: intFromHex(param.gasPrice ?? "0x"),
-                                             gasLimit: intFromHex(param.gasLimit ?? "0x"),
-                                             nonce: intFromHex(param.nonce ?? "0x"),
-                                             data: Data(hex: param.data))
-            let from = param.from
-
-            guard from == self.wallet.address() else {
-                self.sever.send(.reject(request))
-                return
-            }
-
-            askToSign(request: request, message: transaction.description) {
-                try! self.wallet.sign(rawTransaction: transaction)
-            }
+//            let transaction = RawTransaction(wei: String(Wei(hexValue, radix: 16)!), // base-10
+//                                             to: param.to ?? "0x",
+//                                             gasPrice: intFromHex(param.gasPrice ?? "0x"),
+//                                             gasLimit: intFromHex(param.gasLimit ?? "0x"),
+//                                             nonce: intFromHex(param.nonce ?? "0x"),
+//                                             data: Data(hex: param.data))
+//            let from = param.from
+//
+//            guard from == self.wallet.address() else {
+//                self.sever.send(.reject(request))
+//                return
+//            }
+//
+//            askToSign(request: request, message: transaction.description) {
+//                try! self.wallet.sign(rawTransaction: transaction)
+//            }
         } catch {
             self.sever.send(.invalid(request))
         }
@@ -208,7 +204,7 @@ extension MainViewController: ServerDelegate {
                                             icons: [],
                                             url: URL(string: "https://safe.gnosis.io")!)
         let walletInfo = Session.WalletInfo(approved: true,
-                                            accounts: [wallet.address()],
+                                            accounts: [privateKey.address.hex(eip55: true)],
                                             chainId: 4,
                                             peerId: UUID().uuidString,
                                             peerMeta: walletMeta)
@@ -294,10 +290,10 @@ extension UIAlertController {
 
 }
 
-extension RawTransaction {
-
-    var description: String {
-        return "to: \(to.string), value: \(value), gasPrice: \(gasPrice), gasLimit: \(gasLimit), data: \(data), nonce: \(nonce)"
-    }
-
-}
+//extension RawTransaction {
+//
+//    var description: String {
+//        return "to: \(to.string), value: \(value), gasPrice: \(gasPrice), gasLimit: \(gasLimit), data: \(data), nonce: \(nonce)"
+//    }
+//
+//}
