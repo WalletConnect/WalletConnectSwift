@@ -532,7 +532,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/WalletConnect/WalletConnectSwift.git";
 			requirement = {
-				branch = fixes;
+				branch = master;
 				kind = branch;
 			};
 		};

@@ -15,7 +15,8 @@ class MainViewController: UIViewController {
     var scannerController: ScannerViewController?
     var server: Server!
     var session: Session!
-    let privateKey: EthereumPrivateKey = try! EthereumPrivateKey()
+    let privateKey: EthereumPrivateKey = try! EthereumPrivateKey(
+        privateKey: .init(hex: "BD9F406A928238E9500E4C7276F77E6D15118D62CC6B65B5A39C442BE6F1262F"))
 
     let sessionKey = "sessionKey"
 
