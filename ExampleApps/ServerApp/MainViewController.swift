@@ -130,68 +130,36 @@ class PersonalSignHandler: BaseHandler {
 }
 
 class SignTransactionHandler: BaseHandler {
-
     override func canHandle(request: Request) -> Bool {
         return request.method == "eth_signTransaction"
     }
 
-    struct SignTransaction: Decodable {
-        var from: String
-        var to: String?
-        var data: String
-        var gasLimit: String?
-        var gasPrice: String?
-        var value: String?
-        var nonce: String?
-    }
-
     override func handle(request: Request) {
         do {
-            let param = try request.parameter(of: SignTransaction.self, at: 0)
+            let transaction = try request.parameter(of: EthereumTransaction.self, at: 0)
+            guard transaction.from == privateKey.address else {
+                self.sever.send(.reject(request))
+                return
+            }
 
-            let hexValue = param.value == nil ? "0x" : param.value!
-
-//            let transaction = RawTransaction(wei: String(Wei(hexValue, radix: 16)!), // base-10
-//                                             to: param.to ?? "0x",
-//                                             gasPrice: intFromHex(param.gasPrice ?? "0x"),
-//                                             gasLimit: intFromHex(param.gasLimit ?? "0x"),
-//                                             nonce: intFromHex(param.nonce ?? "0x"),
-//                                             data: Data(hex: param.data))
-//            let from = param.from
-//
-//            guard from == self.wallet.address() else {
-//                self.sever.send(.reject(request))
-//                return
-//            }
-//
-//            askToSign(request: request, message: transaction.description) {
-//                try! self.wallet.sign(rawTransaction: transaction)
-//            }
+            askToSign(request: request, message: transaction.description) {
+                let signedTx = try! transaction.sign(with: self.privateKey, chainId: 4)
+                let (r, s, v) = (signedTx.r, signedTx.s, signedTx.v)
+                return r.hex() + s.hex().dropFirst(2) + String(v.quantity, radix: 16)
+            }
         } catch {
             self.sever.send(.invalid(request))
         }
     }
-
-    private func intFromHex(_ hex: String) -> Int {
-        if hex.hasPrefix("0x") {
-            return Int(hex.suffix(hex.count - 2), radix: 16)!
-        } else {
-            return Int(hex, radix: 16)!
-        }
-    }
-
 }
 
 extension Response {
-
     static func signature(_ signature: String, for request: Request) -> Response {
         return try! Response(url: request.url, value: signature, id: request.id!)
     }
-
 }
 
 extension MainViewController: ServerDelegate {
-
     func server(_ server: Server, didFailToConnect url: WCURL) {
         onMainThread {
             UIAlertController.showFailedToConnect(from: self)
@@ -238,11 +206,9 @@ extension MainViewController: ServerDelegate {
             self.statusLabel.text = "Disconnected"
         }
     }
-
 }
 
 extension MainViewController: ScannerViewControllerDelegate {
-
     func didScan(_ code: String) {
         guard let url = WCURL(code) else { return }
         scanQRCodeButton.isEnabled = false
@@ -254,11 +220,9 @@ extension MainViewController: ScannerViewControllerDelegate {
             }
         }
     }
-
 }
 
 extension UIAlertController {
-
     func withCloseButton(title: String = "Close", onClose: (() -> Void)? = nil ) -> UIAlertController {
         addAction(UIAlertAction(title: title, style: .cancel) { _ in onClose?() } )
         return self
@@ -287,13 +251,17 @@ extension UIAlertController {
         alert.addAction(startAction)
         controller.present(alert.withCloseButton(title: "Reject", onClose: onCancel), animated: true)
     }
-
 }
 
-//extension RawTransaction {
-//
-//    var description: String {
-//        return "to: \(to.string), value: \(value), gasPrice: \(gasPrice), gasLimit: \(gasLimit), data: \(data), nonce: \(nonce)"
-//    }
-//
-//}
+extension EthereumTransaction {
+    var description: String {
+        return """
+        to: \(String(describing: to!.hex(eip55: true))),
+        value: \(String(describing: value!.hex())),
+        gasPrice: \(String(describing: gasPrice!.hex())),
+        gas: \(String(describing: gas!.hex())),
+        data: \(data.hex()),
+        nonce: \(String(describing: nonce!.hex()))
+        """
+    }
+}
