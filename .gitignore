@@ -23,3 +23,6 @@ Carthage/Build
 
 .idea
 .vscode
+
+# Remove Package.resolved for example apps
+ExampleApps/ExampleApps.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
