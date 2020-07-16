@@ -1,6 +1,6 @@
 # WalletConnectSwift
 
-Swift SDK implementing WalletConnect 1.0.0 protocol for native iOS Dapps and Wallets.
+Swift SDK implementing [WalletConnect 1.x.x](https://docs.walletconnect.org) protocol for native iOS Dapps and Wallets.
 
 # Features
 
@@ -75,7 +75,7 @@ func handle(request: Request) {
 }
 ```
 
-For more details, see the `ServerExample` app.
+For more details, see the `ExampleApps/ServerApp`
 
 
 ## Usage in a Dapp
@@ -119,55 +119,35 @@ if let error = response.error { // NSError
 }
 ```
 
-For more details, see the `ClientExample` app.
+For more details, see the `ExampleApps/ClientApp`
 
 # Running Example Apps
 
-Please initialize submodules before running the example apps:
-
-```
-git submodule update --init
-```
-
-After that, open `WalletConnectSwift.xcodeproj` and select `ClientExample` or `ServerExample` target to run in Simulator or on your device.
+Please open `ExampleApps/ExampleApps.xcodeproj`
 
 # Installation
 
 ## Prerequisites
 
-- iOS 11.0 or macOS 10.14
-- Xcode 10.3
+- iOS 11.0 or macOS 10.15
 - Swift 5
 
-## Manual
+## WalletConnectSwift dependencies
 
-Add this repository as a submodule:
-
-```
-git submodule add https://github.com/WalletConnect/WalletConnectSwift.git
-```
-
-Fetch the dependencies
-
-```
-cd WalletConnectSwift
-git submodule update --init
-```
-
-Dependencies of the WalletCnonectSwift library:
 - CryptoSwift - for cryptography operations
 - Starscream - for WebSocket operations prior to iOS 13
 
-Dependencies of the ServerExample app:
-- CryptoEthereumSwift
-- EthereumKit
+## Swift Package Manager
 
-Drag and drop the `WalletConnectSwift.xcodeproj` in your project and link the
-`WalletConnectSwift` static library.
+In your `Package.swift`:
+
+    dependencies: [
+        .package(url: "https://github.com/WalletConnect/WalletConnectSwift.git", .upToNextMinor(from: "1.1.0"))
+    ]
 
 ## CocoaPods
 
-You can use CocoaPods
+In your `Podfile`:
 
     platform :ios, '11.0'
     use_frameworks!
@@ -178,19 +158,11 @@ You can use CocoaPods
 
 ## Carthage
 
-You can use Carthage. In your `Cartfile`:
+In your `Cartfile`:
 
     github "WalletConnect/WalletConnectSwift"
 
 Run `carthage update` to build the framework and drag the WalletConnectSwift.framework in your Xcode project.
-
-## Swift Package Manager
-
-You can use Swift Package Manager and add dependency in your `Package.swift`:
-
-    dependencies: [
-        .package(url: "https://github.com/WalletConnect/WalletConnectSwift.git", .upToNextMinor(from: "1.0.0"))
-    ]
 
 # Acknowledgments
 
