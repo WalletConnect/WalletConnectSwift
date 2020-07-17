@@ -6,7 +6,6 @@ import XCTest
 @testable import WalletConnectSwift
 
 class RequestTests: XCTestCase {
-
     let url = WCURL(topic: "topic", version: "1", bridgeURL: URL(string: "https://example.org/")!, key: "key")
     let method = "some_rpc_method_name"
 
@@ -105,6 +104,5 @@ class RequestTests: XCTestCase {
                                        {"id":"1","jsonrpc":"2.0","method":"\(method)","params":{"a":"1","b":"2"}}
                                        """)
     }
-
 }
 

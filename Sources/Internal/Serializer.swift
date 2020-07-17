@@ -4,10 +4,8 @@
 
 import Foundation
 
-
 /// We do not expect incomming responses as requests that we send are notifications.
 protocol ResponseSerializer {
-
     /// Serialize WalletConnect Response into text message.
     ///
     /// - Parameters:
@@ -25,11 +23,9 @@ protocol ResponseSerializer {
     /// - Returns: response object
     /// - Throws: deserialization errors
     func deserialize(_ text: String, url: WCURL) throws -> Response
-
 }
 
 protocol RequestSerializer {
-
     /// Serialize WalletConnect Request into text message.
     ///
     /// - Parameters:
@@ -47,14 +43,11 @@ protocol RequestSerializer {
     /// - Returns: request object
     /// - Throws: deserialization errors
     func deserialize(_ text: String, url: WCURL) throws -> Request
-
 }
 
 protocol Codec {
-
     func encode(plainText: String, key: String) throws -> String
     func decode(cipherText: String, key: String) throws -> String
-
 }
 
 enum JSONRPCSerializerError: Error {
@@ -62,7 +55,6 @@ enum JSONRPCSerializerError: Error {
 }
 
 class JSONRPCSerializer: RequestSerializer, ResponseSerializer {
-
     private let codec: Codec = AES_256_CBC_HMAC_SHA256_Codec()
     private let jsonrpc = JSONRPCAdapter()
 
@@ -103,11 +95,9 @@ class JSONRPCSerializer: RequestSerializer, ResponseSerializer {
             throw JSONRPCSerializerError.wrongIncommingDecodedTextFormat(payloadText)
         }
     }
-
 }
 
 fileprivate class JSONRPCAdapter {
-
     func json(from request: Request) throws -> String {
         return try request.json().string
     }
@@ -125,5 +115,4 @@ fileprivate class JSONRPCAdapter {
         let JSONRPCResponse = try JSONRPC_2_0.Response.create(from: JSONRPC_2_0.JSON(json))
         return Response(payload: JSONRPCResponse, url: url)
     }
-
 }

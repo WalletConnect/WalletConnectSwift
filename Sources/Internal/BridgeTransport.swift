@@ -5,7 +5,6 @@
 import Foundation
 
 protocol Transport {
-
     func send(to url: WCURL, text: String)
     func listen(on url: WCURL,
                 onConnect: @escaping ((WCURL) -> Void),
@@ -13,14 +12,12 @@ protocol Transport {
                 onTextReceive: @escaping (String, WCURL) -> Void)
     func isConnected(by url: WCURL) -> Bool
     func disconnect(from url: WCURL)
-
 }
 
 // future: if we received response from another peer - then we call request.completion() for pending request.
 // future: if request is not notification - then it will be pending for response
 
 class Bridge: Transport {
-
     private var connections: [WebSocketConnection] = []
     private let syncQueue = DispatchQueue(label: "org.walletconnect.swift.transport")
 
@@ -90,5 +87,4 @@ class Bridge: Transport {
         dispatchPrecondition(condition: .onQueue(syncQueue))
         return connections.first { $0.url == url }
     }
-
 }

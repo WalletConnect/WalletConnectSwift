@@ -6,7 +6,6 @@ import XCTest
 @testable import WalletConnectSwift
 
 class SessionTests: XCTestCase {
-
     let url = WCURL("wc:topic@1?bridge=https%3A%2F%2Ftest.com&key=key")!
     let walletId = UUID().uuidString
 
@@ -74,11 +73,9 @@ class SessionTests: XCTestCase {
         let walletInfo = try response.result(as: [Session.WalletInfo].self)
         return Session(url: url, dAppInfo: dAppInfo, walletInfo: walletInfo[0])
     }
-
 }
 
 fileprivate enum WCSessionRequest {
-
     static let json = """
 {
     "id": 100,
@@ -100,7 +97,6 @@ fileprivate enum WCSessionRequest {
 }
 
 fileprivate enum WCSessionResponse {
-
     static let json = """
 {
     "id": 100,

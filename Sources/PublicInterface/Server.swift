@@ -5,14 +5,11 @@
 import Foundation
 
 public protocol RequestHandler: class {
-
     func canHandle(request: Request) -> Bool
     func handle(request: Request)
-
 }
 
 public protocol ServerDelegate: class {
-
     /// Websocket connection was dropped during handshake. The connectoin process should be initiated again.
     func server(_ server: Server, didFailToConnect url: WCURL)
 
@@ -26,11 +23,9 @@ public protocol ServerDelegate: class {
 
     /// Called only when the session is disconnect with intention of the dApp or the Wallet.
     func server(_ server: Server, didDisconnect session: Session)
-
 }
 
 open class Server: WalletConnect {
-
     private let handlers: Handlers
     public private(set) weak var delegate: ServerDelegate!
 
@@ -87,14 +82,15 @@ open class Server: WalletConnect {
             log(request)
             handle(request)
         } catch {
-            print("WC: incomming text deserialization to JSONRPC 2.0 requests error: \(error.localizedDescription)")
+            LogService.shared.log(
+                "WC: incomming text deserialization to JSONRPC 2.0 requests error: \(error.localizedDescription)")
             // TODO: handle error
             try! send(Response(url: url, error: .invalidJSON))
         }
     }
 
     override func onConnect(to url: WCURL) {
-        print("WC: didConnect url: \(url.bridgeURL.absoluteString)")
+        LogService.shared.log("WC: didConnect url: \(url.bridgeURL.absoluteString)")
         if let session = communicator.session(by: url) { // reconnecting existing session
             communicator.subscribe(on: session.walletInfo!.peerId, url: session.url)
             delegate.server(self, didConnect: session)
@@ -130,7 +126,6 @@ open class Server: WalletConnect {
 
     /// thread-safe collection of RequestHandlers
     private class Handlers {
-
         private var handlers: [RequestHandler] = []
         private var queue: DispatchQueue
 
@@ -163,13 +158,10 @@ open class Server: WalletConnect {
             }
             return result
         }
-
     }
-
 }
 
 extension Server: HandshakeHandlerDelegate {
-
     func handler(_ handler: HandshakeHandler,
                  didReceiveRequestToCreateSession session: Session,
                  requestId: RequestID) {
@@ -186,11 +178,9 @@ extension Server: HandshakeHandlerDelegate {
             }
         }
     }
-
 }
 
 extension Server: UpdateSessionHandlerDelegate {
-
     func handler(_ handler: UpdateSessionHandler, didUpdateSessionByURL url: WCURL, approved: Bool) {
         guard let session = communicator.session(by: url) else { return }
         if !approved {
@@ -201,5 +191,4 @@ extension Server: UpdateSessionHandlerDelegate {
             }
         }
     }
-
 }

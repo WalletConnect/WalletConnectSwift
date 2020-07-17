@@ -7,7 +7,6 @@ import XCTest
 
 // swiftlint:disable literal_expression_end_indentation line_length
 class JSONRPC_2_0_Tests: XCTestCase {
-
     let decoder = JSONDecoder()
     let encoder = JSONEncoder.encoder()
 

@@ -10,7 +10,6 @@ enum DataConversionError: Error {
 }
 
 struct PubSubMessage: Codable {
-
     /// WalletConnect topic
     var topic: String
     /// pub/sub message type
@@ -37,5 +36,4 @@ struct PubSubMessage: Codable {
         }
         return string
     }
-
 }

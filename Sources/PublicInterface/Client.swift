@@ -5,15 +5,12 @@
 import Foundation
 
 public protocol ClientDelegate: class {
-
     func client(_ client: Client, didFailToConnect url: WCURL)
     func client(_ client: Client, didConnect session: Session)
     func client(_ client: Client, didDisconnect session: Session)
-
 }
 
 public class Client: WalletConnect {
-
     public typealias RequestResponse = (Response) -> Void
 
     private(set) weak var delegate: ClientDelegate!
@@ -181,7 +178,7 @@ public class Client: WalletConnect {
     }
 
     override func onConnect(to url: WCURL) {
-        print("WC: client didConnect url: \(url.bridgeURL.absoluteString)")
+        LogService.shared.log("WC: client didConnect url: \(url.bridgeURL.absoluteString)")
         if let existingSession = communicator.session(by: url) {
             communicator.subscribe(on: existingSession.dAppInfo.peerId, url: existingSession.url)
             delegate.client(self, didConnect: existingSession)
@@ -254,7 +251,7 @@ public class Client: WalletConnect {
             let info = try request.parameter(of: SessionInfo.self, at: 0)
             return info.approved
         } catch {
-            print("WC: incoming approval cannot be parsed: \(error)")
+            LogService.shared.log("WC: incoming approval cannot be parsed: \(error)")
             return nil
         }
     }
@@ -310,7 +307,6 @@ public class Client: WalletConnect {
 
     /// https://docs.walletconnect.org/json-rpc/ethereum#parameters-3
     public struct Transaction: Encodable {
-
         var from: String
         var to: String?
         var data: String
@@ -334,7 +330,5 @@ public class Client: WalletConnect {
             self.value = value
             self.nonce = nonce
         }
-
     }
-
 }

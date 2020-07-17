@@ -7,7 +7,6 @@ import CryptoSwift
 import Security
 
 struct HexString: Codable {
-
     var data: Data
 
     var string: String {
@@ -32,11 +31,9 @@ struct HexString: Codable {
     init(_ string: String) {
         data = Data(hex: string)
     }
-
 }
 
 class AES_256_CBC_HMAC_SHA256_Codec: Codec {
-
     struct EncryptionPayload: Codable {
         var data: HexString
         var hmac: HexString
@@ -115,5 +112,4 @@ class AES_256_CBC_HMAC_SHA256_Codec: Codec {
     private func data(from payload: EncryptionPayload) throws -> Data {
         return try JSONEncoder.encoder().encode(payload)
     }
-
 }

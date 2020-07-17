@@ -6,7 +6,6 @@ import XCTest
 @testable import WalletConnectSwift
 
 class ResponseTests: XCTestCase {
-
     let url = WCURL(topic: "topic", version: "1", bridgeURL: URL(string: "https://example.org/")!, key: "key")
     let method = "some_rpc_method_name"
 
@@ -94,5 +93,4 @@ class ResponseTests: XCTestCase {
                                             """)
         XCTAssertEqual(response.url, url)
     }
-
 }

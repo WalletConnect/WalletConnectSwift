@@ -33,6 +33,7 @@
 		5520F7B82317C0E600D58B74 /* ClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5520F7B72317C0E600D58B74 /* ClientTests.swift */; };
 		5520F7C32317C11F00D58B74 /* WalletConnectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5520F7C22317C11F00D58B74 /* WalletConnectTests.swift */; };
 		5520F7C52317C1A600D58B74 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5520F7C42317C1A600D58B74 /* Helpers.swift */; };
+		557CA9B424C1AD05009836F0 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557CA9B324C1AD05009836F0 /* Logger.swift */; };
 		55B7819924A614470036F8E5 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 55B7819824A614470036F8E5 /* CryptoSwift */; };
 		55B7819B24A614470036F8E5 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 55B7819A24A614470036F8E5 /* Starscream */; };
 /* End PBXBuildFile section */
@@ -77,6 +78,7 @@
 		5520F7B72317C0E600D58B74 /* ClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientTests.swift; sourceTree = "<group>"; };
 		5520F7C22317C11F00D58B74 /* WalletConnectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectTests.swift; sourceTree = "<group>"; };
 		5520F7C42317C1A600D58B74 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		557CA9B324C1AD05009836F0 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		55CE9CCB2302A8E600CB414D /* WalletConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnect.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -181,6 +183,7 @@
 				0AD7D41623168008002BF84B /* WCURL.swift */,
 				0AD7D4212316802C002BF84B /* Request.swift */,
 				0AD7D42323168033002BF84B /* Response.swift */,
+				557CA9B324C1AD05009836F0 /* Logger.swift */,
 			);
 			path = PublicInterface;
 			sourceTree = "<group>";
@@ -326,6 +329,7 @@
 				0A92786E230BFB3F00FDCC0D /* AES_256_CBC_HMAC_SHA256_Codec.swift in Sources */,
 				0A92787B230BFB3F00FDCC0D /* JSONRPC_2_0.swift in Sources */,
 				0AD7D427231680CE002BF84B /* Request.swift in Sources */,
+				557CA9B424C1AD05009836F0 /* Logger.swift in Sources */,
 				0A927871230BFB3F00FDCC0D /* Communicator.swift in Sources */,
 				0A927873230BFB3F00FDCC0D /* HandshakeHandler.swift in Sources */,
 				0A927875230BFB3F00FDCC0D /* Serializer.swift in Sources */,

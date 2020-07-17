@@ -6,7 +6,6 @@ import Foundation
 import Starscream
 
 class WebSocketConnection {
-
     let url: WCURL
     private let socket: WebSocket
     private let onConnect: (() -> Void)?
@@ -57,21 +56,19 @@ class WebSocketConnection {
 
     private func log(_ text: String) {
         if let request = try? requestSerializer.deserialize(text, url: url).json().string {
-            print("WC: ==> \(request)")
+            LogService.shared.log("WC: ==> \(request)")
         } else if let response = try? responseSerializer.deserialize(text, url: url).json().string {
-            print("WC: ==> \(response)")
+            LogService.shared.log("WC: ==> \(response)")
         } else {
-            print("WC: ==> \(text)")
+            LogService.shared.log("WC: ==> \(text)")
         }
     }
-
 }
 
 extension WebSocketConnection: WebSocketDelegate {
-
     func websocketDidConnect(socket: WebSocketClient) {
         pingTimer = Timer.scheduledTimer(withTimeInterval: pingInterval, repeats: true) { [weak self] _ in
-            print("WC: ==> ping")
+            LogService.shared.log("WC: ==> ping")
             self?.socket.write(ping: Data())
         }
         onConnect?()
@@ -89,5 +86,4 @@ extension WebSocketConnection: WebSocketDelegate {
     func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
         // no-op
     }
-
 }

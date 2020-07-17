@@ -5,7 +5,6 @@
 import Foundation
 
 public class Response {
-
     public var url: WCURL
 
     internal var internalID: JSONRPC_2_0.IDType {
@@ -89,7 +88,6 @@ public class Response {
     public static func invalid(_ request: Request) -> Response {
         return try! Response(request: request, error: .invalidRequest)
     }
-
 }
 
 public let WCResponseErrorDataKey: String = "WCResponseErrorDataKey"
@@ -115,5 +113,4 @@ public enum ResponseError: Int, Error {
         case .requestRejected: return "Request rejected"
         }
     }
-
 }
