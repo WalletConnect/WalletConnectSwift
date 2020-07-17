@@ -129,7 +129,7 @@ Please open `ExampleApps/ExampleApps.xcodeproj`
 
 ## Prerequisites
 
-- iOS 11.0 or macOS 10.15
+- iOS 11.0 or macOS 10.14
 - Swift 5
 
 ## WalletConnectSwift dependencies
