@@ -5,7 +5,6 @@
 import Foundation
 
 public class Request {
-
     public var url: WCURL
 
     public var method: Method {
@@ -117,7 +116,6 @@ extension Double: RequestID {}
 
 
 internal extension JSONRPC_2_0.ValueType {
-
     init<T: Encodable>(_ value: T) throws {
         // Encodable types can be primitives (i.e. String), which encode to invalid JSON (root must be Array or Dict)
         let wrapped = try JSONEncoder.encoder().encode([value])
@@ -130,11 +128,9 @@ internal extension JSONRPC_2_0.ValueType {
         let result = try JSONDecoder().decode([T].self, from: data)
         return result[0]
     }
-
 }
 
 internal extension JSONRPC_2_0.IDType {
-
     init(_ value: RequestID?) {
         switch value {
         case .none: self = .null
@@ -159,5 +155,4 @@ internal extension JSONRPC_2_0.IDType {
         case .null: return nil
         }
     }
-
 }

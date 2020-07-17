@@ -6,7 +6,6 @@ import Foundation
 @testable import WalletConnectSwift
 
 class MockCommunicator: Communicator {
-
     private var sessions = [Session]()
 
     var didListen = false
@@ -34,17 +33,13 @@ class MockCommunicator: Communicator {
     override func subscribe(on topic: String, url: WCURL) {
         subscribedOn = (topic: topic, url: url)
     }
-
 }
 
 extension WCURL {
-
     static let testURL = WCURL("wc:test123@1?bridge=https%3A%2F%2Fbridge.walletconnect.org&key=46d8847bdbca255a98ba7d79d4f4d77daebbbeb53b5aea6e9f39fa848b177bb7")!
-
 }
 
 extension Session: Equatable {
-
     public static func == (lhs: Session, rhs: Session) -> Bool {
         return lhs.dAppInfo == rhs.dAppInfo &&
             lhs.url == rhs.url &&
@@ -58,17 +53,13 @@ extension Session: Equatable {
     static let testSessionWithoutWalletInfo = Session(url: WCURL.testURL,
                                                       dAppInfo: Session.DAppInfo.testDappInfo,
                                                       walletInfo: nil)
-
 }
 
 extension Session.DAppInfo {
-
     static let testDappInfo = Session.DAppInfo(peerId: "test", peerMeta: Session.ClientMeta.testMeta, approved: true)
-
 }
 
 extension Session.WalletInfo {
-
     static let testWalletInfo = Session.WalletInfo(approved: true,
                                                    accounts: ["0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95"],
                                                    chainId: 4,
@@ -77,7 +68,6 @@ extension Session.WalletInfo {
 }
 
 extension Session.ClientMeta {
-
     static let testMeta = Session.ClientMeta(name: "Test Meta",
                                              description: nil,
                                              icons: [],
@@ -85,14 +75,11 @@ extension Session.ClientMeta {
 }
 
 extension Request {
-
-    static let testRequest = try! Request(url: WCURL.testURL, method: "personal_sign", id: 1)
-    static let testRequestWithoutId = try! Request(url: WCURL.testURL, method: "personal_sign", id: nil)
-
+    static let testRequest = Request(url: WCURL.testURL, method: "personal_sign", id: 1)
+    static let testRequestWithoutId = Request(url: WCURL.testURL, method: "personal_sign", id: nil)
 }
 
 extension Client.Transaction {
-
     static let testTransaction = Client.Transaction(from: "0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95",
                                                     to: nil,
                                                     data: "0x0",
@@ -100,5 +87,4 @@ extension Client.Transaction {
                                                     gasPrice: nil,
                                                     value: nil,
                                                     nonce: nil)
-
 }

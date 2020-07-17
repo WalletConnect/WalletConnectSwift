@@ -10,7 +10,6 @@ protocol HandshakeHandlerDelegate: class {
 }
 
 class HandshakeHandler: RequestHandler {
-
     private weak var delegate: HandshakeHandlerDelegate!
 
     init(delegate: HandshakeHandlerDelegate) {
@@ -34,5 +33,4 @@ class HandshakeHandler: RequestHandler {
             // TODO: handle error
         }
     }
-
 }

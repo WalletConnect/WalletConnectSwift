@@ -6,7 +6,6 @@ import XCTest
 @testable import WalletConnectSwift
 
 class ClientTests: XCTestCase {
-
     var client: Client!
     let delegate = MockClientDelegate()
     let communicator = MockCommunicator()
@@ -97,11 +96,9 @@ class ClientTests: XCTestCase {
         client.onConnect(to: WCURL.testURL)
         XCTAssertNotNil(communicator.sentRequest)
     }
-
 }
 
 class MockClientDelegate: ClientDelegate {
-
     var didFailToConnect = false
     func client(_ client: Client, didFailToConnect url: WCURL) {
         didFailToConnect = true
@@ -116,5 +113,4 @@ class MockClientDelegate: ClientDelegate {
     func client(_ client: Client, didDisconnect session: Session) {
         disconnectedSession = session
     }
-
 }

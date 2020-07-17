@@ -5,9 +5,7 @@
 import Foundation
 
 enum JSONRPC_2_0 {
-
     struct JSON: Equatable, ExpressibleByStringInterpolation {
-
         var string: String
 
         init(_ text: String) {
@@ -17,11 +15,9 @@ enum JSONRPC_2_0 {
         init(stringLiteral value: String) {
             self.init(value)
         }
-
     }
 
     enum IDType: Hashable, Codable {
-
         case string(String)
         case int(Int)
         case double(Double)
@@ -57,11 +53,9 @@ enum JSONRPC_2_0 {
                 try container.encodeNil()
             }
         }
-
     }
 
     enum ValueType: Hashable, Codable {
-
         case object([String: ValueType])
         case array([ValueType])
         case string(String)
@@ -157,11 +151,9 @@ enum JSONRPC_2_0 {
                 return string
             }
         }
-
     }
 
     struct KeyType: CodingKey {
-
         var stringValue: String
 
         init?(stringValue: String) {
@@ -175,12 +167,10 @@ enum JSONRPC_2_0 {
             self.intValue = intValue
             self.stringValue = String(describing: intValue)
         }
-
     }
 
     /// https://www.jsonrpc.org/specification#request_object
     struct Request: Hashable, Codable {
-
         let jsonrpc = "2.0"
         var method: String
         var params: Params?
@@ -232,7 +222,6 @@ enum JSONRPC_2_0 {
                     }
                 }
             }
-
         }
 
         static func create(from json: JSONRPC_2_0.JSON) throws -> JSONRPC_2_0.Request {
@@ -249,12 +238,10 @@ enum JSONRPC_2_0 {
             }
             return JSONRPC_2_0.JSON(string)
         }
-
     }
 
     /// https://www.jsonrpc.org/specification#response_object
     struct Response: Hashable, Codable {
-
         let jsonrpc = "2.0"
         var result: Payload
         var id: IDType
@@ -265,7 +252,6 @@ enum JSONRPC_2_0 {
         }
 
         enum Payload: Hashable, Codable {
-
             case value(ValueType)
             case error(ErrorPayload)
 
@@ -349,7 +335,6 @@ enum JSONRPC_2_0 {
                 }
 
             }
-
         }
 
         static func create(from json: JSONRPC_2_0.JSON) throws -> JSONRPC_2_0.Response {
@@ -382,17 +367,13 @@ enum JSONRPC_2_0 {
             }
             return JSONRPC_2_0.JSON(string)
         }
-
     }
-
 }
 
 extension JSONEncoder {
-
     static func encoder() -> JSONEncoder {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
         return encoder
     }
-
 }

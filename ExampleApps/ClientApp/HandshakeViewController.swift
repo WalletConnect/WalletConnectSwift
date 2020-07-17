@@ -5,7 +5,6 @@
 import UIKit
 
 class HandshakeViewController: UIViewController {
-
     @IBOutlet weak var qrCodeImageView: UIImageView!
 
     var code: String!
@@ -29,5 +28,4 @@ class HandshakeViewController: UIViewController {
     @IBAction func close(_ sender: Any) {
         dismiss(animated: true)
     }
-
 }

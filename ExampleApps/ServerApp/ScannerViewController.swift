@@ -10,7 +10,6 @@ protocol ScannerViewControllerDelegate {
 }
 
 class ScannerViewController: UIViewController {
-
     let captureSession = AVCaptureSession()
     var videoPreviewLayer: AVCaptureVideoPreviewLayer!
     var delegate: ScannerViewControllerDelegate!
@@ -51,11 +50,9 @@ class ScannerViewController: UIViewController {
             print("Error: \(error)")
         }
     }
-
 }
 
 extension ScannerViewController: AVCaptureMetadataOutputObjectsDelegate {
-
     func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         guard !metadataObjects.isEmpty else { return }
         let metadata = metadataObjects[0] as! AVMetadataMachineReadableCodeObject
@@ -63,5 +60,4 @@ extension ScannerViewController: AVCaptureMetadataOutputObjectsDelegate {
             delegate.didScan(metadata.stringValue!)
         }
     }
-
 }

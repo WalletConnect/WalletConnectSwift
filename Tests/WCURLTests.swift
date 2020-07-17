@@ -6,7 +6,6 @@ import XCTest
 @testable import WalletConnectSwift
 
 class WCURLTests: XCTestCase {
-
     let string = "wc:topic@1?bridge=https%3A%2F%2Fexample.org%2F&key=key"
 
     func test_absoluteString() {
@@ -41,5 +40,4 @@ class WCURLTests: XCTestCase {
         let noKey = WCURL("wc:topic@1?bridge=https%3A%2F%2Fexample.org%2F")
         XCTAssertNil(noKey)
     }
-
 }

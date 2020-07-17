@@ -6,7 +6,6 @@ import UIKit
 import WalletConnectSwift
 
 class ActionsViewController: UIViewController {
-
     @IBOutlet weak var disconnectButton: UIButton!
     @IBOutlet weak var personalSignButton: UIButton!
     @IBOutlet weak var ethSignButton: UIButton!
@@ -123,11 +122,9 @@ class ActionsViewController: UIViewController {
     private func nonce(from response: Response) -> String? {
         return try? response.result(as: String.self)
     }
-
 }
 
 extension Request {
-
     static func eth_getTransactionCount(url: WCURL, account: String) -> Request {
         return try! Request(url: url, method: "eth_getTransactionCount", params: [account, "latest"])
     }
@@ -135,11 +132,9 @@ extension Request {
     static func eth_gasPrice(url: WCURL) -> Request {
         return Request(url: url, method: "eth_gasPrice")
     }
-
 }
 
 fileprivate enum Stub {
-
     /// https://docs.walletconnect.org/json-rpc/ethereum#example-parameters
     static let typedData = """
 [

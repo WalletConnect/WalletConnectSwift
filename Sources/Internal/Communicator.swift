@@ -5,7 +5,6 @@
 import Foundation
 
 class Communicator {
-
     // sessions are the approved connections between dApp and Wallet
     private let sessions: Sessions
     // triggered by Wallet or dApp to disconnect
@@ -101,7 +100,6 @@ class Communicator {
 
     /// Thread-safe collection of Sessions
     private class Sessions {
-
         private var sessions: [WCURL: Session] = [:]
         private let queue: DispatchQueue
 
@@ -140,7 +138,5 @@ class Communicator {
                 _ = self.sessions.removeValue(forKey: url)
             }
         }
-
     }
-
 }

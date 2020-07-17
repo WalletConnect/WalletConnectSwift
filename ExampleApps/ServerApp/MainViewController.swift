@@ -213,12 +213,11 @@ extension MainViewController: ScannerViewControllerDelegate {
     func didScan(_ code: String) {
         guard let url = WCURL(code) else { return }
         scanQRCodeButton.isEnabled = false
-        scannerController?.dismiss(animated: true) { [unowned self] in
-            do {
-                try self.server.connect(to: url)
-            } catch {
-                return
-            }
+        scannerController?.dismiss(animated: true)
+        do {
+            try self.server.connect(to: url)
+        } catch {
+            return
         }
     }
 }

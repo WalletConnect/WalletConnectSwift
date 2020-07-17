@@ -3,7 +3,6 @@
 //
 
 open class WalletConnect {
-
     var communicator = Communicator()
 
     public init() {}
@@ -78,7 +77,7 @@ open class WalletConnect {
     ///   - url: WalletConnect url
     ///   - error: error that triggered the disconnection
     private func onDisconnect(from url: WCURL, error: Error?) {
-        print("WC: didDisconnect url: \(url.bridgeURL.absoluteString)")
+        LogService.shared.log("WC: didDisconnect url: \(url.bridgeURL.absoluteString)")
         // check if disconnect happened during handshake
         guard let session = communicator.session(by: url) else {
             failedToConnect(url)
@@ -87,7 +86,7 @@ open class WalletConnect {
         // if a session was not initiated by the wallet or the dApp to disconnect, try to reconnect it.
         guard communicator.pendingDisconnectSession(by: url) != nil else {
             // TODO: should we notify delegate that we try to reconnect?
-            print("WC: trying to reconnect session by url: \(url.bridgeURL.absoluteString)")
+            LogService.shared.log("WC: trying to reconnect session by url: \(url.bridgeURL.absoluteString)")
             try! reconnect(to: session)
             return
         }
@@ -119,12 +118,11 @@ open class WalletConnect {
 
     func log(_ request: Request) {
         guard let text = try? request.json().string else { return }
-        print("WC: <== \(text)")
+        LogService.shared.log("WC: <== \(text)")
     }
 
     func log(_ response: Response) {
         guard let text = try? response.json().string else { return }
-        print("WC: <== \(text)")
+        LogService.shared.log("WC: <== \(text)")
     }
-
 }

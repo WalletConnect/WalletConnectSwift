@@ -5,14 +5,14 @@
 import UIKit
 
 class MainViewController: UIViewController {
-
     var handshakeController: HandshakeViewController!
     var actionsController: ActionsViewController!
     var walletConnect: WalletConnect!
 
     @IBAction func connect(_ sender: Any) {
         let connectionUrl = walletConnect.connect()
-        if let url = URL(string: connectionUrl), UIApplication.shared.canOpenURL(url) {
+        let deepLinkUrl = connectionUrl.replacingOccurrences(of: "wc:", with: "wc://")
+        if let url = URL(string: deepLinkUrl), UIApplication.shared.canOpenURL(url) {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         } else {
             handshakeController = HandshakeViewController.create(code: connectionUrl)
@@ -35,11 +35,9 @@ class MainViewController: UIViewController {
             }
         }
     }
-
 }
 
 extension MainViewController: WalletConnectDelegate {
-
     func failedToConnect() {
         onMainThread { [unowned self] in
             if let handshakeController = self.handshakeController {
@@ -70,11 +68,9 @@ extension MainViewController: WalletConnectDelegate {
             UIAlertController.showDisconnected(from: self)
         }
     }
-
 }
 
 extension UIAlertController {
-
     func withCloseButton() -> UIAlertController {
         addAction(UIAlertAction(title: "Close", style: .cancel))
         return self
@@ -89,5 +85,4 @@ extension UIAlertController {
         let alert = UIAlertController(title: "Did disconnect", message: nil, preferredStyle: .alert)
         controller.present(alert.withCloseButton(), animated: true)
     }
-
 }

@@ -9,7 +9,6 @@ protocol UpdateSessionHandlerDelegate: class {
 }
 
 class UpdateSessionHandler: RequestHandler {
-
     private weak var delegate: UpdateSessionHandlerDelegate!
 
     init(delegate: UpdateSessionHandlerDelegate) {
@@ -25,11 +24,10 @@ class UpdateSessionHandler: RequestHandler {
             let sessionInfo = try request.parameter(of: SessionInfo.self, at: 0)
             delegate.handler(self, didUpdateSessionByURL: request.url, approved: sessionInfo.approved)
         } catch {
-            print("WC: wrong format of wc_sessionUpdate request: \(error)")
+            LogService.shared.log("WC: wrong format of wc_sessionUpdate request: \(error)")
             // TODO: send error response
         }
     }
-
 }
 
 struct SessionInfo: Decodable {

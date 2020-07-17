@@ -1,7 +1,7 @@
 Pod::Spec.new do |spec|
   spec.name         = "WalletConnectSwift"
-  spec.version      = "1.0.1"
-  spec.summary      = "A delightful way to integrate the WalletConnect into your app."
+  spec.version      = "1.1.0"
+  spec.summary      = "A delightful way to integrate WalletConnect into your app."
   spec.description  = <<-DESC
   WalletConnect protocol implementation for enabling communication between dapps and
   wallets. This library provides both client and server parts so that you can integrate
@@ -16,6 +16,6 @@ Pod::Spec.new do |spec|
   spec.source       = { :git => "https://github.com/WalletConnect/WalletConnectSwift.git", :tag => "#{spec.version}" }
   spec.source_files  = "Sources/**/*.swift"
   spec.requires_arc = true
-  spec.dependency "CryptoSwift", "~> 1.0"
+  spec.dependency "CryptoSwift", "~> 1.2"
   spec.dependency "Starscream", "~> 3.1"
 end

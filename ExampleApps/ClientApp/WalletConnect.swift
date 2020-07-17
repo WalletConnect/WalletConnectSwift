@@ -12,7 +12,6 @@ protocol WalletConnectDelegate {
 }
 
 class WalletConnect {
-
     var client: Client!
     var session: Session!
     var delegate: WalletConnectDelegate
@@ -64,11 +63,9 @@ class WalletConnect {
             throw TestError.unknown
         }
     }
-
 }
 
 extension WalletConnect: ClientDelegate {
-
     func client(_ client: Client, didFailToConnect url: WCURL) {
         delegate.failedToConnect()
     }
@@ -84,5 +81,4 @@ extension WalletConnect: ClientDelegate {
         UserDefaults.standard.removeObject(forKey: sessionKey)
         delegate.didDisconnect()
     }
-
 }

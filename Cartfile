@@ -1,3 +1,2 @@
-github "krzyzanowskim/CryptoSwift" >= 1.0.0
-github "daltoniam/Starscream" >= 3.1.0
-
+github "krzyzanowskim/CryptoSwift" ~> 1.2.0
+github "daltoniam/Starscream" ~> 3.1.0

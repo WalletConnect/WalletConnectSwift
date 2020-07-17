@@ -5,7 +5,6 @@
 import Foundation
 
 public struct WCURL: Hashable, Codable {
-
     // topic is used for handshake only
     public var topic: String
     public var version: String
@@ -54,5 +53,4 @@ public struct WCURL: Hashable, Codable {
         self.bridgeURL = bridgeUrl
         self.key = key
     }
-
 }

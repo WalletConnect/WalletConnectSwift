@@ -6,7 +6,6 @@ import XCTest
 @testable import WalletConnectSwift
 
 class WalletConnectTests: XCTestCase {
-
     var wc = WalletConnect()
     let mockCommunicator = MockCommunicator()
 
@@ -37,5 +36,4 @@ class WalletConnectTests: XCTestCase {
     func test_whenReconnectingToSessionWithoutWalletInfo_thenThrows() {
         XCTAssertThrowsError(try wc.reconnect(to: Session.testSessionWithoutWalletInfo))
     }
-
 }
