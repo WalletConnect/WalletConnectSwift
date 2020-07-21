@@ -142,7 +142,7 @@ Please open `ExampleApps/ExampleApps.xcodeproj`
 In your `Package.swift`:
 
     dependencies: [
-        .package(url: "https://github.com/WalletConnect/WalletConnectSwift.git", .upToNextMinor(from: "1.1.0"))
+        .package(url: "https://github.com/WalletConnect/WalletConnectSwift.git", .upToNextMinor(from: "1.2.0"))
     ]
 
 ## CocoaPods
