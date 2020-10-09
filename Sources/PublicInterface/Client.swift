@@ -5,6 +5,7 @@
 import Foundation
 
 public protocol ClientDelegate: class {
+    func client(_ client: Client, didConnect url: WCURL)
     func client(_ client: Client, didFailToConnect url: WCURL)
     func client(_ client: Client, didConnect session: Session)
     func client(_ client: Client, didDisconnect session: Session)
@@ -179,6 +180,7 @@ public class Client: WalletConnect {
 
     override func onConnect(to url: WCURL) {
         LogService.shared.log("WC: client didConnect url: \(url.bridgeURL.absoluteString)")
+        delegate.client(self, didConnect: url)
         if let existingSession = communicator.session(by: url) {
             communicator.subscribe(on: existingSession.dAppInfo.peerId, url: existingSession.url)
             delegate.client(self, didConnect: existingSession)
