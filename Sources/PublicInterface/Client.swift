@@ -216,8 +216,14 @@ public class Client: WalletConnect {
     override func onTextReceive(_ text: String, from url: WCURL) {
         if let response = try? communicator.response(from: text, url: url) {
             log(response)
-            if let completion = responses.find(requestID: response.internalID) {
-                completion(response)
+            // Rainbow (at least) application send connect response with random id
+            // because of that correlated request can't be found by id. Here is crutch
+            let isConnectResponse = (try? response.result(as: Session.WalletInfo.self)) != nil
+            let completion = responses.find(requestID: response.internalID, isConnectResponse: isConnectResponse)
+            completion?(response)
+            if isConnectResponse {
+                responses.removeAll()
+            } else {
                 responses.remove(requestID: response.internalID)
             }
         } else if let request = try? communicator.request(from: text, url: url) {
@@ -287,11 +293,16 @@ public class Client: WalletConnect {
             }
         }
 
-        func find(requestID: JSONRPC_2_0.IDType) -> RequestResponse? {
+        func find(requestID: JSONRPC_2_0.IDType, isConnectResponse: Bool) -> RequestResponse? {
             var result: RequestResponse?
             dispatchPrecondition(condition: .notOnQueue(queue))
             queue.sync { [unowned self] in
-                result = self.responses[requestID]
+                if let response = self.responses[requestID] {
+                    result = response
+                }
+                if isConnectResponse, responses.count == 1, let response = responses.first {
+                    result = response.value
+                }
             }
             return result
         }
@@ -303,6 +314,12 @@ public class Client: WalletConnect {
             }
         }
 
+        func removeAll() {
+            dispatchPrecondition(condition: .notOnQueue(queue))
+            queue.sync { [unowned self] in
+                self.responses.removeAll()
+            }
+        }
     }
 
     /// https://docs.walletconnect.org/json-rpc/ethereum#parameters-3
