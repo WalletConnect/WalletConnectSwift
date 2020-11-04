@@ -184,7 +184,7 @@ public class Client: WalletConnect {
             delegate.client(self, didConnect: existingSession)
         } else { // establishing new connection, handshake in process
             communicator.subscribe(on: dAppInfo.peerId, url: url)
-            let request = try! Request(url: url, method: "wc_sessionRequest", params: [dAppInfo], id: UUID().hashValue)
+            let request = try! Request(url: url, method: "wc_sessionRequest", params: [dAppInfo], id: Request.payloadId())
             let requestID = request.internalID!
             responses.add(requestID: requestID) { [unowned self] response in
                 self.handleHandshakeResponse(response)
