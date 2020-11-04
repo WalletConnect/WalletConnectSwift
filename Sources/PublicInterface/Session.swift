@@ -40,12 +40,14 @@ public struct Session: Codable {
         public let description: String?
         public let icons: [URL]
         public let url: URL
+        public let scheme: String?
 
-        public init(name: String, description: String?, icons: [URL], url: URL) {
+        public init(name: String, description: String?, icons: [URL], url: URL, scheme: String? ) {
             self.name = name
             self.description = description
             self.icons = icons
             self.url = url
+            self.scheme = scheme
         }
     }
 
