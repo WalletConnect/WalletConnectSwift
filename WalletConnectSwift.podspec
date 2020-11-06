@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "WalletConnectSwift"
-  spec.version      = "1.2.0"
+  spec.version      = "1.3.0"
   spec.summary      = "A delightful way to integrate WalletConnect into your app."
   spec.description  = <<-DESC
   WalletConnect protocol implementation for enabling communication between dapps and
