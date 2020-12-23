@@ -9,7 +9,7 @@ protocol UpdateSessionHandlerDelegate: class {
 }
 
 class UpdateSessionHandler: RequestHandler {
-    private weak var delegate: UpdateSessionHandlerDelegate!
+    private weak var delegate: UpdateSessionHandlerDelegate?
 
     init(delegate: UpdateSessionHandlerDelegate) {
         self.delegate = delegate
@@ -22,7 +22,7 @@ class UpdateSessionHandler: RequestHandler {
     func handle(request: Request) {
         do {
             let sessionInfo = try request.parameter(of: SessionInfo.self, at: 0)
-            delegate.handler(self, didUpdateSessionByURL: request.url, approved: sessionInfo.approved)
+            delegate?.handler(self, didUpdateSessionByURL: request.url, approved: sessionInfo.approved)
         } catch {
             LogService.shared.log("WC: wrong format of wc_sessionUpdate request: \(error)")
             // TODO: send error response
