@@ -20,17 +20,20 @@ public struct Session: Codable {
     public struct DAppInfo: Codable, Equatable {
         public let peerId: String
         public let peerMeta: ClientMeta
+        public let chainId: Int?
         public let approved: Bool?
 
-        public init(peerId: String, peerMeta: ClientMeta, approved: Bool? = nil) {
+        public init(peerId: String, peerMeta: ClientMeta, chainId: Int? = nil, approved: Bool? = nil) {
             self.peerId = peerId
             self.peerMeta = peerMeta
+            self.chainId = chainId
             self.approved = approved
         }
 
         func with(approved: Bool) -> DAppInfo {
             return DAppInfo(peerId: self.peerId,
                             peerMeta: self.peerMeta,
+                            chainId: self.chainId,
                             approved: approved)
         }
     }
