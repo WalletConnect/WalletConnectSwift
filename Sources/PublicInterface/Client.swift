@@ -107,11 +107,13 @@ public class Client: WalletConnect {
     ///   - message: String representin Data to sign.
     ///   - completion: Response with string representing signature, or error.
     /// - Throws: client error.
-    public func eth_signTypedData(url: WCURL,
+    public func eth_signTypedData<T: Encodable>(url: WCURL,
                                   account: String,
-                                  message: String,
+                                  message: T,
                                   completion: @escaping RequestResponse) throws {
-        try sign(url: url, method: "eth_signTypedData", param1: account, param2: message, completion: completion)
+        let params = SignTypedDataParams(account: account, message: message)
+        let request = try Request(url: url, method: "eth_signTypedData", positional: params)
+        try send(request, completion: completion)
     }
 
     private func sign(url: WCURL,
@@ -329,6 +331,17 @@ public class Client: WalletConnect {
             self.gasPrice = gasPrice
             self.value = value
             self.nonce = nonce
+        }
+    }
+
+    fileprivate struct SignTypedDataParams<T: Encodable>: Encodable {
+        var account: String
+        var message: T
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.unkeyedContainer()
+            try container.encode(account)
+            try container.encode(message)
         }
     }
 }

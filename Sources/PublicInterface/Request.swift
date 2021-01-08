@@ -67,6 +67,14 @@ public class Request {
         self.init(payload: payload, url: url)
     }
 
+    public convenience init<T: Encodable>(url: WCURL, method: Method, positional params: T, id: RequestID? = payloadId()) throws {
+        let data = try JSONEncoder.encoder().encode(params)
+        let values = try JSONDecoder().decode([JSONRPC_2_0.ValueType].self, from: data)
+        let parameters = JSONRPC_2_0.Request.Params.positional(values)
+        let payload = JSONRPC_2_0.Request(method: method, params: parameters, id: JSONRPC_2_0.IDType(id))
+        self.init(payload: payload, url: url)
+    }
+
     public convenience init<T: Encodable>(url: WCURL, method: Method, namedParams params: T, id: RequestID? = payloadId()) throws {
         let data = try JSONEncoder.encoder().encode(params)
         let values = try JSONDecoder().decode([String: JSONRPC_2_0.ValueType].self, from: data)
