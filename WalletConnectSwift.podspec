@@ -17,5 +17,5 @@ Pod::Spec.new do |spec|
   spec.source_files  = "Sources/**/*.swift"
   spec.requires_arc = true
   spec.dependency "CryptoSwift", "~> 1.2"
-  spec.dependency "Starscream", "~> 3.1"
+  spec.dependency "Starscream", "~> 4.0"
 end
