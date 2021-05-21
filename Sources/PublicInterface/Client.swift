@@ -35,15 +35,15 @@ public class Client: WalletConnect {
     ///   - request: Request object.
     ///   - completion: RequestResponse completion.
     /// - Throws: Client error.
-    public func send(_ request: Request, completion: RequestResponse?) throws {
+    public func send(_ request: Request, onResponse: RequestResponse?) throws {
         guard let session = communicator.session(by: request.url) else {
             throw ClientError.sessionNotFound
         }
         guard let walletInfo = session.walletInfo else {
             throw ClientError.missingWalletInfoInSession
         }
-        if let completion = completion, let requestID = request.internalID, requestID != .null {
-            responses.add(requestID: requestID, response: completion)
+        if let onResponse = onResponse, let requestID = request.internalID, requestID != .null {
+            responses.add(requestID: requestID, response: onResponse)
         }
         communicator.send(request, topic: walletInfo.peerId)
     }
@@ -75,9 +75,11 @@ public class Client: WalletConnect {
     public func personal_sign(url: WCURL,
                               message: String,
                               account: String,
-                              completion: @escaping RequestResponse) throws {
+                              completion: () -> Void,
+                              onResponse: @escaping RequestResponse) throws {
         let messageHex = message.data(using: .utf8)!.map { String(format: "%02x", $0) }.joined()
-        try sign(url: url, method: "personal_sign", param1: messageHex, param2: account, completion: completion)
+        try sign(url: url, method: "personal_sign", param1: messageHex, param2: account, completion: onResponse)
+        completion()
     }
 
     /// Request to sign a message.
@@ -93,8 +95,10 @@ public class Client: WalletConnect {
     public func eth_sign(url: WCURL,
                          account: String,
                          message: String,
-                         completion: @escaping RequestResponse) throws {
-        try sign(url: url, method: "eth_sign", param1: account, param2: message, completion: completion)
+                         completion: () -> Void,
+                         onResponse: @escaping RequestResponse) throws {
+        try sign(url: url, method: "eth_sign", param1: account, param2: message, completion: onResponse)
+        completion()
     }
 
     /// Request to sign typed daya.
@@ -110,8 +114,10 @@ public class Client: WalletConnect {
     public func eth_signTypedData(url: WCURL,
                                   account: String,
                                   message: String,
-                                  completion: @escaping RequestResponse) throws {
-        try sign(url: url, method: "eth_signTypedData", param1: account, param2: message, completion: completion)
+                                  completion: () -> Void,
+                                  onResponse: @escaping RequestResponse) throws {
+        try sign(url: url, method: "eth_signTypedData", param1: account, param2: message, completion: onResponse)
+        completion()
     }
 
     private func sign(url: WCURL,
@@ -120,7 +126,7 @@ public class Client: WalletConnect {
                       param2: String,
                       completion: @escaping RequestResponse) throws {
         let request = try Request(url: url, method: method, params: [param1, param2])
-        try send(request, completion: completion)
+        try send(request, onResponse: completion)
     }
 
     /// Request to send a transaction.
@@ -134,8 +140,11 @@ public class Client: WalletConnect {
     /// - Throws: client error.
     public func eth_sendTransaction(url: WCURL,
                                     transaction: Transaction,
-                                    completion: @escaping RequestResponse) throws {
-        try handleTransaction(url: url, method: "eth_sendTransaction", transaction: transaction, completion: completion)
+                                    completion: () -> Void,
+                                    onResponse: @escaping RequestResponse) throws {
+        try handleTransaction(url: url, method: "eth_sendTransaction", transaction: transaction, onResponse: onResponse)
+        
+        completion()
     }
 
     /// Request to sign a transaction.
@@ -149,16 +158,18 @@ public class Client: WalletConnect {
     /// - Throws: client error.
     public func eth_signTransaction(url: WCURL,
                                     transaction: Transaction,
-                                    completion: @escaping RequestResponse) throws {
-        try handleTransaction(url: url, method: "eth_signTransaction", transaction: transaction, completion: completion)
+                                    completion: () -> Void,
+                                    onResponse: @escaping RequestResponse) throws {
+        try handleTransaction(url: url, method: "eth_signTransaction", transaction: transaction, onResponse: onResponse)
+        completion()
     }
 
     private func handleTransaction(url: WCURL,
                                    method: String,
                                    transaction: Transaction,
-                                   completion: @escaping RequestResponse) throws {
+                                   onResponse: @escaping RequestResponse) throws {
         let request = try Request(url: url, method: method, params: [transaction])
-        try send(request, completion: completion)
+        try send(request, onResponse: onResponse)
     }
 
     /// Request to send a raw transaction. Creates new message call transaction or
@@ -172,9 +183,11 @@ public class Client: WalletConnect {
     ///   - completion: Response with the transaction hash, or the zero hash if the transaction is not
     ///                 yet available, or error.
     /// - Throws: client error.
-    public func eth_sendRawTransaction(url: WCURL, data: String, completion: @escaping RequestResponse) throws {
+    public func eth_sendRawTransaction(url: WCURL, data: String, completion: () -> Void, onResponse: @escaping RequestResponse) throws {
         let request = try Request(url: url, method: "eth_sendRawTransaction", params: [data])
-        try send(request, completion: completion)
+        try send(request, onResponse: onResponse)
+        
+        completion()
     }
 
     override func onConnect(to url: WCURL) {
@@ -259,7 +272,7 @@ public class Client: WalletConnect {
     override func sendDisconnectSessionRequest(for session: Session) throws {
         let dappInfo = session.dAppInfo.with(approved: false)
         let request = try Request(url: session.url, method: "wc_sessionUpdate", params: [dappInfo], id: nil)
-        try send(request, completion: nil)
+        try send(request, onResponse: nil)
     }
 
     override func failedToConnect(_ url: WCURL) {

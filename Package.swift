@@ -2,14 +2,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "WalletConnectSwift",
+    name: "FledgeWalletConnectSwift",
     platforms: [
         .macOS(.v10_14), .iOS(.v11),
     ],
     products: [
         .library(
-            name: "WalletConnectSwift",
-            targets: ["WalletConnectSwift"])
+            name: "FledgeWalletConnectSwift",
+            targets: ["FledgeWalletConnectSwift"])
     ],
     dependencies: [
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMinor(from: "1.4.0")),
@@ -17,10 +17,10 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "WalletConnectSwift", 
+            name: "FledgeWalletConnectSwift", 
             dependencies: ["CryptoSwift", "Starscream"],
             path: "Sources"),
-        .testTarget(name: "WalletConnectSwiftTests", dependencies: ["WalletConnectSwift"], path: "Tests"),
+//        .testTarget(name: "WalletConnectSwiftTests", dependencies: ["WalletConnectSwift"], path: "Tests"),
     ],
     swiftLanguageVersions: [.v5]
 )
