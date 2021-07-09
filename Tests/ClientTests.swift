@@ -79,6 +79,12 @@ class ClientTests: XCTestCase {
         XCTAssertEqual(communicator.subscribedOn?.url, Session.testSession.url)
     }
 
+    func test_onConnect_callsDelegate() {
+        XCTAssertNil(delegate.connectedUrl)
+        client.onConnect(to: WCURL.testURL)
+        XCTAssertEqual(delegate.connectedUrl, WCURL.testURL)
+    }
+
     func test_onConnect_whenSessionExists_thenCallsDelegate() {
         communicator.addSession(Session.testSession)
         XCTAssertNil(delegate.connectedSession)
@@ -104,6 +110,11 @@ class MockClientDelegate: ClientDelegate {
         didFailToConnect = true
     }
 
+    var connectedUrl: WCURL?
+    func client(_ client: Client, didConnect url: WCURL) {
+        connectedUrl = url
+    }
+
     var connectedSession: Session?
     func client(_ client: Client, didConnect session: Session) {
         connectedSession = session
@@ -112,5 +123,10 @@ class MockClientDelegate: ClientDelegate {
     var disconnectedSession: Session?
     func client(_ client: Client, didDisconnect session: Session) {
         disconnectedSession = session
+    }
+
+    var didUpdateSession: Session?
+    func client(_ client: Client, didUpdate session: Session) {
+        didUpdateSession = session
     }
 }

@@ -45,7 +45,7 @@ public struct Session: Codable {
         public let url: URL
         public let scheme: String?
 
-        public init(name: String, description: String?, icons: [URL], url: URL, scheme: String?) {
+        public init(name: String, description: String?, icons: [URL], url: URL, scheme: String? = nil) {
             self.name = name
             self.description = description
             self.icons = icons

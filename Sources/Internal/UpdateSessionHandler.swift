@@ -4,7 +4,7 @@
 
 import Foundation
 
-protocol UpdateSessionHandlerDelegate: class {
+protocol UpdateSessionHandlerDelegate: AnyObject {
     func handler(_ handler: UpdateSessionHandler, didUpdateSessionByURL: WCURL, approved: Bool)
 }
 

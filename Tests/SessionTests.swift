@@ -29,11 +29,11 @@ class SessionTests: XCTestCase {
         XCTAssertEqual(session.walletInfo?.accounts, ["0xCF4140193531B8b2d6864cA7486Ff2e18da5cA95"])
         XCTAssertEqual(session.walletInfo?.chainId, 4)
         XCTAssertEqual(session.walletInfo?.peerId, "Gnosis Safe ID")
-        XCTAssertEqual(session.walletInfo?.peerMeta?.name, "Gnosis Safe")
-        XCTAssertEqual(session.walletInfo?.peerMeta?.url, URL(string: "https://safe.gnosis.io")!)
-        XCTAssertEqual(session.walletInfo?.peerMeta?.icons, [URL(string: "https://example.com/1.png")!,
+        XCTAssertEqual(session.walletInfo?.peerMeta.name, "Gnosis Safe")
+        XCTAssertEqual(session.walletInfo?.peerMeta.url, URL(string: "https://safe.gnosis.io")!)
+        XCTAssertEqual(session.walletInfo?.peerMeta.icons, [URL(string: "https://example.com/1.png")!,
                                                             URL(string: "https://example.com/2.png")!])
-        XCTAssertEqual(session.walletInfo?.peerMeta?.description, "Secure 2FA Wallet")
+        XCTAssertEqual(session.walletInfo?.peerMeta.description, "Secure 2FA Wallet")
     }
 
     func test_creationResponse() throws {
