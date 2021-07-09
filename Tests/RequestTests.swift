@@ -40,7 +40,6 @@ class RequestTests: XCTestCase {
 
         let `default` = Request(url: url, method: method)
         XCTAssertNotNil(`default`.id)
-        XCTAssertNotNil(UUID(uuidString: `default`.id as! String))
     }
 
     func test_positionalParameters_empty() throws {

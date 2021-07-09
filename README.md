@@ -51,7 +51,7 @@ You do this by registering request handlers. You have the flexibility to registe
 server.register(handler: PersonalSignHandler(for: self, server: server, wallet: wallet))
 ```
 
-Handlers are asked (in order of registration) whether they can handle each request. First handler that returns `true` from `canHandle(request:)` method will get the `hanlde(request:)` call. All other handlers will be skipped.
+Handlers are asked (in order of registration) whether they can handle each request. First handler that returns `true` from `canHandle(request:)` method will get the `handle(request:)` call. All other handlers will be skipped.
 
 In the request handler, check the incoming request's method in `canHandle` implementation, and handle actual request in the `handle(request:)` implementation.
 

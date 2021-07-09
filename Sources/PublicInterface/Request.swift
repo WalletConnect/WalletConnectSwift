@@ -30,13 +30,36 @@ public class Request {
         self.payload = payload
         self.url = url
     }
+    
+    /// Generates new ID for a request that is compatible with JS clients.
+    /// - Returns: new ID
+    public static func payloadId() -> RequestID {
+        // Port of the payloadId() from the JS library to make sure that
+        // generated IDs fit into JS's number size (max integer size is
+        // 2^53 - 1).
+        //
+        // NOTE: new Date().getTime() is time in milliseconds in JS, however,
+        // in iOS it is time in seconds. So instead of 1000, we multiply by 1 million
+        //
+        // NOTE: the id may still be greater than JS max number, but
+        // this would happen if the date is in year 2255
+        //
+        // JS code:
+        //    const datePart: number = new Date().getTime() * Math.pow(10, 3)
+        //    const extraPart: number = Math.floor(Math.random() * Math.pow(10, 3))
+        //    const id: number = datePart + extraPart
+        let datePart = Int(Date().timeIntervalSince1970 * 1000_000)
+        let extraPart = Int.random(in: 0..<1000)
+        let id = datePart + extraPart
+        return id
+    }
 
-    public convenience init(url: WCURL, method: Method, id: RequestID? = UUID().uuidString) {
+    public convenience init(url: WCURL, method: Method, id: RequestID? = payloadId()) {
         let payload = JSONRPC_2_0.Request(method: method, params: nil, id: JSONRPC_2_0.IDType(id))
         self.init(payload: payload, url: url)
     }
 
-    public convenience init<T: Encodable>(url: WCURL, method: Method, params: [T], id: RequestID? = UUID().uuidString) throws {
+    public convenience init<T: Encodable>(url: WCURL, method: Method, params: [T], id: RequestID? = payloadId()) throws {
         let data = try JSONEncoder.encoder().encode(params)
         let values = try JSONDecoder().decode([JSONRPC_2_0.ValueType].self, from: data)
         let parameters = JSONRPC_2_0.Request.Params.positional(values)
@@ -44,7 +67,7 @@ public class Request {
         self.init(payload: payload, url: url)
     }
 
-    public convenience init<T: Encodable>(url: WCURL, method: Method, namedParams params: T, id: RequestID? = UUID().uuidString) throws {
+    public convenience init<T: Encodable>(url: WCURL, method: Method, namedParams params: T, id: RequestID? = payloadId()) throws {
         let data = try JSONEncoder.encoder().encode(params)
         let values = try JSONDecoder().decode([String: JSONRPC_2_0.ValueType].self, from: data)
         let parameters = JSONRPC_2_0.Request.Params.named(values)

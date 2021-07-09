@@ -45,7 +45,7 @@ public struct Session: Codable {
         public let url: URL
         public let scheme: String?
 
-        public init(name: String, description: String?, icons: [URL], url: URL, scheme: String? ) {
+        public init(name: String, description: String?, icons: [URL], url: URL, scheme: String?) {
             self.name = name
             self.description = description
             self.icons = icons
@@ -59,9 +59,9 @@ public struct Session: Codable {
         public let accounts: [String]
         public let chainId: Int
         public let peerId: String
-        public let peerMeta: ClientMeta?
+        public let peerMeta: ClientMeta
 
-        public init(approved: Bool, accounts: [String], chainId: Int, peerId: String, peerMeta: ClientMeta?) {
+        public init(approved: Bool, accounts: [String], chainId: Int, peerId: String, peerMeta: ClientMeta) {
             self.approved = approved
             self.accounts = accounts
             self.chainId = chainId

@@ -27,7 +27,7 @@ public protocol ServerDelegate: class {
 
 open class Server: WalletConnect {
     private let handlers: Handlers
-    public private(set) weak var delegate: ServerDelegate!
+    public private(set) weak var delegate: ServerDelegate?
 
     public enum ServerError: Error {
         case missingWalletInfoInSession
@@ -93,7 +93,7 @@ open class Server: WalletConnect {
         LogService.shared.log("WC: didConnect url: \(url.bridgeURL.absoluteString)")
         if let session = communicator.session(by: url) { // reconnecting existing session
             communicator.subscribe(on: session.walletInfo!.peerId, url: session.url)
-            delegate.server(self, didConnect: session)
+            delegate?.server(self, didConnect: session)
         } else { // establishing new connection, handshake in process
             communicator.subscribe(on: url.topic, url: url)
         }
@@ -117,11 +117,11 @@ open class Server: WalletConnect {
     }
 
     override func failedToConnect(_ url: WCURL) {
-        delegate.server(self, didFailToConnect: url)
+        delegate?.server(self, didFailToConnect: url)
     }
 
     override func didDisconnect(_ session: Session) {
-        delegate.server(self, didDisconnect: session)
+        delegate?.server(self, didDisconnect: session)
     }
 
     /// thread-safe collection of RequestHandlers
@@ -165,8 +165,8 @@ extension Server: HandshakeHandlerDelegate {
     func handler(_ handler: HandshakeHandler,
                  didReceiveRequestToCreateSession session: Session,
                  requestId: RequestID) {
-        delegate.server(self, shouldStart: session) { [weak self] walletInfo in
-            guard let self = self else { return }
+        delegate?.server(self, shouldStart: session) { [weak self] walletInfo in
+            guard let `self` = self else { return }
             // TODO: error handling!
             let response = try! Response(url: session.url, value: walletInfo, id: requestId)
             self.communicator.send(response, topic: session.dAppInfo.peerId)
@@ -174,7 +174,7 @@ extension Server: HandshakeHandlerDelegate {
                 let updatedSession = Session(url: session.url, dAppInfo: session.dAppInfo, walletInfo: walletInfo)
                 self.communicator.addSession(updatedSession)
                 self.communicator.subscribe(on: walletInfo.peerId, url: updatedSession.url)
-                self.delegate.server(self, didConnect: updatedSession)
+                self.delegate?.server(self, didConnect: updatedSession)
             }
         }
     }
@@ -187,7 +187,7 @@ extension Server: UpdateSessionHandlerDelegate {
             do {
                 try disconnect(from: session)
             } catch { // session already disconnected
-                delegate.server(self, didDisconnect: session)
+                delegate?.server(self, didDisconnect: session)
             }
         }
     }

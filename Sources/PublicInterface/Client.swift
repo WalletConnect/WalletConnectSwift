@@ -5,8 +5,8 @@
 import Foundation
 
 public protocol ClientDelegate: class {
-    func client(_ client: Client, didConnect url: WCURL)
     func client(_ client: Client, didFailToConnect url: WCURL)
+    func client(_ client: Client, didConnect url: WCURL)
     func client(_ client: Client, didConnect session: Session)
     func client(_ client: Client, didDisconnect session: Session)
     func client(_ client: Client, didUpdate session: Session)
@@ -187,7 +187,7 @@ public class Client: WalletConnect {
             delegate?.client(self, didConnect: existingSession)
         } else { // establishing new connection, handshake in process
             communicator.subscribe(on: dAppInfo.peerId, url: url)
-            let request = try! Request(url: url, method: "wc_sessionRequest", params: [dAppInfo], id: UUID().hashValue)
+            let request = try! Request(url: url, method: "wc_sessionRequest", params: [dAppInfo], id: Request.payloadId())
             let requestID = request.internalID!
             responses.add(requestID: requestID) { [unowned self] response in
                 self.handleHandshakeResponse(response)
@@ -219,14 +219,8 @@ public class Client: WalletConnect {
     override func onTextReceive(_ text: String, from url: WCURL) {
         if let response = try? communicator.response(from: text, url: url) {
             log(response)
-            // Rainbow (at least) application send connect response with random id
-            // because of that correlated request can't be found by id. Here is crutch
-            let isConnectResponse = (try? response.result(as: Session.WalletInfo.self)) != nil
-            let completion = responses.find(requestID: response.internalID, isConnectResponse: isConnectResponse)
-            completion?(response)
-            if isConnectResponse {
-                responses.removeAll()
-            } else {
+            if let completion = responses.find(requestID: response.internalID) {
+                completion(response)
                 responses.remove(requestID: response.internalID)
             }
         } else if let request = try? communicator.request(from: text, url: url) {
@@ -314,16 +308,11 @@ public class Client: WalletConnect {
             }
         }
 
-        func find(requestID: JSONRPC_2_0.IDType, isConnectResponse: Bool) -> RequestResponse? {
+        func find(requestID: JSONRPC_2_0.IDType) -> RequestResponse? {
             var result: RequestResponse?
             dispatchPrecondition(condition: .notOnQueue(queue))
             queue.sync { [unowned self] in
-                if let response = self.responses[requestID] {
-                    result = response
-                }
-                if isConnectResponse, responses.count == 1, let response = responses.first {
-                    result = response.value
-                }
+                result = self.responses[requestID]
             }
             return result
         }
@@ -332,13 +321,6 @@ public class Client: WalletConnect {
             dispatchPrecondition(condition: .notOnQueue(queue))
             queue.sync { [unowned self] in
                 _ = self.responses.removeValue(forKey: requestID)
-            }
-        }
-
-        func removeAll() {
-            dispatchPrecondition(condition: .notOnQueue(queue))
-            queue.sync { [unowned self] in
-                self.responses.removeAll()
             }
         }
     }
