@@ -23,6 +23,9 @@ public protocol ServerDelegate: AnyObject {
 
     /// Called only when the session is disconnect with intention of the dApp or the Wallet.
     func server(_ server: Server, didDisconnect session: Session)
+
+    /// Called only when the session is updated with intention of the dAppt.
+    func server(_ server: Server, didUpdate session: Session)
 }
 
 open class Server: WalletConnect {
@@ -202,6 +205,7 @@ extension Server: UpdateSessionHandlerDelegate {
             var updatedSesson = session
             updatedSesson.walletInfo = updatedInfo
             communicator.addOrUpdateSession(updatedSesson)
+            delegate?.server(self, didUpdate: updatedSesson)
         }
     }
 }
