@@ -29,8 +29,8 @@ class Communicator {
         return sessions.find(url: url)
     }
 
-    func addSession(_ session: Session) {
-        sessions.add(session)
+    func addOrUpdateSession(_ session: Session) {
+        sessions.addOrUpdate(session)
     }
 
     func removeSession(by url: WCURL) {
@@ -53,8 +53,8 @@ class Communicator {
         return pendingDisconnectSessions.find(url: url)
     }
 
-    func addPendingDisconnectSession(_ session: Session) {
-        pendingDisconnectSessions.add(session)
+    func addOrUpdatePendingDisconnectSession(_ session: Session) {
+        pendingDisconnectSessions.addOrUpdate(session)
     }
 
     func removePendingDisconnectSession(by url: WCURL) {
@@ -107,7 +107,7 @@ class Communicator {
             self.queue = queue
         }
 
-        func add(_ session: Session) {
+        func addOrUpdate(_ session: Session) {
             dispatchPrecondition(condition: .notOnQueue(queue))
             queue.sync { [unowned self] in
                 self.sessions[session.url] = session

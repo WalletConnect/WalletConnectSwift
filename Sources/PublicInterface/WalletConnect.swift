@@ -33,7 +33,7 @@ open class WalletConnect {
         guard session.walletInfo != nil else {
             throw WalletConnectError.missingWalletInfoInSession
         }
-        communicator.addSession(session)
+        communicator.addOrUpdateSession(session)
         listen(on: session.url)
     }
 
@@ -46,7 +46,7 @@ open class WalletConnect {
             throw WalletConnectError.tryingToDisconnectInactiveSession
         }
         try sendDisconnectSessionRequest(for: session)
-        communicator.addPendingDisconnectSession(session)
+        communicator.addOrUpdatePendingDisconnectSession(session)
         communicator.disconnect(from: session.url)
     }
 

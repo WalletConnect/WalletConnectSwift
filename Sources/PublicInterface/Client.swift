@@ -4,7 +4,7 @@
 
 import Foundation
 
-public protocol ClientDelegate: class {
+public protocol ClientDelegate: AnyObject {
     func client(_ client: Client, didFailToConnect url: WCURL)
     func client(_ client: Client, didConnect url: WCURL)
     func client(_ client: Client, didConnect session: Session)
@@ -208,7 +208,7 @@ public class Client: WalletConnect {
                 return
             }
 
-            communicator.addSession(session)
+            communicator.addOrUpdateSession(session)
             delegate?.client(self, didConnect: session)
         } catch {
             // TODO: handle error
@@ -236,7 +236,9 @@ public class Client: WalletConnect {
                 try! send(Response(request: request, error: .invalidJSON))
                 return
             }
+
             guard let session = communicator.session(by: request.url) else { return }
+
             if !info.approved {
                 do {
                     try disconnect(from: session)
@@ -244,21 +246,19 @@ public class Client: WalletConnect {
                     delegate?.client(self, didDisconnect: session)
                 }
             } else {
-                if let walletInfo = session.walletInfo {
-                    let updatedInfo = Session.WalletInfo(
-                        approved: info.approved,
-                        accounts: info.accounts ?? [],
-                        chainId: info.chainId,
-                        peerId: walletInfo.peerId,
-                        peerMeta: walletInfo.peerMeta
-                    )
-                    var updatedSesson = session
-                    updatedSesson.walletInfo = updatedInfo
-                    communicator.addSession(updatedSesson)
-                    delegate?.client(self, didUpdate: updatedSesson)
-                } else {
-                    delegate?.client(self, didUpdate: session)
-                }
+                // we do not add sessions without walletInfo
+                let walletInfo = session.walletInfo!
+                let updatedInfo = Session.WalletInfo(
+                    approved: info.approved,
+                    accounts: info.accounts ?? [],
+                    chainId: info.chainId ?? ChainID.mainnet,
+                    peerId: walletInfo.peerId,
+                    peerMeta: walletInfo.peerMeta
+                )
+                var updatedSesson = session
+                updatedSesson.walletInfo = updatedInfo
+                communicator.addOrUpdateSession(updatedSesson)
+                delegate?.client(self, didUpdate: updatedSesson)
             }
         } else {
             // TODO: error handling

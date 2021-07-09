@@ -69,7 +69,7 @@ public struct Session: Codable {
             self.peerMeta = peerMeta
         }
 
-        func with(approved: Bool) -> WalletInfo {
+        public func with(approved: Bool) -> WalletInfo {
             return WalletInfo(approved: approved,
                               accounts: self.accounts,
                               chainId: self.chainId,
