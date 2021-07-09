@@ -16,7 +16,7 @@ class MockCommunicator: Communicator {
         didListen = true
     }
 
-    override func addSession(_ session: Session) {
+    override func addOrUpdateSession(_ session: Session) {
         sessions.append(session)
     }
     

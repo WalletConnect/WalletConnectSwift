@@ -4,10 +4,12 @@
 
 import Foundation
 
-public protocol ClientDelegate: class {
+public protocol ClientDelegate: AnyObject {
     func client(_ client: Client, didFailToConnect url: WCURL)
+    func client(_ client: Client, didConnect url: WCURL)
     func client(_ client: Client, didConnect session: Session)
     func client(_ client: Client, didDisconnect session: Session)
+    func client(_ client: Client, didUpdate session: Session)
 }
 
 public class Client: WalletConnect {
@@ -179,6 +181,7 @@ public class Client: WalletConnect {
 
     override func onConnect(to url: WCURL) {
         LogService.shared.log("WC: client didConnect url: \(url.bridgeURL.absoluteString)")
+        delegate?.client(self, didConnect: url)
         if let existingSession = communicator.session(by: url) {
             communicator.subscribe(on: existingSession.dAppInfo.peerId, url: existingSession.url)
             delegate?.client(self, didConnect: existingSession)
@@ -205,7 +208,7 @@ public class Client: WalletConnect {
                 return
             }
 
-            communicator.addSession(session)
+            communicator.addOrUpdateSession(session)
             delegate?.client(self, didConnect: session)
         } catch {
             // TODO: handle error
@@ -228,16 +231,34 @@ public class Client: WalletConnect {
 
     private func expectUpdateSessionRequest(_ request: Request) {
         if request.method == "wc_sessionUpdate" {
-            guard let approval = sessionApproval(from: request) else {
+            guard let info = sessionInfo(from: request) else {
                 // TODO: error handling
                 try! send(Response(request: request, error: .invalidJSON))
                 return
             }
-            guard let session = communicator.session(by: request.url), !approval else { return }
-            do {
-                try disconnect(from: session)
-            } catch { // session already disconnected
-                delegate?.client(self, didDisconnect: session)
+
+            guard let session = communicator.session(by: request.url) else { return }
+
+            if !info.approved {
+                do {
+                    try disconnect(from: session)
+                } catch { // session already disconnected
+                    delegate?.client(self, didDisconnect: session)
+                }
+            } else {
+                // we do not add sessions without walletInfo
+                let walletInfo = session.walletInfo!
+                let updatedInfo = Session.WalletInfo(
+                    approved: info.approved,
+                    accounts: info.accounts ?? [],
+                    chainId: info.chainId ?? ChainID.mainnet,
+                    peerId: walletInfo.peerId,
+                    peerMeta: walletInfo.peerMeta
+                )
+                var updatedSesson = session
+                updatedSesson.walletInfo = updatedInfo
+                communicator.addOrUpdateSession(updatedSesson)
+                delegate?.client(self, didUpdate: updatedSesson)
             }
         } else {
             // TODO: error handling
@@ -246,10 +267,10 @@ public class Client: WalletConnect {
         }
     }
 
-    private func sessionApproval(from request: Request) -> Bool? {
+    private func sessionInfo(from request: Request) -> SessionInfo? {
         do {
             let info = try request.parameter(of: SessionInfo.self, at: 0)
-            return info.approved
+            return info
         } catch {
             LogService.shared.log("WC: incoming approval cannot be parsed: \(error)")
             return nil
@@ -302,7 +323,6 @@ public class Client: WalletConnect {
                 _ = self.responses.removeValue(forKey: requestID)
             }
         }
-
     }
 
     /// https://docs.walletconnect.org/json-rpc/ethereum#parameters-3

@@ -21,7 +21,7 @@ class WalletConnectTests: XCTestCase {
     }
 
     func test_whenConnectingToExistingURL_thenThrows() {
-        mockCommunicator.addSession(Session.testSession)
+        mockCommunicator.addOrUpdateSession(Session.testSession)
         XCTAssertThrowsError(try wc.connect(to: WCURL.testURL))
     }
 

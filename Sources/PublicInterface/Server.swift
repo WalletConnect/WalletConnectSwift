@@ -4,12 +4,12 @@
 
 import Foundation
 
-public protocol RequestHandler: class {
+public protocol RequestHandler: AnyObject {
     func canHandle(request: Request) -> Bool
     func handle(request: Request)
 }
 
-public protocol ServerDelegate: class {
+public protocol ServerDelegate: AnyObject {
     /// Websocket connection was dropped during handshake. The connectoin process should be initiated again.
     func server(_ server: Server, didFailToConnect url: WCURL)
 
@@ -172,7 +172,7 @@ extension Server: HandshakeHandlerDelegate {
             self.communicator.send(response, topic: session.dAppInfo.peerId)
             if walletInfo.approved {
                 let updatedSession = Session(url: session.url, dAppInfo: session.dAppInfo, walletInfo: walletInfo)
-                self.communicator.addSession(updatedSession)
+                self.communicator.addOrUpdateSession(updatedSession)
                 self.communicator.subscribe(on: walletInfo.peerId, url: updatedSession.url)
                 self.delegate?.server(self, didConnect: updatedSession)
             }
@@ -181,14 +181,27 @@ extension Server: HandshakeHandlerDelegate {
 }
 
 extension Server: UpdateSessionHandlerDelegate {
-    func handler(_ handler: UpdateSessionHandler, didUpdateSessionByURL url: WCURL, approved: Bool) {
+    func handler(_ handler: UpdateSessionHandler, didUpdateSessionByURL url: WCURL, sessionInfo: SessionInfo) {
         guard let session = communicator.session(by: url) else { return }
-        if !approved {
+        if !sessionInfo.approved {
             do {
                 try disconnect(from: session)
             } catch { // session already disconnected
                 delegate?.server(self, didDisconnect: session)
             }
+        } else {
+            // we do not add sessions without walletInfo
+            let walletInfo = session.walletInfo!
+            let updatedInfo = Session.WalletInfo(
+                approved: sessionInfo.approved,
+                accounts: sessionInfo.accounts ?? [],
+                chainId: sessionInfo.chainId ?? ChainID.mainnet,
+                peerId: walletInfo.peerId,
+                peerMeta: walletInfo.peerMeta
+            )
+            var updatedSesson = session
+            updatedSesson.walletInfo = updatedInfo
+            communicator.addOrUpdateSession(updatedSesson)
         }
     }
 }

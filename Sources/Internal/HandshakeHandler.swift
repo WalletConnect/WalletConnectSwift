@@ -4,7 +4,7 @@
 
 import Foundation
 
-protocol HandshakeHandlerDelegate: class {
+protocol HandshakeHandlerDelegate: AnyObject {
     // TODO: instead of IDType, use RequestID
     func handler(_ handler: HandshakeHandler, didReceiveRequestToCreateSession: Session, requestId: RequestID)
 }

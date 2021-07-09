@@ -23,7 +23,7 @@ class ClientTests: XCTestCase {
     }
 
     func test_sendRequest_whenNoWalletInfo_thenThrows() {
-        communicator.addSession(Session.testSessionWithoutWalletInfo)
+        communicator.addOrUpdateSession(Session.testSessionWithoutWalletInfo)
         XCTAssertThrowsError(try client.send(Request.testRequest, completion: nil),
                              "missingWalletInfoInSession") { error in
                                 XCTAssertEqual(error as? Client.ClientError, .missingWalletInfoInSession)
@@ -31,7 +31,7 @@ class ClientTests: XCTestCase {
     }
 
     func test_sendRequest_callsCommunicator() {
-        communicator.addSession(Session.testSession)
+        communicator.addOrUpdateSession(Session.testSession)
         try? client.send(Request.testRequest, completion: nil)
         XCTAssertNotNil(communicator.sentRequest)
     }
@@ -68,19 +68,25 @@ class ClientTests: XCTestCase {
 
     @discardableResult
     private func prepareAccountWithTestSession() -> String {
-        communicator.addSession(Session.testSession)
+        communicator.addOrUpdateSession(Session.testSession)
         return Session.testSession.walletInfo!.accounts[0]
     }
 
     func test_onConnect_whenSessionExists_thenSubscribesOnDappPeerIdTopic() {
-        communicator.addSession(Session.testSession)
+        communicator.addOrUpdateSession(Session.testSession)
         client.onConnect(to: WCURL.testURL)
         XCTAssertEqual(communicator.subscribedOn?.topic, Session.testSession.dAppInfo.peerId)
         XCTAssertEqual(communicator.subscribedOn?.url, Session.testSession.url)
     }
 
+    func test_onConnect_callsDelegate() {
+        XCTAssertNil(delegate.connectedUrl)
+        client.onConnect(to: WCURL.testURL)
+        XCTAssertEqual(delegate.connectedUrl, WCURL.testURL)
+    }
+
     func test_onConnect_whenSessionExists_thenCallsDelegate() {
-        communicator.addSession(Session.testSession)
+        communicator.addOrUpdateSession(Session.testSession)
         XCTAssertNil(delegate.connectedSession)
         client.onConnect(to: WCURL.testURL)
         XCTAssertEqual(delegate.connectedSession, Session.testSession)
@@ -104,6 +110,11 @@ class MockClientDelegate: ClientDelegate {
         didFailToConnect = true
     }
 
+    var connectedUrl: WCURL?
+    func client(_ client: Client, didConnect url: WCURL) {
+        connectedUrl = url
+    }
+
     var connectedSession: Session?
     func client(_ client: Client, didConnect session: Session) {
         connectedSession = session
@@ -112,5 +123,10 @@ class MockClientDelegate: ClientDelegate {
     var disconnectedSession: Session?
     func client(_ client: Client, didDisconnect session: Session) {
         disconnectedSession = session
+    }
+
+    var didUpdateSession: Session?
+    func client(_ client: Client, didUpdate session: Session) {
+        didUpdateSession = session
     }
 }
