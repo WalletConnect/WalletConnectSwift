@@ -70,6 +70,10 @@ extension WalletConnect: ClientDelegate {
         delegate.failedToConnect()
     }
 
+    func client(_ client: Client, didConnect url: WCURL) {
+        // do nothing
+    }
+
     func client(_ client: Client, didConnect session: Session) {
         self.session = session
         let sessionData = try! JSONEncoder().encode(session)
@@ -80,5 +84,9 @@ extension WalletConnect: ClientDelegate {
     func client(_ client: Client, didDisconnect session: Session) {
         UserDefaults.standard.removeObject(forKey: sessionKey)
         delegate.didDisconnect()
+    }
+
+    func client(_ client: Client, didUpdate session: Session) {
+        // do nothing
     }
 }
