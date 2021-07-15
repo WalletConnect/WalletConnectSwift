@@ -38,6 +38,10 @@ class WebSocketConnection {
         socket.callbackQueue = serialCallbackQueue
     }
 
+    deinit {
+        pingTimer?.invalidate()
+    }
+
     func open() {
         socket.connect()
     }
@@ -72,16 +76,13 @@ extension WebSocketConnection: WebSocketDelegate {
                 LogService.shared.log("WC: ==> ping")
                 self?.socket.write(ping: Data())
             }
+            LogService.shared.log("WC: ==> connected")
             isOpen = true
             onConnect?()
         case .disconnected:
-            isOpen = false
-            pingTimer?.invalidate()
-            onDisconnect?(nil)
+            didDisconnect()
         case .error(let error):
-            isOpen = false
-            pingTimer?.invalidate()
-            onDisconnect?(error)
+            didDisconnect(with: error)
         case .text(let text):
             onTextReceive?(text)
         default:
@@ -90,16 +91,13 @@ extension WebSocketConnection: WebSocketDelegate {
         }
     }
 
-    func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
+    private func didDisconnect(with error: Error? = nil) {
+        LogService.shared.log("WC: ==> disconnected")
+        if let error = error {
+            LogService.shared.log("WC: ==> error: \(error)")
+        }
+        isOpen = false
         pingTimer?.invalidate()
         onDisconnect?(error)
-    }
-
-    func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
-        onTextReceive?(text)
-    }
-
-    func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
-        // no-op
     }
 }
