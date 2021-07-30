@@ -207,6 +207,10 @@ extension MainViewController: ServerDelegate {
             self.statusLabel.text = "Disconnected"
         }
     }
+
+    func server(_ server: Server, didUpdate session: Session) {
+        // no-op
+    }
 }
 
 extension MainViewController: ScannerViewControllerDelegate {
