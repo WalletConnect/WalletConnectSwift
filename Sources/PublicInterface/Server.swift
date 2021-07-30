@@ -25,7 +25,7 @@ public protocol ServerDelegate: AnyObject {
     func server(_ server: Server, didDisconnect session: Session)
 
     /// Called only when the session is updated with intention of the dAppt.
-    func server(_ server: Server, didUpdate session: Session)
+    optional func server(_ server: Server, didUpdate session: Session)
 }
 
 open class Server: WalletConnect {
