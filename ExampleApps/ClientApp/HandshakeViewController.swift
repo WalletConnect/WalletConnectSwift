@@ -3,6 +3,7 @@
 //
 
 import UIKit
+import CoreImage.CIFilterBuiltins
 
 class HandshakeViewController: UIViewController {
     @IBOutlet weak var qrCodeImageView: UIImageView!
@@ -18,11 +19,17 @@ class HandshakeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        let data = code.data(using: .ascii)
-        let filter = CIFilter(name: "CIQRCodeGenerator")!
+
+        let data = Data(code.utf8)
+        let context = CIContext()
+        let filter = CIFilter.qrCodeGenerator()
         filter.setValue(data, forKey: "inputMessage")
-        let transform = CGAffineTransform(scaleX: 3, y: 3)
-        qrCodeImageView.image = UIImage(ciImage: filter.outputImage!.transformed(by: transform))
+
+        let outputImage = filter.outputImage!
+        let scaledImage = outputImage.transformed(by: CGAffineTransform(scaleX: 3, y: 3))
+        let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent)!
+        
+        qrCodeImageView.image = UIImage(cgImage: cgImage)
     }
 
     @IBAction func close(_ sender: Any) {
