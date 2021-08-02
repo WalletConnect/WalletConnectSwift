@@ -11,7 +11,12 @@ class MainViewController: UIViewController {
 
     @IBAction func connect(_ sender: Any) {
         let connectionUrl = walletConnect.connect()
-        let deepLinkUrl = connectionUrl.replacingOccurrences(of: "wc:", with: "wc://")
+
+        /// https://docs.walletconnect.org/mobile-linking#for-ios
+        /// **NOTE**: Majority of wallets support universal links that you should normally use in production application
+        /// Here deep link provided for integration with server test app only
+        let deepLinkUrl = "wc://wc?uri=\(connectionUrl)"
+
         if let url = URL(string: deepLinkUrl), UIApplication.shared.canOpenURL(url) {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         } else {

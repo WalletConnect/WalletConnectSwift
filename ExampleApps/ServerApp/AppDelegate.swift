@@ -44,7 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard let controller = window?.rootViewController as? MainViewController else {
             return false
         }
-        controller.didScan(url.absoluteString)
+        controller.didScan(url.absoluteString.replacingOccurrences(of: "wc://wc?uri=", with: ""))
         return true
     }
 
