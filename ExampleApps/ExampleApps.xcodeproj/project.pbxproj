@@ -45,6 +45,7 @@
 		55B781FA24A61D480036F8E5 /* WalletConnect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletConnect.swift; sourceTree = "<group>"; };
 		55B781FB24A61D480036F8E5 /* HandshakeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HandshakeViewController.swift; sourceTree = "<group>"; };
 		55B781FC24A61D480036F8E5 /* ActionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionsViewController.swift; sourceTree = "<group>"; };
+		55D2F76F26DF861C00E8E80F /* WalletConnectSwift */ = {isa = PBXFileReference; lastKnownFileType = folder; name = WalletConnectSwift; path = ..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +72,7 @@
 		55B7819F24A616A20036F8E5 = {
 			isa = PBXGroup;
 			children = (
+				55D2F76F26DF861C00E8E80F /* WalletConnectSwift */,
 				55B781C424A619A80036F8E5 /* ServerApp */,
 				55B781E624A61CE60036F8E5 /* ClientApp */,
 				55B781A924A616A20036F8E5 /* Products */,
