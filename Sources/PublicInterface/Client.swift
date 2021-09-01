@@ -336,6 +336,9 @@ public class Client: WalletConnect {
         var nonce: String?
         var type: String?
         var accessList: [AccessListItem]?
+        var chainId: String?
+        var maxPriorityFeePerGas: String?
+        var maxFeePerGas: String?
 
         /// https://eips.ethereum.org/EIPS/eip-2930
         public struct AccessListItem: Encodable {
@@ -351,7 +354,10 @@ public class Client: WalletConnect {
                     value: String?,
                     nonce: String?,
                     type: String?,
-                    accessList: [AccessListItem]?) {
+                    accessList: [AccessListItem]?,
+                    chainId: String?,
+                    maxPriorityFeePerGas: String?,
+                    maxFeePerGas: String?) {
             self.from = from
             self.to = to
             self.data = data
@@ -361,6 +367,9 @@ public class Client: WalletConnect {
             self.nonce = nonce
             self.type = type
             self.accessList = accessList
+            self.chainId = chainId
+            self.maxPriorityFeePerGas = maxPriorityFeePerGas
+            self.maxFeePerGas = maxFeePerGas
         }
     }
 }
