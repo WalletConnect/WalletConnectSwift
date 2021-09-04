@@ -51,7 +51,7 @@ class WebSocketConnection {
     }
 
     func send(_ text: String) {
-        guard socket.isConnected else { return }
+        guard isConnected else { return }
         socket.write(string: text)
         log(text)
     }
