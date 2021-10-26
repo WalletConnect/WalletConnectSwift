@@ -29,7 +29,7 @@ class WalletConnect {
                            bridgeURL: URL(string: "https://safe-walletconnect.gnosis.io/")!,
                            key: try! randomKey())
         let clientMeta = Session.ClientMeta(name: "ExampleDApp",
-                                            description: "WalletConnectSwift ",
+                                            description: "WalletConnectSwift",
                                             icons: [],
                                             url: URL(string: "https://safe.gnosis.io")!)
         let dAppInfo = Session.DAppInfo(peerId: UUID().uuidString, peerMeta: clientMeta)
