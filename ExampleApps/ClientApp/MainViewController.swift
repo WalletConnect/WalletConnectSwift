@@ -17,12 +17,15 @@ class MainViewController: UIViewController {
         /// Here deep link provided for integration with server test app only
         let deepLinkUrl = "wc://wc?uri=\(connectionUrl)"
 
-        if let url = URL(string: deepLinkUrl), UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        } else {
-            handshakeController = HandshakeViewController.create(code: connectionUrl)
-            present(handshakeController, animated: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            if let url = URL(string: deepLinkUrl), UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            } else {
+                self.handshakeController = HandshakeViewController.create(code: connectionUrl)
+                self.present(self.handshakeController, animated: true)
+            }
         }
+        
     }
 
     override func viewDidLoad() {
