@@ -101,25 +101,25 @@ class ActionsViewController: UIViewController {
     }
 
     private func handleReponse(_ response: Response, expecting: String) {
-        if let error = response.error {
-            show(UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert))
-            return
-        }
-        do {
-            let result = try response.result(as: String.self)
-            show(UIAlertController(title: expecting, message: result, preferredStyle: .alert))
-        } catch {
-            show(UIAlertController(title: "Error",
-                                      message: "Unexpected response type error: \(error)",
-                                      preferredStyle: .alert))
+        DispatchQueue.main.async {
+            if let error = response.error {
+                self.show(UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert))
+                return
+            }
+            do {
+                let result = try response.result(as: String.self)
+                self.show(UIAlertController(title: expecting, message: result, preferredStyle: .alert))
+            } catch {
+                self.show(UIAlertController(title: "Error",
+                                       message: "Unexpected response type error: \(error)",
+                                       preferredStyle: .alert))
+            }
         }
     }
 
     private func show(_ alert: UIAlertController) {
         alert.addAction(UIAlertAction(title: "Close", style: .cancel))
-        DispatchQueue.main.async {
-            self.present(alert, animated: true)
-        }
+        self.present(alert, animated: true)
     }
 
     private func nonceRequest() -> Request {
