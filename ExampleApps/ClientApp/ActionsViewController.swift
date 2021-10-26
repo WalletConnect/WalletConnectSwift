@@ -94,6 +94,9 @@ class ActionsViewController: UIViewController {
     }
 
     @IBAction func close(_ sender: Any) {
+        for session in client.openSessions() {
+            try? client.disconnect(from: session)
+        }
         dismiss(animated: true)
     }
 

@@ -163,6 +163,9 @@ extension Response {
 extension MainViewController: ServerDelegate {
     func server(_ server: Server, didFailToConnect url: WCURL) {
         onMainThread {
+            self.scanQRCodeButton.isEnabled = true
+            self.scanQRCodeButton.isHidden = false
+            self.disconnectButton.isHidden = true
             UIAlertController.showFailedToConnect(from: self)
         }
     }
@@ -188,6 +191,11 @@ extension MainViewController: ServerDelegate {
     }
 
     func server(_ server: Server, didConnect session: Session) {
+        if let currentSession = self.session,
+           currentSession.url.key != session.url.key {
+            print("Test app only supports 1 session atm, cleaning...")
+            try? self.server.disconnect(from: currentSession)
+        }
         self.session = session
         let sessionData = try! JSONEncoder().encode(session)
         UserDefaults.standard.set(sessionData, forKey: sessionKey)
