@@ -58,6 +58,7 @@ extension ScannerViewController: AVCaptureMetadataOutputObjectsDelegate {
         let metadata = metadataObjects[0] as! AVMetadataMachineReadableCodeObject
         if metadata.type == .qr && metadata.stringValue != nil {
             delegate.didScan(metadata.stringValue!)
+            captureSession.stopRunning()
         }
     }
 }
