@@ -53,9 +53,36 @@ class WebSocketConnection {
         self.socket = WebSocket(request: URLRequest(url: url.bridgeURL), engine: WSEngine(transport: FoundationTransport(), certPinner: FoundationSecurity()))
         self.socket.callbackQueue = serialCallbackQueue
         self.socket.delegate = self
+        
+#if os(iOS)
+        var didBecomeActiveName: NSNotification.Name
+        if #available(iOS 13.0, *) {
+            didBecomeActiveName = UIScene.didActivateNotification
+        } else {
+            didBecomeActiveName = UIApplication.didBecomeActiveNotification
+        }
+        self.foregroundNotificationObserver = NotificationCenter.default.addObserver(forName: didBecomeActiveName,
+                                                                                     object: nil,
+                                                                                     queue: OperationQueue.main) { [weak self] notification in
+            self?.open()
+        }
+        var willResignActiveName: NSNotification.Name
+        if #available(iOS 13.0, *) {
+            willResignActiveName = UIScene.willDeactivateNotification
+        } else {
+            willResignActiveName = UIApplication.willResignActiveNotification
+        }
+        self.backgroundNotificationObserver = NotificationCenter.default.addObserver(forName: willResignActiveName,
+                                                                                     object: nil,
+                                                                                     queue: OperationQueue.main) { [weak self] notification in
+            print("WebSocketConnect: ==> Shotting down socket before background")
+            self?.close(closeCode: CloseCode.protocolError.rawValue)
+        }
+#endif
     }
     
     deinit {
+        LogService.shared.log("WebSocketConnect: ==> deinit")
 #if os(iOS)
         if let observer = self.backgroundNotificationObserver {
             NotificationCenter.default.removeObserver(observer)
@@ -64,36 +91,16 @@ class WebSocketConnection {
             NotificationCenter.default.removeObserver(observer)
         }
 #endif
+        self.pingTimer?.invalidate()
     }
  
     func open() {
         self.socket.connect()
-#if os(iOS)
-        self.backgroundNotificationObserver = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification,
-                                                                                     object: nil, queue: nil) { [weak self] notification in
-            self?.close(closeCode: CloseCode.goingAway.rawValue)
-        }
-        if let observer = self.foregroundNotificationObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
-        self.foregroundNotificationObserver = nil
-#endif
     }
     
     func close(closeCode: UInt16 = CloseCode.normal.rawValue) {
         self.socket.disconnect(closeCode: closeCode)
         self.pingTimer?.invalidate()
-        self.pingTimer = nil
-#if os(iOS)
-        self.foregroundNotificationObserver = NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification,
-                                                                                     object: nil, queue: nil) { [weak self] notification in
-            self?.open()
-        }
-        if let observer = self.backgroundNotificationObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
-        self.backgroundNotificationObserver = nil
-#endif
     }
     
     func send(_ text: String) {
@@ -124,27 +131,32 @@ extension WebSocketConnection: WebSocketDelegate {
                     self?.socket.write(ping: Data())
                 }
             }
+            LogService.shared.log("WC: <== connected")
             isConnected = true
             onConnect?()
 #if os(iOS)
         case .disconnected:
             DispatchQueue.main.sync {
-                if UIApplication.shared.applicationState != .background {
+                if UIApplication.shared.applicationState == .active {
                     didDisconnect(with: nil)
+                } else {
+                    LogService.shared.log("WC: <== connection disconnected in background. Will re-activate when possible.")
                 }
             }
         case .error(let error):
             DispatchQueue.main.sync {
-                if UIApplication.shared.applicationState != .background {
+                if UIApplication.shared.applicationState == .active {
                     didDisconnect(with: error)
+                } else {
+                    LogService.shared.log("WC: <== connection error in background. Will re-activate when possible.")
                 }
             }
             break
         case .cancelled:
             DispatchQueue.main.sync {
-                if UIApplication.shared.applicationState != .background {
+                if UIApplication.shared.applicationState == .active {
                     LogService.shared.log("WC: <== connection terminated from internal call. Disconnecting...")
-                    self.didDisconnect(with: nil)
+                    didDisconnect(with: nil)
                 } else {
                     LogService.shared.log("WC: <== connection cancelled in background. Will re-activate when possible.")
                 }
