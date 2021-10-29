@@ -58,10 +58,19 @@ open class WalletConnect {
     }
 
     private func listen(on url: WCURL) {
+        let onConnect: ((WCURL) -> Void) = { [weak self] url in
+            self?.onConnect(to: url)
+        }
+        let onDisconnect: ((WCURL, Error?) -> Void) = { [weak self] (url, error) in
+            self?.onDisconnect(from: url, error: error)
+        }
+        let onTextReceive: ((String, WCURL) -> Void) = { [weak self] (text, url) in
+            self?.onTextReceive(text, from: url)
+        }
         communicator.listen(on: url,
-                            onConnect: onConnect(to:),
-                            onDisconnect: onDisconnect(from:error:),
-                            onTextReceive: onTextReceive(_:from:))
+                            onConnect: onConnect,
+                            onDisconnect: onDisconnect,
+                            onTextReceive: onTextReceive)
     }
 
     /// Confirmation from Transport layer that connection was successfully established.
