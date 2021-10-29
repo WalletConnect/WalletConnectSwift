@@ -50,7 +50,7 @@ class WebSocketConnection {
         self.onTextReceive = onTextReceive
         serialCallbackQueue = DispatchQueue(label: "org.walletconnect.swift.connection-\(url.bridgeURL)-\(url.topic)")
         
-        self.socket = WebSocket(request: URLRequest(url: url.bridgeURL))
+        self.socket = WebSocket(request: URLRequest(url: url.bridgeURL), engine: WSEngine(transport: FoundationTransport(), certPinner: FoundationSecurity()))
         self.socket.callbackQueue = serialCallbackQueue
         self.socket.delegate = self
     }
