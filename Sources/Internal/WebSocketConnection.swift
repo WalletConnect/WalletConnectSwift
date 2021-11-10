@@ -6,11 +6,6 @@ import Foundation
 import Starscream
 import Network
 
-#if os(iOS)
-import UIKit
-#endif
-
-
 class WebSocketConnection {
     let url: WCURL
     private let socket: WebSocket
@@ -30,12 +25,7 @@ class WebSocketConnection {
     
     // serial queue for receiving the calls.
     private let serialCallbackQueue: DispatchQueue
-    
-#if os(iOS)
-    private var backgroundNotificationObserver: Any?
-    private var foregroundNotificationObserver: Any?
-#endif
-    
+
     var isOpen: Bool {
         return isConnected
     }
@@ -53,44 +43,9 @@ class WebSocketConnection {
         self.socket = WebSocket(request: URLRequest(url: url.bridgeURL), engine: WSEngine(transport: FoundationTransport(), certPinner: FoundationSecurity()))
         self.socket.callbackQueue = serialCallbackQueue
         self.socket.delegate = self
-        
-#if os(iOS)
-        var didBecomeActiveName: NSNotification.Name
-        if #available(iOS 13.0, *) {
-            didBecomeActiveName = UIScene.didActivateNotification
-        } else {
-            didBecomeActiveName = UIApplication.didBecomeActiveNotification
-        }
-        self.foregroundNotificationObserver = NotificationCenter.default.addObserver(forName: didBecomeActiveName,
-                                                                                     object: nil,
-                                                                                     queue: OperationQueue.main) { [weak self] notification in
-            self?.open()
-        }
-        var willResignActiveName: NSNotification.Name
-        if #available(iOS 13.0, *) {
-            willResignActiveName = UIScene.willDeactivateNotification
-        } else {
-            willResignActiveName = UIApplication.willResignActiveNotification
-        }
-        self.backgroundNotificationObserver = NotificationCenter.default.addObserver(forName: willResignActiveName,
-                                                                                     object: nil,
-                                                                                     queue: OperationQueue.main) { [weak self] notification in
-            print("WebSocketConnect: ==> Shotting down socket before background")
-            self?.close(closeCode: CloseCode.protocolError.rawValue)
-        }
-#endif
     }
     
     deinit {
-        LogService.shared.log("WebSocketConnect: ==> deinit")
-#if os(iOS)
-        if let observer = self.backgroundNotificationObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
-        if let observer = self.foregroundNotificationObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
-#endif
         self.pingTimer?.invalidate()
     }
  
@@ -134,42 +89,12 @@ extension WebSocketConnection: WebSocketDelegate {
             LogService.shared.log("WC: <== connected")
             isConnected = true
             onConnect?()
-#if os(iOS)
-        case .disconnected:
-            DispatchQueue.main.sync {
-                if UIApplication.shared.applicationState == .active {
-                    didDisconnect(with: nil)
-                } else {
-                    LogService.shared.log("WC: <== connection disconnected in background. Will re-activate when possible.")
-                }
-            }
-        case .error(let error):
-            DispatchQueue.main.sync {
-                if UIApplication.shared.applicationState == .active {
-                    didDisconnect(with: error)
-                } else {
-                    LogService.shared.log("WC: <== connection error in background. Will re-activate when possible.")
-                }
-            }
-            break
-        case .cancelled:
-            DispatchQueue.main.sync {
-                if UIApplication.shared.applicationState == .active {
-                    LogService.shared.log("WC: <== connection terminated from internal call. Disconnecting...")
-                    didDisconnect(with: nil)
-                } else {
-                    LogService.shared.log("WC: <== connection cancelled in background. Will re-activate when possible.")
-                }
-            }
-#else
         case .disconnected:
             didDisconnect(with: nil)
         case .error(let error):
             didDisconnect(with: error)
-            break
         case .cancelled:
             didDisconnect(with: nil)
-#endif
         case .text(let string):
             onTextReceive?(string)
         case .ping:
