@@ -1,4 +1,5 @@
 ### Xcode ###
+.swiftpm/
 .build/
 build/
 *.pbxuser
