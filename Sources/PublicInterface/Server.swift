@@ -178,6 +178,8 @@ extension Server: HandshakeHandlerDelegate {
                 self.communicator.addOrUpdateSession(updatedSession)
                 self.communicator.subscribe(on: walletInfo.peerId, url: updatedSession.url)
                 self.delegate?.server(self, didConnect: updatedSession)
+            } else {
+                try? self.disconnect(from: session)
             }
         }
     }
