@@ -12,6 +12,7 @@ protocol Transport {
                 onTextReceive: @escaping (String, WCURL) -> Void)
     func isConnected(by url: WCURL) -> Bool
     func disconnect(from url: WCURL)
+    func disconnect(from url: WCURL, usrDisconnect: Bool)
 }
 
 // future: if we received response from another peer - then we call request.completion() for pending request.
@@ -24,7 +25,8 @@ class Bridge: Transport {
     // TODO: if no connection found, then what?
     func send(to url: WCURL, text: String) {
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
-        syncQueue.sync { [unowned self] in
+        syncQueue.sync { [weak self] in
+            guard let `self` = self else { return }
             if let connection = self.findConnection(url: url) {
                 connection.send(text)
             }
@@ -36,7 +38,8 @@ class Bridge: Transport {
                 onDisconnect: @escaping ((WCURL, Error?) -> Void),
                 onTextReceive: @escaping (String, WCURL) -> Void) {
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
-        syncQueue.sync { [unowned self] in
+        syncQueue.sync { [weak self] in
+            guard let `self` = self else { return }
             var connection: WebSocketConnection
             if let existingConnection = self.findConnection(url: url) {
                 connection = existingConnection
@@ -58,24 +61,35 @@ class Bridge: Transport {
     func isConnected(by url: WCURL) -> Bool {
         var connection: WebSocketConnection?
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
-        syncQueue.sync { [unowned self] in
+        syncQueue.sync { [weak self] in
+            guard let `self` = self else { return }
             connection = self.findConnection(url: url)
         }
         return connection?.isOpen ?? false
     }
-
+    
     func disconnect(from url: WCURL) {
+        self.disconnect(from: url, usrDisconnect: false)
+    }
+    
+    func disconnect(from url: WCURL, usrDisconnect: Bool) {
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
-        syncQueue.sync { [unowned self] in
+        syncQueue.sync { [weak self] in
+            guard let `self` = self else { return }
             if let connection = self.findConnection(url: url) {
+                if usrDisconnect {
+                    self.connections.removeAll { $0 === connection }
+                }
                 connection.close()
+                
             }
         }
     }
 
     private func releaseConnection(by url: WCURL) {
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
-        syncQueue.sync { [unowned self] in
+        syncQueue.sync { [weak self] in
+            guard let `self` = self else { return }
             if let connection = self.findConnection(url: url) {
                 self.connections.removeAll { $0 === connection }
             }

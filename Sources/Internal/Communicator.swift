@@ -45,8 +45,8 @@ class Communicator {
         return transport.isConnected(by: url)
     }
 
-    func disconnect(from url: WCURL) {
-        transport.disconnect(from: url)
+    func disconnect(from url: WCURL, usrDisconnect: Bool = false) {
+        transport.disconnect(from: url, usrDisconnect: usrDisconnect)
     }
 
     func pendingDisconnectSession(by url: WCURL) -> Session? {
