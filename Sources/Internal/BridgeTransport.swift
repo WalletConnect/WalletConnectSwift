@@ -12,7 +12,6 @@ protocol Transport {
                 onTextReceive: @escaping (String, WCURL) -> Void)
     func isConnected(by url: WCURL) -> Bool
     func disconnect(from url: WCURL)
-    func disconnect(from url: WCURL, usrDisconnect: Bool)
 }
 
 // future: if we received response from another peer - then we call request.completion() for pending request.
@@ -69,19 +68,11 @@ class Bridge: Transport {
     }
     
     func disconnect(from url: WCURL) {
-        self.disconnect(from: url, usrDisconnect: false)
-    }
-    
-    func disconnect(from url: WCURL, usrDisconnect: Bool) {
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
         syncQueue.sync { [weak self] in
             guard let `self` = self else { return }
             if let connection = self.findConnection(url: url) {
-                if usrDisconnect {
-                    self.connections.removeAll { $0 === connection }
-                }
                 connection.close()
-                
             }
         }
     }

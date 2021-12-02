@@ -37,38 +37,9 @@ class WebSocketConnection {
         self.onTextReceive = onTextReceive
         serialCallbackQueue = DispatchQueue(label: "org.walletconnect.swift.connection-\(url.bridgeURL)-\(url.topic)")
         var request = URLRequest(url: url.bridgeURL)
-        request.timeoutInterval = 5
         self.socket = WebSocket(request: request, engine: WSEngine(transport: FoundationTransport(), certPinner: FoundationSecurity()))
         self.socket.callbackQueue = serialCallbackQueue
         self.socket.delegate = self
-        
-#if os(iOS)
-        var didBecomeActiveName: NSNotification.Name
-        if #available(iOS 13.0, *) {
-            didBecomeActiveName = UIScene.didActivateNotification
-        } else {
-            didBecomeActiveName = UIApplication.didBecomeActiveNotification
-        }
-        NotificationCenter.default.addObserver(forName: didBecomeActiveName,
-                                               object: nil,
-                                               queue: OperationQueue.main) { [weak self] notification in
-            guard let `self` = self else { return }
-            self.open()
-        }
-        var willResignActiveName: NSNotification.Name
-        if #available(iOS 13.0, *) {
-            willResignActiveName = UIScene.willDeactivateNotification
-        } else {
-            willResignActiveName = UIApplication.willResignActiveNotification
-        }
-        NotificationCenter.default.addObserver(forName: willResignActiveName,
-                                               object: nil,
-                                               queue: OperationQueue.main) { [weak self] notification in
-            guard let `self` = self else { return }
-            print("WebSocketConnect: ==> Shotting down socket before background")
-            self.close(closeCode: CloseCode.normal.rawValue)
-        }
-#endif
         
     }
     
@@ -96,12 +67,7 @@ class WebSocketConnection {
             LogService.shared.log("WC: ==> \(text)")
         }
     }
-    
-    deinit {
-#if os(iOS)
-        NotificationCenter.default.removeObserver(self)
-#endif
-    }
+
 }
 
 extension WebSocketConnection: WebSocketDelegate {
@@ -113,13 +79,8 @@ extension WebSocketConnection: WebSocketDelegate {
             break
         case .disconnected, .cancelled:
             DispatchQueue.main.sync {
-                if UIApplication.shared.applicationState == .active {
-                    self.websocketDidDisconnect(socket: client, error: nil)
-                } else {
-                    LogService.shared.log("WC: <== connection disconnected in background. Will re-activate when possible.")
-                }
+                self.websocketDidDisconnect(socket: client, error: nil)
             }
-            
             break
         case .text(let string):
             self.websocketDidReceiveMessage(socket: client, text: string)
@@ -134,13 +95,7 @@ extension WebSocketConnection: WebSocketDelegate {
             LogService.shared.log("WC: <== ping")
             break
         case .error(let error):
-            DispatchQueue.main.async {
-                if UIApplication.shared.applicationState == .active {
-                    self.websocketDidDisconnect(socket: client, error: error)
-                } else {
-                    LogService.shared.log("WC: <== connection error in background. Will re-activate when possible.")
-                }
-            }
+            self.websocketDidDisconnect(socket: client, error: error)
             break
         case .reconnectSuggested:
             LogService.shared.log("WC: <== reconnectSuggested") //TODO: Should we?

@@ -183,7 +183,7 @@ extension Server: HandshakeHandlerDelegate {
                 self.delegate?.server(self, didConnect: updatedSession)
             } else {
                 self.communicator.addOrUpdatePendingDisconnectSession(session)
-                self.communicator.disconnect(from: session.url, usrDisconnect: true)
+                self.communicator.disconnect(from: session.url)
                 self.delegate?.server(self, didDisconnect: session)
             }
         }
@@ -195,7 +195,7 @@ extension Server: UpdateSessionHandlerDelegate {
         guard let session = communicator.session(by: url) else { return }
         if !sessionInfo.approved {
             self.communicator.addOrUpdatePendingDisconnectSession(session)
-            self.communicator.disconnect(from: session.url, usrDisconnect: true)
+            self.communicator.disconnect(from: session.url)
             self.delegate?.server(self, didDisconnect: session)
         } else {
             // we do not add sessions without walletInfo
