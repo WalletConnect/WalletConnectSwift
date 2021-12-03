@@ -13,7 +13,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMinor(from: "1.4.0")),
-        .package(url: "https://github.com/daltoniam/Starscream.git", .upToNextMinor(from: "4.0.0"))
+        .package(url: "https://github.com/daltoniam/Starscream.git", .upToNextMinor(from: "4.0.4"))
     ],
     targets: [
         .target(
