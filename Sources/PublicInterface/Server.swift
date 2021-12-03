@@ -138,7 +138,8 @@ open class Server: WalletConnect {
 
         func add(_ handler: RequestHandler) {
             dispatchPrecondition(condition: .notOnQueue(queue))
-            queue.sync { [unowned self] in
+            queue.sync { [weak self] in
+                guard let `self` = self else { return }
                 guard self.handlers.first(where: { $0 === handler }) == nil else { return }
                 self.handlers.append(handler)
             }
@@ -146,7 +147,8 @@ open class Server: WalletConnect {
 
         func remove(_ handler: RequestHandler) {
             dispatchPrecondition(condition: .notOnQueue(queue))
-            queue.sync { [unowned self] in
+            queue.sync { [weak self] in
+                guard let `self` = self else { return }
                 if let index = self.handlers.firstIndex(where: { $0 === handler }) {
                     self.handlers.remove(at: index)
                 }
@@ -156,7 +158,8 @@ open class Server: WalletConnect {
         func find(by request: Request) -> RequestHandler? {
             var result: RequestHandler?
             dispatchPrecondition(condition: .notOnQueue(queue))
-            queue.sync { [unowned self] in
+            queue.sync { [weak self] in
+                guard let `self` = self else { return }
                 result = self.handlers.first { $0.canHandle(request: request) }
             }
             return result
@@ -178,6 +181,10 @@ extension Server: HandshakeHandlerDelegate {
                 self.communicator.addOrUpdateSession(updatedSession)
                 self.communicator.subscribe(on: walletInfo.peerId, url: updatedSession.url)
                 self.delegate?.server(self, didConnect: updatedSession)
+            } else {
+                self.communicator.addOrUpdatePendingDisconnectSession(session)
+                self.communicator.disconnect(from: session.url)
+                self.delegate?.server(self, didDisconnect: session)
             }
         }
     }
@@ -187,11 +194,9 @@ extension Server: UpdateSessionHandlerDelegate {
     func handler(_ handler: UpdateSessionHandler, didUpdateSessionByURL url: WCURL, sessionInfo: SessionInfo) {
         guard let session = communicator.session(by: url) else { return }
         if !sessionInfo.approved {
-            do {
-                try disconnect(from: session)
-            } catch { // session already disconnected
-                delegate?.server(self, didDisconnect: session)
-            }
+            self.communicator.addOrUpdatePendingDisconnectSession(session)
+            self.communicator.disconnect(from: session.url)
+            self.delegate?.server(self, didDisconnect: session)
         } else {
             // we do not add sessions without walletInfo
             let walletInfo = session.walletInfo!
