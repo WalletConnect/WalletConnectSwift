@@ -4,16 +4,11 @@ Swift SDK implementing [WalletConnect 1.x.x](https://docs.walletconnect.org) pro
 
 # Features
 
-- Server (wallet)
+- Server (wallet side)
   - Create, reconnect, disconnect, and update session
   - Flexible, extendable request handling with `Codable` support via JSON RPC 2.0
-  - Example App:
-    - Connecting via QR code reader
-    - Connecting via deep link ("wc" scheme)
-    - Reconnecting after restart
-    - Examples of request handlers
 
-- Client (native dapp)
+- Client (native dapp side)
   - Create, reconnect, disconnect, and update session
   - Default implementation of [WalletConnect SDK API](https://docs.walletconnect.org/json-rpc/ethereum)
     - `personal_sign`
@@ -23,12 +18,20 @@ Swift SDK implementing [WalletConnect 1.x.x](https://docs.walletconnect.org) pro
     - `eth_signTransaction`
     - `eth_sendRawTransaction`
   - Send custom RPC requests with `Codable` support via JSON RPC 2.0
-  - Example App:
-    - Generating QR-code with WC URL
-    - Connecting via deep link
-    - Reconnecting after restart
-    - WalletConnect SDK requests
-    - Custom request (Ethereum JSON RPC)
+
+# Example Code
+Example code is in a separate repository: https://github.com/WalletConnect/WalletConnectSwift-Example
+
+- Wallet Example App:
+  - Connecting via QR code reader
+  - Connecting via deep link ("wc" scheme)
+  - Reconnecting after restart
+  - Examples of request handlers
+- Dapp Example App:
+  - Connecting via QR code reader
+  - Connecting via deep link ("wc" scheme)
+  - Reconnecting after restart
+  - Examples of request handlers
 
 ## Usage in a Wallet
 
