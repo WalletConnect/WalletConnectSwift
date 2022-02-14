@@ -16,15 +16,6 @@ public protocol ServerDelegate: AnyObject {
     /// The handshake will be established based on "approved" property of WalletInfo.
     func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void)
 
-    /// Replacement for the `server(_:shouldStart:completion:) method that makes possible async approval process.
-    /// When the approval is ready, call the `Server.sendCreateSessionResponse` method.
-    ///
-    /// - Parameters:
-    ///   - server: the server object
-    ///   - requestId: connection request's id. Can be Int, Double, or String
-    ///   - session: the session to create. Contains dapp info received in the connection request.
-    func server(_ server: Server, didReceiveConnectionRequest requestId: RequestID, for session: Session)
-
     /// Called when the session is connected or reconnected.
     /// Reconnection may happen as a result of Wallet intention to reconnect, or as a result of
     /// the server trying to restore lost connection.
@@ -35,6 +26,19 @@ public protocol ServerDelegate: AnyObject {
 
     /// Called only when the session is updated with intention of the dAppt.
     func server(_ server: Server, didUpdate session: Session)
+}
+
+public protocol ServerDelegateV2: ServerDelegate {
+    /// Replacement for the `server(_:shouldStart:completion:) method that makes possible async approval process.
+    /// When the approval is ready, call the `Server.sendCreateSessionResponse` method.
+    /// If you implement this protocol, the other `shouldStart` method will not be called
+    ///
+    ///
+    /// - Parameters:
+    ///   - server: the server object
+    ///   - requestId: connection request's id. Can be Int, Double, or String
+    ///   - session: the session to create. Contains dapp info received in the connection request.
+    func server(_ server: Server, didReceiveConnectionRequest requestId: RequestID, for session: Session)
 }
 
 open class Server: WalletConnect {
@@ -204,11 +208,17 @@ extension Server: HandshakeHandlerDelegate {
     func handler(_ handler: HandshakeHandler,
                  didReceiveRequestToCreateSession session: Session,
                  requestId: RequestID) {
-        delegate?.server(self, shouldStart: session) { [weak self] walletInfo in
-            guard let `self` = self else { return }
-            self.sendCreateSessionResponse(for: requestId, session: session, walletInfo: walletInfo)
+        guard let delegate = delegate else { return }
+        if let delegateV2 = delegate as? ServerDelegateV2 {
+            delegateV2.server(self, didReceiveConnectionRequest: requestId, for: session)
+        } else {
+            delegate.server(self, shouldStart: session) { [weak self] walletInfo in
+                guard let `self` = self else {
+                    return
+                }
+                self.sendCreateSessionResponse(for: requestId, session: session, walletInfo: walletInfo)
+            }
         }
-        delegate?.server(self, didReceiveConnectionRequest: requestId, for: session)
     }
 }
 
