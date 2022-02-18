@@ -326,24 +326,29 @@ public class Client: WalletConnect {
     }
 
     /// https://docs.walletconnect.org/json-rpc-api-methods/ethereum#parameters-4
-    public struct Transaction: Encodable {
-        var from: String
-        var to: String?
-        var data: String
-        var gas: String?
-        var gasPrice: String?
-        var value: String?
-        var nonce: String?
-        var type: String?
-        var accessList: [AccessListItem]?
-        var chainId: String?
-        var maxPriorityFeePerGas: String?
-        var maxFeePerGas: String?
+    public struct Transaction: Codable {
+        public var from: String
+        public var to: String?
+        public var data: String
+        public var gas: String?
+        public var gasPrice: String?
+        public var value: String?
+        public var nonce: String?
+        public var type: String?
+        public var accessList: [AccessListItem]?
+        public var chainId: String?
+        public var maxPriorityFeePerGas: String?
+        public var maxFeePerGas: String?
 
         /// https://eips.ethereum.org/EIPS/eip-2930
-        public struct AccessListItem: Encodable {
-            var address: String
-            var storageKeys: [String]
+        public struct AccessListItem: Codable {
+            public var address: String
+            public var storageKeys: [String]
+
+            public init(address: String, storageKeys: [String]) {
+                self.address = address
+                self.storageKeys = storageKeys
+            }
         }
 
         public init(from: String,
