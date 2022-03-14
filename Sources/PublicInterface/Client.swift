@@ -12,11 +12,15 @@ public protocol ClientDelegate: AnyObject {
     func client(_ client: Client, didUpdate session: Session)
 }
 
+public protocol Client2Delegate: ClientDelegate {
+    func client(_ client: Client, dappInfoForUrl url: WCURL) -> Session.DAppInfo?
+}
+
 public class Client: WalletConnect {
     public typealias RequestResponse = (Response) -> Void
 
     private(set) weak var delegate: ClientDelegate?
-    private let dAppInfo: Session.DAppInfo
+    private var dAppInfo: Session.DAppInfo?
     private var responses: Responses
 
     public enum ClientError: Error {
@@ -24,7 +28,7 @@ public class Client: WalletConnect {
         case sessionNotFound
     }
 
-    public init(delegate: ClientDelegate, dAppInfo: Session.DAppInfo) {
+    public init(delegate: ClientDelegate, dAppInfo: Session.DAppInfo? = nil) {
         self.delegate = delegate
         self.dAppInfo = dAppInfo
         responses = Responses(queue: DispatchQueue(label: "org.walletconnect.swift.client.pending"))
@@ -185,8 +189,15 @@ public class Client: WalletConnect {
         if let existingSession = communicator.session(by: url) {
             communicator.subscribe(on: existingSession.dAppInfo.peerId, url: existingSession.url)
             delegate?.client(self, didConnect: existingSession)
-        } else { // establishing new connection, handshake in process
-            communicator.subscribe(on: dAppInfo.peerId, url: url)
+        } else {
+            // establishing new connection, handshake in process
+            guard let dappInfo = dAppInfo ?? (delegate as? Client2Delegate)?.client(self, dappInfoForUrl: url) else {
+                LogService.shared.log("WC: dAppInfo not found for \(url)")
+                delegate?.client(self, didFailToConnect: url)
+                return
+            }
+
+            communicator.subscribe(on: dappInfo.peerId, url: url)
             let request = try! Request(url: url, method: "wc_sessionRequest", params: [dAppInfo], id: Request.payloadId())
             let requestID = request.internalID!
             responses.add(requestID: requestID) { [unowned self] response in
@@ -196,11 +207,16 @@ public class Client: WalletConnect {
         }
     }
 
-
     private func handleHandshakeResponse(_ response: Response) {
         do {
             let walletInfo = try response.result(as: Session.WalletInfo.self)
-            let session = Session(url: response.url, dAppInfo: dAppInfo, walletInfo: walletInfo)
+
+            guard let dappInfo = dAppInfo ?? (delegate as? Client2Delegate)?.client(self, dappInfoForUrl: response.url) else {
+                LogService.shared.log("WC: dAppInfo not found for \(response.url)")
+                return
+            }
+
+            let session = Session(url: response.url, dAppInfo: dappInfo, walletInfo: walletInfo)
 
             guard walletInfo.approved else {
                 // TODO: handle Error
