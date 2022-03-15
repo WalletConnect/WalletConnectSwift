@@ -20,7 +20,7 @@ public class Client: WalletConnect {
     public typealias RequestResponse = (Response) -> Void
 
     private(set) weak var delegate: ClientDelegate?
-    private var dAppInfo: Session.DAppInfo?
+    private var commonDappInfo: Session.DAppInfo?
     private var responses: Responses
 
     public enum ClientError: Error {
@@ -30,7 +30,7 @@ public class Client: WalletConnect {
 
     public init(delegate: ClientDelegate, dAppInfo: Session.DAppInfo? = nil) {
         self.delegate = delegate
-        self.dAppInfo = dAppInfo
+        self.commonDappInfo = dAppInfo
         responses = Responses(queue: DispatchQueue(label: "org.walletconnect.swift.client.pending"))
         super.init()
     }
@@ -191,14 +191,14 @@ public class Client: WalletConnect {
             delegate?.client(self, didConnect: existingSession)
         } else {
             // establishing new connection, handshake in process
-            guard let dappInfo = dAppInfo ?? (delegate as? Client2Delegate)?.client(self, dappInfoForUrl: url) else {
+            guard let dappInfo = commonDappInfo ?? (delegate as? Client2Delegate)?.client(self, dappInfoForUrl: url) else {
                 LogService.shared.log("WC: dAppInfo not found for \(url)")
                 delegate?.client(self, didFailToConnect: url)
                 return
             }
 
             communicator.subscribe(on: dappInfo.peerId, url: url)
-            let request = try! Request(url: url, method: "wc_sessionRequest", params: [dAppInfo], id: Request.payloadId())
+            let request = try! Request(url: url, method: "wc_sessionRequest", params: [dappInfo], id: Request.payloadId())
             let requestID = request.internalID!
             responses.add(requestID: requestID) { [unowned self] response in
                 self.handleHandshakeResponse(response)
@@ -211,7 +211,7 @@ public class Client: WalletConnect {
         do {
             let walletInfo = try response.result(as: Session.WalletInfo.self)
 
-            guard let dappInfo = dAppInfo ?? (delegate as? Client2Delegate)?.client(self, dappInfoForUrl: response.url) else {
+            guard let dappInfo = commonDappInfo ?? (delegate as? Client2Delegate)?.client(self, dappInfoForUrl: response.url) else {
                 LogService.shared.log("WC: dAppInfo not found for \(response.url)")
                 return
             }
