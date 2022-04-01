@@ -38,21 +38,40 @@ public struct Session: Codable {
         }
     }
 
-    public struct ClientMeta: Codable, Equatable {
-        public let name: String
-        public let description: String?
-        public let icons: [URL]
-        public let url: URL
-        public let scheme: String?
+	public struct ClientMeta: Codable, Equatable {
+		public let name: String
+		public let description: String?
+		public let iconsStr: [String]?
+		public var icons: [URL] {
+			var urls: [URL] = []
+			for iconStr in iconsStr ?? [] {
+				if let u = URL(string: iconStr) {
+					urls.append(u)
+				}
+			}
+			return urls
+		}
+		public let url: URL?
+		public let scheme: String?
 
-        public init(name: String, description: String?, icons: [URL], url: URL, scheme: String? = nil) {
-            self.name = name
-            self.description = description
-            self.icons = icons
-            self.url = url
-            self.scheme = scheme
-        }
-    }
+		enum CodingKeys: String, CodingKey {
+			case name = "name"
+			case description = "description"
+			case iconsStr = "icons"
+			case url = "url"
+			case scheme = "scheme"
+		}
+
+		public init(name: String, description: String?, icons: [URL], url: URL, scheme: String? = nil) {
+			self.name = name
+			self.description = description
+			self.iconsStr = icons.map({ url in
+				url.absoluteString
+			})
+			self.url = url
+			self.scheme = scheme
+		}
+	}
 
     public struct WalletInfo: Codable, Equatable {
         public let approved: Bool
