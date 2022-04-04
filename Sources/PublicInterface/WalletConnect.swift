@@ -41,13 +41,26 @@ open class WalletConnect {
     ///
     /// - Parameter session: Session object
     /// - Throws: error on trying to disconnect inacative sessoin.
-    open func disconnect(from session: Session) throws {
-        guard communicator.isConnected(by: session.url) else {
+	open func disconnect(from session: Session, async: Bool = false) throws {
+        
+		guard communicator.isConnected(by: session.url) else {
             throw WalletConnectError.tryingToDisconnectInactiveSession
         }
-        try sendDisconnectSessionRequest(for: session)
+		
+		if !async{
+			try sendDisconnectSessionRequest(for: session)
+		} else {
+			try sendDisconnectSessionRequestAsync(for: session)
+		}
+		
         communicator.addOrUpdatePendingDisconnectSession(session)
-        communicator.disconnect(from: session.url)
+
+		if !async{
+			communicator.disconnect(from: session.url)
+		} else {
+			communicator.disconnectAsync(from: session.url)
+		}
+		
     }
 
     /// Get all sessions with active connection.
@@ -113,9 +126,13 @@ open class WalletConnect {
         preconditionFailure("Should be implemented in subclasses")
     }
 
-    func sendDisconnectSessionRequest(for session: Session) throws {
-        preconditionFailure("Should be implemented in subclasses")
-    }
+	func sendDisconnectSessionRequest(for session: Session) throws {
+		preconditionFailure("Should be implemented in subclasses")
+	}
+	
+	func sendDisconnectSessionRequestAsync(for session: Session) throws {
+		preconditionFailure("Should be implemented in subclasses")
+	}
 
     func failedToConnect(_ url: WCURL) {
         preconditionFailure("Should be implemented in subclasses")

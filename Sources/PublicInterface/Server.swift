@@ -65,6 +65,21 @@ open class Server: WalletConnect {
         let request = try Request(url: session.url, method: "wc_sessionUpdate", params: [walletInfo], id: nil)
         send(request)
     }
+	
+	/// Update session ASYNC with new wallet info.
+	///
+	/// - Parameters:
+	///   - session: Session object
+	///   - walletInfo: WalletInfo object
+	/// - Throws: error if wallet info is missing
+	open func updateSessionAsync(_ session: Session, with walletInfo: Session.WalletInfo) throws {
+		guard session.walletInfo != nil else {
+			throw ServerError.missingWalletInfoInSession
+		}
+		let request = try Request(url: session.url, method: "wc_sessionUpdate", params: [walletInfo], id: nil)
+		sendAsync(request)
+	}
+
 
     // TODO: where to handle error?
     open func send(_ response: Response) {
@@ -72,11 +87,17 @@ open class Server: WalletConnect {
         communicator.send(response, topic: session.dAppInfo.peerId)
     }
 
-    // TODO: where to handle error?
-    open func send(_ request: Request) {
-        guard let session = communicator.session(by: request.url) else { return }
-        communicator.send(request, topic: session.dAppInfo.peerId)
-    }
+	// TODO: where to handle error?
+	open func send(_ request: Request) {
+		guard let session = communicator.session(by: request.url) else { return }
+		communicator.send(request, topic: session.dAppInfo.peerId)
+	}
+	
+	// TODO: where to handle error?
+	open func sendAsync(_ request: Request) {
+		guard let session = communicator.session(by: request.url) else { return }
+		communicator.sendAsync(request, topic: session.dAppInfo.peerId)
+	}
 
     override func onTextReceive(_ text: String, from url: WCURL) {
         do {
@@ -112,12 +133,19 @@ open class Server: WalletConnect {
         }
     }
 
-    override func sendDisconnectSessionRequest(for session: Session) throws {
-        guard let walletInfo = session.walletInfo else {
-            throw ServerError.missingWalletInfoInSession
-        }
-        try updateSession(session, with: walletInfo.with(approved: false))
-    }
+	override func sendDisconnectSessionRequest(for session: Session) throws {
+		guard let walletInfo = session.walletInfo else {
+			throw ServerError.missingWalletInfoInSession
+		}
+		try updateSession(session, with: walletInfo.with(approved: false))
+	}
+	
+	override func sendDisconnectSessionRequestAsync(for session: Session) throws {
+		guard let walletInfo = session.walletInfo else {
+			throw ServerError.missingWalletInfoInSession
+		}
+		try updateSessionAsync(session, with: walletInfo.with(approved: false))
+	}
 
     override func failedToConnect(_ url: WCURL) {
         delegate?.server(self, didFailToConnect: url)

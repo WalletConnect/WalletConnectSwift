@@ -45,9 +45,13 @@ class Communicator {
         return transport.isConnected(by: url)
     }
 
-    func disconnect(from url: WCURL) {
-        transport.disconnect(from: url)
-    }
+	func disconnect(from url: WCURL) {
+		transport.disconnect(from: url)
+	}
+	
+	func disconnectAsync(from url: WCURL) {
+		transport.disconnectAsync(from: url)
+	}
 
     func pendingDisconnectSession(by url: WCURL) -> Session? {
         return pendingDisconnectSessions.find(url: url)
@@ -83,10 +87,15 @@ class Communicator {
         transport.send(to: response.url, text: text)
     }
 
-    func send(_ request: Request, topic: String) {
-        let text = try! requestSerializer.serialize(request, topic: topic)
-        transport.send(to: request.url, text: text)
-    }
+	func send(_ request: Request, topic: String) {
+		let text = try! requestSerializer.serialize(request, topic: topic)
+		transport.send(to: request.url, text: text)
+	}
+	
+	func sendAsync(_ request: Request, topic: String) {
+		let text = try! requestSerializer.serialize(request, topic: topic)
+		transport.sendAsync(to: request.url, text: text)
+	}
 
     // MARK: - Serialization
 

@@ -5,13 +5,15 @@
 import Foundation
 
 protocol Transport {
-    func send(to url: WCURL, text: String)
+	func send(to url: WCURL, text: String)
+	func sendAsync(to url: WCURL, text: String)
     func listen(on url: WCURL,
                 onConnect: @escaping ((WCURL) -> Void),
                 onDisconnect: @escaping ((WCURL, Error?) -> Void),
                 onTextReceive: @escaping (String, WCURL) -> Void)
     func isConnected(by url: WCURL) -> Bool
     func disconnect(from url: WCURL)
+	func disconnectAsync(from url: WCURL)
 }
 
 // future: if we received response from another peer - then we call request.completion() for pending request.
@@ -22,15 +24,25 @@ class Bridge: Transport {
     private let syncQueue = DispatchQueue(label: "org.walletconnect.swift.transport")
 
     // TODO: if no connection found, then what?
-    func send(to url: WCURL, text: String) {
-        dispatchPrecondition(condition: .notOnQueue(syncQueue))
-        syncQueue.sync { [weak self] in
-            guard let `self` = self else { return }
-            if let connection = self.findConnection(url: url) {
-                connection.send(text)
-            }
-        }
-    }
+	func send(to url: WCURL, text: String) {
+		dispatchPrecondition(condition: .notOnQueue(syncQueue))
+		syncQueue.sync { [weak self] in
+			guard let `self` = self else { return }
+			if let connection = self.findConnection(url: url) {
+				connection.send(text)
+			}
+		}
+	}
+	
+	func sendAsync(to url: WCURL, text: String) {
+		dispatchPrecondition(condition: .notOnQueue(syncQueue))
+		syncQueue.async { [weak self] in
+			guard let `self` = self else { return }
+			if let connection = self.findConnection(url: url) {
+				connection.send(text)
+			}
+		}
+	}
 
     func listen(on url: WCURL,
                 onConnect: @escaping ((WCURL) -> Void),
@@ -76,6 +88,16 @@ class Bridge: Transport {
             }
         }
     }
+
+	func disconnectAsync(from url: WCURL) {
+		dispatchPrecondition(condition: .notOnQueue(syncQueue))
+		syncQueue.async { [weak self] in
+			guard let `self` = self else { return }
+			if let connection = self.findConnection(url: url) {
+				connection.close()
+			}
+		}
+	}
 
     private func releaseConnection(by url: WCURL) {
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
