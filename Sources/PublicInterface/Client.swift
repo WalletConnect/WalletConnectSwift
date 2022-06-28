@@ -78,7 +78,7 @@ public class Client: WalletConnect {
                               message: String,
                               account: String,
                               completion: @escaping RequestResponse) throws {
-        let messageHex = message.data(using: .utf8)!.map { String(format: "%02x", $0) }.joined()
+        let messageHex = "0x" + message.data(using: .utf8)!.map { String(format: "%02x", $0) }.joined()
         try sign(url: url, method: "personal_sign", param1: messageHex, param2: account, completion: completion)
     }
 
