@@ -132,13 +132,12 @@ Please open `ExampleApps/ExampleApps.xcodeproj`
 
 ## Prerequisites
 
-- iOS 11.0 or macOS 10.14
+- iOS 13.0 or macOS 10.14
 - Swift 5
 
 ## WalletConnectSwift dependencies
 
 - CryptoSwift - for cryptography operations
-- Starscream - for WebSocket operations prior to iOS 13
 
 ## Swift Package Manager
 
@@ -152,7 +151,7 @@ In your `Package.swift`:
 
 In your `Podfile`:
 
-    platform :ios, '11.0'
+    platform :ios, '13.0'
     use_frameworks!
 
     target 'MyApp' do
@@ -169,7 +168,7 @@ Run `carthage update` to build the framework and drag the WalletConnectSwift.fra
 
 # Acknowledgments
 
-We'd like to thank [Trust Wallet](https://github.com/trustwallet/wallet-connect-swift) team for inspiration in imlpementing this library.
+We'd like to thank [Trust Wallet](https://github.com/trustwallet/wallet-connect-swift) team for inspiration in implementing this library.
 
 # Contributors
 
