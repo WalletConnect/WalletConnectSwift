@@ -84,7 +84,7 @@ class AES_256_CBC_HMAC_SHA256_Codec: Codec {
     }
 
     private func authenticationCode(key: Data, data: Data) throws -> Data {
-        let algo = HMAC(key: key.bytes, variant: .sha256)
+        let algo = HMAC(key: key.bytes, variant: .sha2(.sha256))
         let digest = try algo.authenticate(data.bytes)
         return Data(digest)
     }
