@@ -35,7 +35,6 @@
 		5520F7C52317C1A600D58B74 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5520F7C42317C1A600D58B74 /* Helpers.swift */; };
 		557CA9B424C1AD05009836F0 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557CA9B324C1AD05009836F0 /* Logger.swift */; };
 		55B7819924A614470036F8E5 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 55B7819824A614470036F8E5 /* CryptoSwift */; };
-		55B7819B24A614470036F8E5 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 55B7819A24A614470036F8E5 /* Starscream */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -88,7 +87,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				55B7819924A614470036F8E5 /* CryptoSwift in Frameworks */,
-				55B7819B24A614470036F8E5 /* Starscream in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -234,7 +232,6 @@
 			name = WalletConnectSwift;
 			packageProductDependencies = (
 				55B7819824A614470036F8E5 /* CryptoSwift */,
-				55B7819A24A614470036F8E5 /* Starscream */,
 			);
 			productName = WalletConnectSwift;
 			productReference = 0A927850230BFB2600FDCC0D /* WalletConnectSwift.framework */;
@@ -287,7 +284,6 @@
 			mainGroup = 0ABB071B22FC22BA00BC18BB;
 			packageReferences = (
 				55B7819224A613F40036F8E5 /* XCRemoteSwiftPackageReference "CryptoSwift" */,
-				55B7819524A614240036F8E5 /* XCRemoteSwiftPackageReference "Starscream" */,
 			);
 			productRefGroup = 0ABB072522FC22BA00BC18BB /* Products */;
 			projectDirPath = "";
@@ -513,7 +509,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -569,7 +565,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -620,14 +616,6 @@
 				minimumVersion = 1.4.0;
 			};
 		};
-		55B7819524A614240036F8E5 /* XCRemoteSwiftPackageReference "Starscream" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/daltoniam/Starscream.git";
-			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 4.0.4;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -635,11 +623,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 55B7819224A613F40036F8E5 /* XCRemoteSwiftPackageReference "CryptoSwift" */;
 			productName = CryptoSwift;
-		};
-		55B7819A24A614470036F8E5 /* Starscream */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 55B7819524A614240036F8E5 /* XCRemoteSwiftPackageReference "Starscream" */;
-			productName = Starscream;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -3,120 +3,279 @@
 //
 
 import Foundation
-import Starscream
 import Network
+
+enum WebSocketError: Error {
+    case closedUnexpectedly
+    case peerDisconnected
+}
 
 class WebSocketConnection {
     let url: WCURL
-    private let socket: WebSocket
-    
     private var isConnected: Bool = false
-    
+    private var task: URLSessionWebSocketTask?
+    private lazy var session: URLSession = {
+        let delegate = WebSocketConnectionDelegate(eventHandler: { [weak self] event in
+            self?.handleEvent(event)
+        })
+        let configuration = URLSessionConfiguration.default
+        configuration.shouldUseExtendedBackgroundIdleMode = true
+
+        return URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
+    }()
+
+#if os(iOS)
+    private var bgTaskIdentifier: UIBackgroundTaskIdentifier = .invalid
+    private var foregroundNotificationObserver: Any?
+    private var backgroundNotificationObserver: Any?
+#endif
+
     private let onConnect: (() -> Void)?
     private let onDisconnect: ((Error?) -> Void)?
     private let onTextReceive: ((String) -> Void)?
+
     // needed to keep connection alive
     private var pingTimer: Timer?
+
     // TODO: make injectable on server creation
     private let pingInterval: TimeInterval = 30
-    
+    private let timeoutInterval: TimeInterval = 20
+
     private var requestSerializer: RequestSerializer = JSONRPCSerializer()
     private var responseSerializer: ResponseSerializer = JSONRPCSerializer()
-    
-    // serial queue for receiving the calls.
-    private let serialCallbackQueue: DispatchQueue
 
     var isOpen: Bool {
         return isConnected
     }
-    
+
     init(url: WCURL,
          onConnect: (() -> Void)?,
          onDisconnect: ((Error?) -> Void)?,
-         onTextReceive: ((String) -> Void)?) {
+         onTextReceive: ((String) -> Void)?
+    ) {
         self.url = url
         self.onConnect = onConnect
         self.onDisconnect = onDisconnect
         self.onTextReceive = onTextReceive
-        serialCallbackQueue = DispatchQueue(label: "org.walletconnect.swift.connection-\(url.bridgeURL)-\(url.topic)")
-        
-        self.socket = WebSocket(request: URLRequest(url: url.bridgeURL), engine: WSEngine(transport: FoundationTransport(), certPinner: FoundationSecurity()))
-        self.socket.callbackQueue = serialCallbackQueue
-        self.socket.delegate = self
+
+    #if os(iOS)
+        // On actual iOS devices, request some additional background execution time to the OS
+        // each time that the app moves to background. This allows us to continue running for
+        // around 30 secs in the background instead of having the socket killed instantly, which
+        // solves the issue of connecting a wallet and a dApp both on the same device.
+        // See https://github.com/WalletConnect/WalletConnectSwift/pull/81#issuecomment-1175931673
+
+        if #available(iOS 14.0, *) {
+            // We don't really need to do this on Apple Silicon Macs so bail out
+            guard !ProcessInfo.processInfo.isiOSAppOnMac else { return }
+        }
+
+        self.backgroundNotificationObserver = NotificationCenter.default.addObserver(
+            forName: UIScene.didEnterBackgroundNotification,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            self?.requestBackgroundExecutionTime()
+        }
+
+        self.foregroundNotificationObserver = NotificationCenter.default.addObserver(
+            forName: UIScene.didActivateNotification,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            self?.endBackgroundExecutionTime()
+        }
+    #endif
     }
-    
+
     deinit {
-        self.pingTimer?.invalidate()
+        session.invalidateAndCancel()
+        pingTimer?.invalidate()
+
+    #if os(iOS)
+        if let observer = self.foregroundNotificationObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        if let observer = self.backgroundNotificationObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    #endif
     }
- 
+
     func open() {
-        self.socket.connect()
+        if task != nil {
+            close()
+        }
+
+        let request = URLRequest(url: url.bridgeURL, timeoutInterval: timeoutInterval)
+        task = session.webSocketTask(with: request)
+        task?.resume()
+        receive()
     }
-    
-    func close(closeCode: UInt16 = CloseCode.normal.rawValue) {
-        self.socket.disconnect(closeCode: closeCode)
-        self.pingTimer?.invalidate()
+
+    func close(closeCode: URLSessionWebSocketTask.CloseCode = .normalClosure) {
+        pingTimer?.invalidate()
+        task?.cancel(with: closeCode, reason: nil)
+        task = nil
     }
-    
+
     func send(_ text: String) {
         guard isConnected else { return }
-        socket.write(string: text)
-        log(text)
-    }
-    
-    private func log(_ text: String) {
-        if let request = try? requestSerializer.deserialize(text, url: url).json().string {
-            LogService.shared.log("WC: ==> \(request)")
-        } else if let response = try? responseSerializer.deserialize(text, url: url).json().string {
-            LogService.shared.log("WC: ==> \(response)")
-        } else {
-            LogService.shared.log("WC: ==> \(text)")
+        task?.send(.string(text)) { [weak self] error in
+            if let error = error {
+                self?.handleEvent(.error(error))
+            } else {
+                self?.handleEvent(.messageSent(text))
+            }
         }
     }
 }
 
-extension WebSocketConnection: WebSocketDelegate {
-    func didReceive(event: WebSocketEvent, client: WebSocket) {
+private extension WebSocketConnection {
+
+    enum WebSocketEvent {
+        case connected
+        case disconnected(URLSessionWebSocketTask.CloseCode)
+        case messageReceived(String)
+        case messageSent(String)
+        case pingSent
+        case pongReceived
+        case error(Error)
+    }
+
+    func receive() {
+        guard let task = task else { return }
+        task.receive { [weak self] result in
+            switch result {
+            case .success(let message):
+                if case let .string(text) = message {
+                    self?.handleEvent(.messageReceived(text))
+                }
+            case .failure(let error):
+                self?.handleEvent(.error(error))
+                return
+            }
+            self?.receive()
+        }
+    }
+
+    func sendPing() {
+        guard isConnected else { return }
+        task?.sendPing(pongReceiveHandler: { [weak self] error in
+            if let error = error {
+                self?.handleEvent(.error(error))
+            } else {
+                self?.handleEvent(.pongReceived)
+            }
+        })
+        handleEvent(.pingSent)
+    }
+
+    func handleEvent(_ event: WebSocketEvent) {
         switch event {
         case .connected:
-            DispatchQueue.main.sync {
+            guard !isConnected else { break }
+            isConnected = true
+            DispatchQueue.main.async {
                 self.pingTimer = Timer.scheduledTimer(withTimeInterval: self.pingInterval,
                                                       repeats: true) { [weak self] _ in
-                    LogService.shared.log("WC: ==> ping")
-                    self?.socket.write(ping: Data())
+                    self?.sendPing()
                 }
             }
-            LogService.shared.log("WC: <== connected")
-            isConnected = true
+            LogService.shared.log("WC: connected")
             onConnect?()
-        case .disconnected:
-            didDisconnect(with: nil)
-        case .error(let error):
-            didDisconnect(with: error)
-        case .cancelled:
-            didDisconnect(with: nil)
-        case .text(let string):
-            onTextReceive?(string)
-        case .ping:
-            LogService.shared.log("WC: <== ping")
-            LogService.shared.log("WC: ==> pong client.respondToPingWithPong: \(client.respondToPingWithPong == true)")
-            break
-        case .pong:
+        case .disconnected(let closeCode):
+            guard isConnected else { break }
+            isConnected = false
+            pingTimer?.invalidate()
+
+            var error: Error? = nil
+            switch closeCode {
+            case .normalClosure:
+                LogService.shared.log("WC: disconnected (normal closure)")
+            case .abnormalClosure, .goingAway:
+                LogService.shared.log("WC: disconnected (peer disconnected)")
+                error = WebSocketError.peerDisconnected
+            default:
+                LogService.shared.log("WC: disconnected (\(closeCode)")
+                error = WebSocketError.closedUnexpectedly
+            }
+            onDisconnect?(error)
+        case .messageReceived(let text):
+            onTextReceive?(text)
+        case .messageSent(let text):
+            if let request = try? requestSerializer.deserialize(text, url: url).json().string {
+                LogService.shared.log("WC: ==> [request] \(request)")
+            } else if let response = try? responseSerializer.deserialize(text, url: url).json().string {
+                LogService.shared.log("WC: ==> [response] \(response)")
+            } else {
+                LogService.shared.log("WC: ==> \(text)")
+            }
+        case .pingSent:
+            LogService.shared.log("WC: ==> ping")
+        case .pongReceived:
             LogService.shared.log("WC: <== pong")
-        case .reconnectSuggested:
-            LogService.shared.log("WC: <== reconnectSuggested") //TODO: Should we?
-        case .binary, .viabilityChanged:
-            break
+        case .error(let error):
+            LogService.shared.log("WC: Error: \(error.localizedDescription)")
         }
     }
-    
-    private func didDisconnect(with error: Error? = nil) {
-        LogService.shared.log("WC: <== disconnected")
-        if let error = error {
-            LogService.shared.log("^------ with error: \(error)")
+
+    class WebSocketConnectionDelegate: NSObject, URLSessionWebSocketDelegate, URLSessionTaskDelegate {
+        private let eventHandler: (WebSocketEvent) -> Void
+
+        init(eventHandler: @escaping (WebSocketEvent) -> Void) {
+            self.eventHandler = eventHandler
         }
-        self.isConnected = false
-        self.pingTimer?.invalidate()
-        onDisconnect?(error)
+
+        func urlSession(
+            _ session: URLSession,
+            webSocketTask: URLSessionWebSocketTask,
+            didOpenWithProtocol protocol: String?
+        ) {
+            eventHandler(.connected)
+        }
+
+        func urlSession(
+            _ session: URLSession,
+            webSocketTask: URLSessionWebSocketTask,
+            didCloseWith closeCode: URLSessionWebSocketTask.CloseCode,
+            reason: Data?
+        ) {
+            eventHandler(.disconnected(closeCode))
+        }
+
+        func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+            if let error = error {
+                eventHandler(.error(error))
+                eventHandler(.disconnected(.abnormalClosure))
+            } else {
+                // possibly not really necessary since connection closure would likely have been reported
+                // by the other delegate method, but just to be safe. We have checks in place to prevent
+                // duplicated connection closing reporting anyway.
+                eventHandler(.disconnected(.normalClosure))
+            }
+        }
     }
 }
+
+#if os(iOS)
+private extension WebSocketConnection {
+
+    func requestBackgroundExecutionTime() {
+        if bgTaskIdentifier != .invalid {
+            UIApplication.shared.endBackgroundTask(bgTaskIdentifier)
+        }
+
+        bgTaskIdentifier = UIApplication.shared.beginBackgroundTask(
+            withName: "WebSocketConnection-bgTime"
+        ) { [weak self] in
+            self?.endBackgroundExecutionTime()
+        }
+    }
+
+    func endBackgroundExecutionTime() {
+        UIApplication.shared.endBackgroundTask(bgTaskIdentifier)
+        bgTaskIdentifier = .invalid
+    }
+}
+#endif
