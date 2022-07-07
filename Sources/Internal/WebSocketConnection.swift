@@ -20,6 +20,7 @@ class WebSocketConnection {
         })
         let configuration = URLSessionConfiguration.default
         configuration.shouldUseExtendedBackgroundIdleMode = true
+        configuration.waitsForConnectivity = true
 
         return URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
     }()
@@ -66,7 +67,7 @@ class WebSocketConnection {
         // See https://github.com/WalletConnect/WalletConnectSwift/pull/81#issuecomment-1175931673
 
         if #available(iOS 14.0, *) {
-            // We don't really need to do this on Apple Silicon Macs so bail out
+            // We don't really need this on Apple Silicon Macs
             guard !ProcessInfo.processInfo.isiOSAppOnMac else { return }
         }
 
@@ -141,6 +142,7 @@ private extension WebSocketConnection {
         case pingSent
         case pongReceived
         case error(Error)
+        case connnectionError(Error)
     }
 
     func receive() {
@@ -151,11 +153,10 @@ private extension WebSocketConnection {
                 if case let .string(text) = message {
                     self?.handleEvent(.messageReceived(text))
                 }
+                self?.receive()
             case .failure(let error):
-                self?.handleEvent(.error(error))
-                return
+                self?.handleEvent(.connnectionError(error))
             }
-            self?.receive()
         }
     }
 
@@ -174,11 +175,12 @@ private extension WebSocketConnection {
     func handleEvent(_ event: WebSocketEvent) {
         switch event {
         case .connected:
-            guard !isConnected else { break }
             isConnected = true
             DispatchQueue.main.async {
-                self.pingTimer = Timer.scheduledTimer(withTimeInterval: self.pingInterval,
-                                                      repeats: true) { [weak self] _ in
+                self.pingTimer = Timer.scheduledTimer(
+                    withTimeInterval: self.pingInterval,
+                    repeats: true
+                ) { [weak self] _ in
                     self?.sendPing()
                 }
             }
@@ -217,11 +219,15 @@ private extension WebSocketConnection {
             LogService.shared.log("WC: <== pong")
         case .error(let error):
             LogService.shared.log("WC: Error: \(error.localizedDescription)")
+        case .connnectionError(let error):
+            LogService.shared.log("WC: Connection error: \(error.localizedDescription)")
+            onDisconnect?(error)
         }
     }
 
     class WebSocketConnectionDelegate: NSObject, URLSessionWebSocketDelegate, URLSessionTaskDelegate {
         private let eventHandler: (WebSocketEvent) -> Void
+        private var connectivityCheckTimer: Timer?
 
         init(eventHandler: @escaping (WebSocketEvent) -> Void) {
             self.eventHandler = eventHandler
@@ -232,6 +238,7 @@ private extension WebSocketConnection {
             webSocketTask: URLSessionWebSocketTask,
             didOpenWithProtocol protocol: String?
         ) {
+            self.connectivityCheckTimer?.invalidate()
             eventHandler(.connected)
         }
 
@@ -246,13 +253,29 @@ private extension WebSocketConnection {
 
         func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
             if let error = error {
-                eventHandler(.error(error))
-                eventHandler(.disconnected(.abnormalClosure))
+                eventHandler(.connnectionError(error))
             } else {
-                // possibly not really necessary since connection closure would likely have been reported
+                // Possibly not really necessary since connection closure would likely have been reported
                 // by the other delegate method, but just to be safe. We have checks in place to prevent
                 // duplicated connection closing reporting anyway.
                 eventHandler(.disconnected(.normalClosure))
+            }
+        }
+
+        func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
+            LogService.shared.log("WC: waiting for connectivity...")
+
+            // Lets not wait forever, since the user might be waiting for the connection to show in the UI.
+            // It's better to show an error -if it's a new session- or else let the retry logic do its job
+            DispatchQueue.main.async {
+                self.connectivityCheckTimer?.invalidate()
+                self.connectivityCheckTimer = Timer.scheduledTimer(
+                    withTimeInterval: task.originalRequest?.timeoutInterval ?? 30,
+                    repeats: false
+                ) { _ in
+                    // Cancelling the task should trigger an invocation to `didCompleteWithError`
+                    task.cancel()
+                }
             }
         }
     }
@@ -263,7 +286,7 @@ private extension WebSocketConnection {
 
     func requestBackgroundExecutionTime() {
         if bgTaskIdentifier != .invalid {
-            UIApplication.shared.endBackgroundTask(bgTaskIdentifier)
+           endBackgroundExecutionTime()
         }
 
         bgTaskIdentifier = UIApplication.shared.beginBackgroundTask(
@@ -274,6 +297,7 @@ private extension WebSocketConnection {
     }
 
     func endBackgroundExecutionTime() {
+        guard bgTaskIdentifier != .invalid else { return }
         UIApplication.shared.endBackgroundTask(bgTaskIdentifier)
         bgTaskIdentifier = .invalid
     }
