@@ -124,7 +124,7 @@ class WebSocketConnection {
         guard isConnected else { return }
         task?.send(.string(text)) { [weak self] error in
             if let error = error {
-                self?.handleEvent(.error(error))
+                self?.handleEvent(.connnectionError(error))
             } else {
                 self?.handleEvent(.messageSent(text))
             }
@@ -141,7 +141,6 @@ private extension WebSocketConnection {
         case messageSent(String)
         case pingSent
         case pongReceived
-        case error(Error)
         case connnectionError(Error)
     }
 
@@ -164,7 +163,7 @@ private extension WebSocketConnection {
         guard isConnected else { return }
         task?.sendPing(pongReceiveHandler: { [weak self] error in
             if let error = error {
-                self?.handleEvent(.error(error))
+                self?.handleEvent(.connnectionError(error))
             } else {
                 self?.handleEvent(.pongReceived)
             }
@@ -217,8 +216,6 @@ private extension WebSocketConnection {
             LogService.shared.log("WC: ==> ping")
         case .pongReceived:
             LogService.shared.log("WC: <== pong")
-        case .error(let error):
-            LogService.shared.log("WC: Error: \(error.localizedDescription)")
         case .connnectionError(let error):
             LogService.shared.log("WC: Connection error: \(error.localizedDescription)")
             onDisconnect?(error)
