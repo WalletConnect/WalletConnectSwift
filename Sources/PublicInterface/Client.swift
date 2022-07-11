@@ -10,6 +10,12 @@ public protocol ClientDelegate: AnyObject {
     func client(_ client: Client, didConnect session: Session)
     func client(_ client: Client, didDisconnect session: Session)
     func client(_ client: Client, didUpdate session: Session)
+    func client(_ client: Client, willReconnect session: Session)
+}
+
+extension ClientDelegate {
+    // Default implementation, override if actually needed
+    func client(_ client: Client, willReconnect session: Session) { }
 }
 
 public class Client: WalletConnect {
@@ -289,6 +295,10 @@ public class Client: WalletConnect {
 
     override func didDisconnect(_ session: Session) {
         delegate?.client(self, didDisconnect: session)
+    }
+
+    override func willReconnect(_ session: Session) {
+        delegate?.client(self, willReconnect: session)
     }
 
     /// Thread-safe collection of client reponses
