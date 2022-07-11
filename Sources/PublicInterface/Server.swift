@@ -37,12 +37,26 @@ extension ServerDelegate {
     func server(_ server: Server, willReconnect session: Session) { }
 }
 
+public protocol ServerDelegateV2: ServerDelegate {
+    /// Replacement for the `server(_:shouldStart:completion:) method that makes possible async approval process.
+    /// When the approval is ready, call the `Server.sendCreateSessionResponse` method.
+    /// If you implement this protocol, the other `shouldStart` method will not be called
+    ///
+    ///
+    /// - Parameters:
+    ///   - server: the server object
+    ///   - requestId: connection request's id. Can be Int, Double, or String
+    ///   - session: the session to create. Contains dapp info received in the connection request.
+    func server(_ server: Server, didReceiveConnectionRequest requestId: RequestID, for session: Session)
+}
+
 open class Server: WalletConnect {
     private let handlers: Handlers
     public private(set) weak var delegate: ServerDelegate?
 
     public enum ServerError: Error {
         case missingWalletInfoInSession
+        case failedToCreateSessionResponse
     }
 
     public init(delegate: ServerDelegate) {
@@ -140,6 +154,32 @@ open class Server: WalletConnect {
         delegate?.server(self, willReconnect: session)
     }
 
+    /// Sends response for the create session request.
+    /// Use this method together with `ServerDelegate.server(_ server:didReceiveConnectionRequest:for:)`.
+    ///
+    /// - Parameters:
+    ///   - requestId: pass the request id that was received before
+    ///   - session: session with dapp info populated.
+    ///   - walletInfo: the response from the wallet.
+    ///         If approved, you need to create peerId with UUID().uuidString and put it inside the wallet info.
+    public func sendCreateSessionResponse(for requestId: RequestID, session: Session, walletInfo: Session.WalletInfo) {
+        let response: Response
+        do {
+            response = try Response(url: session.url, value: walletInfo, id: requestId)
+        } catch {
+            LogService.shared.log("WC: failed to compose SessionRequest response: \(error)")
+            delegate?.server(self, didFailToConnect: session.url)
+            return
+        }
+        communicator.send(response, topic: session.dAppInfo.peerId)
+        if walletInfo.approved {
+            let updatedSession = Session(url: session.url, dAppInfo: session.dAppInfo, walletInfo: walletInfo)
+            communicator.addOrUpdateSession(updatedSession)
+            communicator.subscribe(on: walletInfo.peerId, url: updatedSession.url)
+            delegate?.server(self, didConnect: updatedSession)
+        }
+    }
+
     /// thread-safe collection of RequestHandlers
     private class Handlers {
         private var handlers: [RequestHandler] = []
@@ -184,20 +224,15 @@ extension Server: HandshakeHandlerDelegate {
     func handler(_ handler: HandshakeHandler,
                  didReceiveRequestToCreateSession session: Session,
                  requestId: RequestID) {
-        delegate?.server(self, shouldStart: session) { [weak self] walletInfo in
-            guard let `self` = self else { return }
-            // TODO: error handling!
-            let response = try! Response(url: session.url, value: walletInfo, id: requestId)
-            self.communicator.send(response, topic: session.dAppInfo.peerId)
-            if walletInfo.approved {
-                let updatedSession = Session(url: session.url, dAppInfo: session.dAppInfo, walletInfo: walletInfo)
-                self.communicator.addOrUpdateSession(updatedSession)
-                self.communicator.subscribe(on: walletInfo.peerId, url: updatedSession.url)
-                self.delegate?.server(self, didConnect: updatedSession)
-            } else {
-                self.communicator.addOrUpdatePendingDisconnectSession(session)
-                self.communicator.disconnect(from: session.url)
-                self.delegate?.server(self, didDisconnect: session)
+        guard let delegate = delegate else { return }
+        if let delegateV2 = delegate as? ServerDelegateV2 {
+            delegateV2.server(self, didReceiveConnectionRequest: requestId, for: session)
+        } else {
+            delegate.server(self, shouldStart: session) { [weak self] walletInfo in
+                guard let `self` = self else {
+                    return
+                }
+                self.sendCreateSessionResponse(for: requestId, session: session, walletInfo: walletInfo)
             }
         }
     }
