@@ -127,11 +127,11 @@ open class WalletConnect {
 
     func log(_ request: Request) {
         guard let text = try? request.json().string else { return }
-        LogService.shared.log("WC: <== \(text)")
+        LogService.shared.log("WC: <== [request] \(text)")
     }
 
     func log(_ response: Response) {
         guard let text = try? response.json().string else { return }
-        LogService.shared.log("WC: <== \(text)")
+        LogService.shared.log("WC: <== [response] \(text)")
     }
 }
