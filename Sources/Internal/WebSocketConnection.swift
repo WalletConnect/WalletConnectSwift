@@ -5,10 +5,15 @@
 import Foundation
 import Network
 
+#if os(iOS)
+import UIKit
+#endif
+
 enum WebSocketError: Error {
     case closedUnexpectedly
     case peerDisconnected
 }
+
 
 class WebSocketConnection {
     let url: WCURL

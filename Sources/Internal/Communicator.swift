@@ -109,15 +109,16 @@ class Communicator {
 
         func addOrUpdate(_ session: Session) {
             dispatchPrecondition(condition: .notOnQueue(queue))
-            queue.sync { [unowned self] in
-                self.sessions[session.url] = session
+            queue.sync { [weak self] in
+                self?.sessions[session.url] = session
             }
         }
 
         func all() -> [Session] {
             var result: [Session] = []
             dispatchPrecondition(condition: .notOnQueue(queue))
-            queue.sync { [unowned self] in
+            queue.sync { [weak self] in
+                guard let self = self else { return }
                 result = Array(self.sessions.values)
             }
             return result
@@ -126,7 +127,8 @@ class Communicator {
         func find(url: WCURL) -> Session? {
             var result: Session?
             dispatchPrecondition(condition: .notOnQueue(queue))
-            queue.sync { [unowned self] in
+            queue.sync { [weak self] in
+                guard let self = self else { return }
                 result = self.sessions[url]
             }
             return result
@@ -134,8 +136,8 @@ class Communicator {
 
         func remove(url: WCURL) {
             dispatchPrecondition(condition: .notOnQueue(queue))
-            queue.sync { [unowned self] in
-                _ = self.sessions.removeValue(forKey: url)
+            queue.sync { [weak self] in
+                _ = self?.sessions.removeValue(forKey: url)
             }
         }
     }
