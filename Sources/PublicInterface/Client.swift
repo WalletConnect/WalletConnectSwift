@@ -12,7 +12,7 @@ public protocol ClientDelegate: AnyObject {
     func client(_ client: Client, didUpdate session: Session)
 }
 
-public protocol Client2Delegate: ClientDelegate {
+public protocol ClientDelegateV2: ClientDelegate {
     func client(_ client: Client, dappInfoForUrl url: WCURL) -> Session.DAppInfo?
     func client(_ client: Client, willReconnect session: Session)
 }
@@ -192,7 +192,7 @@ public class Client: WalletConnect {
             delegate?.client(self, didConnect: existingSession)
         } else {
             // establishing new connection, handshake in process
-            guard let dappInfo = commonDappInfo ?? (delegate as? Client2Delegate)?.client(self, dappInfoForUrl: url) else {
+            guard let dappInfo = commonDappInfo ?? (delegate as? ClientDelegateV2)?.client(self, dappInfoForUrl: url) else {
                 LogService.shared.log("WC: dAppInfo not found for \(url)")
                 delegate?.client(self, didFailToConnect: url)
                 return
@@ -212,7 +212,7 @@ public class Client: WalletConnect {
         do {
             let walletInfo = try response.result(as: Session.WalletInfo.self)
 
-            guard let dappInfo = commonDappInfo ?? (delegate as? Client2Delegate)?.client(self, dappInfoForUrl: response.url) else {
+            guard let dappInfo = commonDappInfo ?? (delegate as? ClientDelegateV2)?.client(self, dappInfoForUrl: response.url) else {
                 LogService.shared.log("WC: dAppInfo not found for \(response.url)")
                 return
             }
@@ -309,7 +309,7 @@ public class Client: WalletConnect {
     }
 
     override func willReconnect(_ session: Session) {
-        if let delegate = delegate as? Client2Delegate {
+        if let delegate = delegate as? ClientDelegateV2 {
             delegate.client(self, willReconnect: session)
         }
     }
