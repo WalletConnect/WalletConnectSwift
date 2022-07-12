@@ -14,6 +14,7 @@ public protocol ClientDelegate: AnyObject {
 
 public protocol Client2Delegate: ClientDelegate {
     func client(_ client: Client, dappInfoForUrl url: WCURL) -> Session.DAppInfo?
+    func client(_ client: Client, willReconnect session: Session)
 }
 
 public class Client: WalletConnect {
@@ -305,6 +306,12 @@ public class Client: WalletConnect {
 
     override func didDisconnect(_ session: Session) {
         delegate?.client(self, didDisconnect: session)
+    }
+
+    override func willReconnect(_ session: Session) {
+        if let delegate = delegate as? Client2Delegate {
+            delegate.client(self, willReconnect: session)
+        }
     }
 
     /// Thread-safe collection of client reponses

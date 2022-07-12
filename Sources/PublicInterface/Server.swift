@@ -39,6 +39,10 @@ public protocol ServerDelegateV2: ServerDelegate {
     ///   - requestId: connection request's id. Can be Int, Double, or String
     ///   - session: the session to create. Contains dapp info received in the connection request.
     func server(_ server: Server, didReceiveConnectionRequest requestId: RequestID, for session: Session)
+
+    /// Called when the session is being reconnected as part of the retry mechanism after the connection
+    /// has been lost due to e.g. bad connectivity.
+    func server(_ server: Server, willReconnect session: Session)
 }
 
 open class Server: WalletConnect {
@@ -139,6 +143,12 @@ open class Server: WalletConnect {
 
     override func didDisconnect(_ session: Session) {
         delegate?.server(self, didDisconnect: session)
+    }
+
+    override func willReconnect(_ session: Session) {
+        if let delegate = delegate as? ServerDelegateV2 {
+            delegate.server(self, willReconnect: session)
+        }
     }
 
     /// Sends response for the create session request.
