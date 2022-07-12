@@ -6,17 +6,8 @@
         "repositoryURL": "https://github.com/krzyzanowskim/CryptoSwift.git",
         "state": {
           "branch": null,
-          "revision": "4e31051c63cc0ddf10a25cf5318856c510cf77f4",
-          "version": "1.4.0"
-        }
-      },
-      {
-        "package": "Starscream",
-        "repositoryURL": "https://github.com/daltoniam/Starscream.git",
-        "state": {
-          "branch": null,
-          "revision": "df8d82047f6654d8e4b655d1b1525c64e1059d21",
-          "version": "4.0.4"
+          "revision": "039f56c5d7960f277087a0be51f5eb04ed0ec073",
+          "version": "1.5.1"
         }
       }
     ]
