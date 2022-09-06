@@ -100,7 +100,7 @@ class Communicator {
 
     /// Thread-safe collection of Sessions
     private class Sessions {
-        private var sessions: [WCURL: Session] = [:]
+        private var sessions: [String: Session] = [:]
         private let queue: DispatchQueue
 
         init(queue: DispatchQueue) {
@@ -109,8 +109,9 @@ class Communicator {
 
         func addOrUpdate(_ session: Session) {
             dispatchPrecondition(condition: .notOnQueue(queue))
+            let key = session.url.absoluteString
             queue.sync { [weak self] in
-                self?.sessions[session.url] = session
+                self?.sessions[key] = session
             }
         }
 
@@ -127,17 +128,19 @@ class Communicator {
         func find(url: WCURL) -> Session? {
             var result: Session?
             dispatchPrecondition(condition: .notOnQueue(queue))
+            let key = url.absoluteString
             queue.sync { [weak self] in
                 guard let self = self else { return }
-                result = self.sessions[url]
+                result = self.sessions[key]
             }
             return result
         }
 
         func remove(url: WCURL) {
             dispatchPrecondition(condition: .notOnQueue(queue))
+            let key = url.absoluteString
             queue.sync { [weak self] in
-                _ = self?.sessions.removeValue(forKey: url)
+                _ = self?.sessions.removeValue(forKey: key)
             }
         }
     }

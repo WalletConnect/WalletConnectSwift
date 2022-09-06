@@ -96,7 +96,9 @@ class WebSocketConnection {
 
     deinit {
         session.invalidateAndCancel()
-        pingTimer?.invalidate()
+        DispatchQueue.main.async {
+            self.pingTimer?.invalidate()
+        }
 
     #if os(iOS)
         if let observer = self.foregroundNotificationObserver {
@@ -120,7 +122,9 @@ class WebSocketConnection {
     }
 
     func close(closeCode: URLSessionWebSocketTask.CloseCode = .normalClosure) {
-        pingTimer?.invalidate()
+        DispatchQueue.main.async {
+            self.pingTimer?.invalidate()
+        }
         task?.cancel(with: closeCode, reason: nil)
         task = nil
     }
@@ -193,7 +197,9 @@ private extension WebSocketConnection {
         case .disconnected(let closeCode):
             guard isConnected else { break }
             isConnected = false
-            pingTimer?.invalidate()
+            DispatchQueue.main.async {
+                self.pingTimer?.invalidate()
+            }
 
             var error: Error? = nil
             switch closeCode {
@@ -240,7 +246,9 @@ private extension WebSocketConnection {
             webSocketTask: URLSessionWebSocketTask,
             didOpenWithProtocol protocol: String?
         ) {
-            self.connectivityCheckTimer?.invalidate()
+            DispatchQueue.main.async {
+                self.connectivityCheckTimer?.invalidate()
+            }
             eventHandler(.connected)
         }
 
