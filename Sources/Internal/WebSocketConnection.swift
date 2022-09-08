@@ -96,9 +96,7 @@ class WebSocketConnection {
 
     deinit {
         session.invalidateAndCancel()
-        DispatchQueue.main.async {
-            self.pingTimer?.invalidate()
-        }
+        self.pingTimer?.invalidate()
 
     #if os(iOS)
         if let observer = self.foregroundNotificationObserver {
