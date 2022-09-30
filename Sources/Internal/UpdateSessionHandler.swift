@@ -24,7 +24,7 @@ class UpdateSessionHandler: RequestHandler {
             let sessionInfo = try request.parameter(of: SessionInfo.self, at: 0)
             delegate?.handler(self, didUpdateSessionByURL: request.url, sessionInfo: sessionInfo)
         } catch {
-            LogService.shared.log("WC: wrong format of wc_sessionUpdate request: \(error)")
+            LogService.shared.error("WC: wrong format of wc_sessionUpdate request: \(error)")
             // TODO: send error response
         }
     }

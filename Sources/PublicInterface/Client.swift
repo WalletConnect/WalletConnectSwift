@@ -185,7 +185,7 @@ public class Client: WalletConnect {
     }
 
     override func onConnect(to url: WCURL) {
-        LogService.shared.log("WC: client didConnect url: \(url.bridgeURL.absoluteString)")
+        LogService.shared.info("WC: client didConnect url: \(url.bridgeURL.absoluteString)")
         delegate?.client(self, didConnect: url)
         if let existingSession = communicator.session(by: url) {
             communicator.subscribe(on: existingSession.dAppInfo.peerId, url: existingSession.url)
@@ -193,7 +193,7 @@ public class Client: WalletConnect {
         } else {
             // establishing new connection, handshake in process
             guard let dappInfo = commonDappInfo ?? (delegate as? ClientDelegateV2)?.client(self, dappInfoForUrl: url) else {
-                LogService.shared.log("WC: dAppInfo not found for \(url)")
+                LogService.shared.error("WC: dAppInfo not found for \(url)")
                 delegate?.client(self, didFailToConnect: url)
                 return
             }
@@ -213,7 +213,7 @@ public class Client: WalletConnect {
             let walletInfo = try response.result(as: Session.WalletInfo.self)
 
             guard let dappInfo = commonDappInfo ?? (delegate as? ClientDelegateV2)?.client(self, dappInfoForUrl: response.url) else {
-                LogService.shared.log("WC: dAppInfo not found for \(response.url)")
+                LogService.shared.error("WC: dAppInfo not found for \(response.url)")
                 return
             }
 
@@ -289,7 +289,7 @@ public class Client: WalletConnect {
             let info = try request.parameter(of: SessionInfo.self, at: 0)
             return info
         } catch {
-            LogService.shared.log("WC: incoming approval cannot be parsed: \(error)")
+            LogService.shared.error("WC: incoming approval cannot be parsed: \(error)")
             return nil
         }
     }
