@@ -103,15 +103,16 @@ open class Server: WalletConnect {
             log(request)
             handle(request)
         } catch {
-            LogService.shared.log(
-                "WC: incomming text deserialization to JSONRPC 2.0 requests error: \(error.localizedDescription)")
+            LogService.shared.error(
+                "WC: incomming text deserialization to JSONRPC 2.0 requests error: \(error.localizedDescription)"
+            )
             // TODO: handle error
             try! send(Response(url: url, error: .invalidJSON))
         }
     }
 
     override func onConnect(to url: WCURL) {
-        LogService.shared.log("WC: didConnect url: \(url.bridgeURL.absoluteString)")
+        LogService.shared.info("WC: didConnect url: \(url.bridgeURL.absoluteString)")
         if let session = communicator.session(by: url) { // reconnecting existing session
             communicator.subscribe(on: session.walletInfo!.peerId, url: session.url)
             delegate?.server(self, didConnect: session)
@@ -164,7 +165,7 @@ open class Server: WalletConnect {
         do {
             response = try Response(url: session.url, value: walletInfo, id: requestId)
         } catch {
-            LogService.shared.log("WC: failed to compose SessionRequest response: \(error)")
+            LogService.shared.error("WC: failed to compose SessionRequest response: \(error)")
             delegate?.server(self, didFailToConnect: session.url)
             return
         }

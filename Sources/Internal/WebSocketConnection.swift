@@ -188,7 +188,7 @@ private extension WebSocketConnection {
                     self?.sendPing()
                 }
             }
-            LogService.shared.log("WC: connected")
+            LogService.shared.info("WC: connected")
             onConnect?()
         case .disconnected(let closeCode):
             guard isConnected else { break }
@@ -198,12 +198,12 @@ private extension WebSocketConnection {
             var error: Error? = nil
             switch closeCode {
             case .normalClosure:
-                LogService.shared.log("WC: disconnected (normal closure)")
+                LogService.shared.info("WC: disconnected (normal closure)")
             case .abnormalClosure, .goingAway:
-                LogService.shared.log("WC: disconnected (peer disconnected)")
+                LogService.shared.error("WC: disconnected (peer disconnected)")
                 error = WebSocketError.peerDisconnected
             default:
-                LogService.shared.log("WC: disconnected (\(closeCode)")
+                LogService.shared.error("WC: disconnected (\(closeCode)")
                 error = WebSocketError.closedUnexpectedly
             }
             onDisconnect?(error)
@@ -211,18 +211,22 @@ private extension WebSocketConnection {
             onTextReceive?(text)
         case .messageSent(let text):
             if let request = try? requestSerializer.deserialize(text, url: url).json().string {
-                LogService.shared.log("WC: ==> [request] \(request)")
+                LogService.shared.detailed("WC: ==> [request] \(request)")
             } else if let response = try? responseSerializer.deserialize(text, url: url).json().string {
-                LogService.shared.log("WC: ==> [response] \(response)")
+                if response.contains("\"error\"") {
+                    LogService.shared.error("WC: ==> [response] \(response)")
+                } else {
+                    LogService.shared.detailed("WC: ==> [response] \(response)")
+                }
             } else {
-                LogService.shared.log("WC: ==> \(text)")
+                LogService.shared.detailed("WC: ==> \(text)")
             }
         case .pingSent:
-            LogService.shared.log("WC: ==> ping")
+            LogService.shared.verbose("WC: ==> ping")
         case .pongReceived:
-            LogService.shared.log("WC: <== pong")
+            LogService.shared.verbose("WC: <== pong")
         case .connnectionError(let error):
-            LogService.shared.log("WC: Connection error: \(error.localizedDescription)")
+            LogService.shared.error("WC: Connection error: \(error.localizedDescription)")
             onDisconnect?(error)
         }
     }
@@ -265,7 +269,7 @@ private extension WebSocketConnection {
         }
 
         func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
-            LogService.shared.log("WC: waiting for connectivity...")
+            LogService.shared.info("WC: waiting for connectivity...")
 
             // Lets not wait forever, since the user might be waiting for the connection to show in the UI.
             // It's better to show an error -if it's a new session- or else let the retry logic do its job

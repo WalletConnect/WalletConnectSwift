@@ -124,6 +124,10 @@ if let error = response.error { // NSError
 
 For more details, see the `ExampleApps/ClientApp`
 
+## Logs
+
+Filter the type of logs being printed by changing the log level `LogService.level = .info`.
+
 # Running Example Apps
 
 Please open `ExampleApps/ExampleApps.xcodeproj`
