@@ -12,7 +12,7 @@ let package = Package(
             targets: ["WalletConnectSwift"])
     ],
     dependencies: [
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMinor(from: "1.5.1"))
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.6.0"),
     ],
     targets: [
         .target(
