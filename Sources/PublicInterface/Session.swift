@@ -22,6 +22,19 @@ public struct Session: Codable {
         public let peerMeta: ClientMeta
         public let chainId: Int?
         public let approved: Bool?
+        
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            peerId = try container.decode(String.self, forKey: .peerId)
+            peerMeta = try container.decode(ClientMeta.self, forKey: .peerMeta)
+            if let _chainId = try? container.decodeIfPresent(Int.self, forKey: .chainId) {
+                chainId = _chainId
+            } else {
+                chainId = try? container.decodeIfPresent(String.self, forKey: .chainId).flatMap { Int($0) }
+            }
+            
+            approved = try container.decodeIfPresent(Bool.self, forKey: .approved)
+        }
 
         public init(peerId: String, peerMeta: ClientMeta, chainId: Int? = nil, approved: Bool? = nil) {
             self.peerId = peerId

@@ -31,10 +31,22 @@ class UpdateSessionHandler: RequestHandler {
 }
 
 /// https://docs.walletconnect.org/tech-spec#session-update
-struct SessionInfo: Decodable {
+struct SessionInfo: Codable {
     var approved: Bool
     var accounts: [String]?
     var chainId: Int?
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        approved = try container.decode(Bool.self, forKey: .approved)
+        if let _chainId = try? container.decodeIfPresent(Int.self, forKey: .chainId) {
+            chainId = _chainId
+        } else {
+            chainId = try? container.decodeIfPresent(String.self, forKey: .chainId).flatMap { Int($0) }
+        }
+        
+        accounts = try container.decodeIfPresent([String].self, forKey: .accounts)
+    }
 }
 
 enum ChainID {

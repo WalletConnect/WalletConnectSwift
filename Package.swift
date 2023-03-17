@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.6
 import PackageDescription
 
 let package = Package(
@@ -9,17 +9,26 @@ let package = Package(
     products: [
         .library(
             name: "WalletConnectSwift",
-            targets: ["WalletConnectSwift"])
+            targets: ["WalletConnectSwift"]
+        )
     ],
     dependencies: [
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMinor(from: "1.5.1"))
+        .package(
+            url: "https://github.com/krzyzanowskim/CryptoSwift.git",
+            .upToNextMinor(from: "1.6.0")
+        )
     ],
     targets: [
         .target(
-            name: "WalletConnectSwift", 
+            name: "WalletConnectSwift",
             dependencies: ["CryptoSwift"],
-            path: "Sources"),
-        .testTarget(name: "WalletConnectSwiftTests", dependencies: ["WalletConnectSwift"], path: "Tests"),
+            path: "Sources"
+        ),
+        .testTarget(
+            name: "WalletConnectSwiftTests",
+            dependencies: ["WalletConnectSwift"],
+            path: "Tests"
+        ),
     ],
     swiftLanguageVersions: [.v5]
 )

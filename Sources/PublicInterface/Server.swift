@@ -26,6 +26,9 @@ public protocol ServerDelegate: AnyObject {
 
     /// Called only when the session is updated with intention of the dAppt.
     func server(_ server: Server, didUpdate session: Session)
+    
+    /// Called when not able to parse a message
+    func server(_ server: Server, couldNotParseMessage message: String, from url: WCURL, error: Error)
 }
 
 public protocol ServerDelegateV2: ServerDelegate {
@@ -52,6 +55,7 @@ open class Server: WalletConnect {
     public enum ServerError: Error {
         case missingWalletInfoInSession
         case failedToCreateSessionResponse
+        case failedToParseMessage(String)
     }
 
     public init(delegate: ServerDelegate) {
@@ -81,17 +85,15 @@ open class Server: WalletConnect {
             throw ServerError.missingWalletInfoInSession
         }
         let request = try Request(url: session.url, method: "wc_sessionUpdate", params: [walletInfo], id: nil)
-        send(request)
+        try send(request)
     }
 
-    // TODO: where to handle error?
-    open func send(_ response: Response) {
+    open func send(_ response: Response) throws {
         guard let session = communicator.session(by: response.url) else { return }
         communicator.send(response, topic: session.dAppInfo.peerId)
     }
 
-    // TODO: where to handle error?
-    open func send(_ request: Request) {
+    open func send(_ request: Request) throws {
         guard let session = communicator.session(by: request.url) else { return }
         communicator.send(request, topic: session.dAppInfo.peerId)
     }
@@ -101,13 +103,19 @@ open class Server: WalletConnect {
             // we handle only properly formed JSONRPC 2.0 requests. JSONRPC 2.0 responses are ignored.
             let request = try communicator.request(from: text, url: url)
             log(request)
-            handle(request)
+            try handle(request)
         } catch {
             LogService.shared.error(
                 "WC: incomming text deserialization to JSONRPC 2.0 requests error: \(error.localizedDescription)"
             )
-            // TODO: handle error
-            try! send(Response(url: url, error: .invalidJSON))
+            delegate?.server(self, couldNotParseMessage: text, from: url, error: error)
+            do {
+                try send(Response(url: url, error: .invalidJSON))
+            } catch let errorInvalidJSON {
+                LogService.shared.error(
+                    "WC: couldn't send invalidJSON response: \(errorInvalidJSON.localizedDescription)"
+                )
+            }
         }
     }
 
@@ -121,13 +129,12 @@ open class Server: WalletConnect {
         }
     }
 
-    private func handle(_ request: Request) {
+    private func handle(_ request: Request) throws {
         if let handler = handlers.find(by: request) {
             handler.handle(request: request)
         } else {
-            // TODO: error handling
-            let response = try! Response(request: request, error: .methodNotFound)
-            send(response)
+            let response = try Response(request: request, error: .methodNotFound)
+            try send(response)
         }
     }
 
